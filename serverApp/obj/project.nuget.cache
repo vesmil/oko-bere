@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "LAfUS0W0+tpz6Wgoj6y+Be3JsVRMqatQ9v+xtRQS8pwnNy1FdxqchrMcgBif4D6m3gC2WSWiKY39DuZ8rtFjSw==",
+  "dgSpecHash": "Mf45k+rFxMSxBCUxdJlftARQlJ3rCWgP69wUqxVRnBmz/zTBm2jKNALhHISYq+kTaIpoBBn++g3W/uABtA0UWA==",
   "success": true,
-  "projectFilePath": "D:\\TODO\\oko-bere\\server\\OkoBereServer\\OkoBereServer.csproj",
+  "projectFilePath": "D:\\TODO\\oko-bere\\serverApp\\OkoBereServer.csproj",
   "expectedPackageFiles": [],
   "logs": []
 }
