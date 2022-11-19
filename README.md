@@ -18,3 +18,15 @@ Combined they allow multiple players to play typical Czech card game together.
 ### Prerequisites
 
 ...
+
+---
+
+## Controls
+
+...
+
+---
+
+## Game rules
+
+...
