@@ -1,11 +1,14 @@
-﻿namespace OkoCommon;
+﻿using System.Net.Sockets;
+using OkoCommon;
+
+namespace OkoServer;
 
 public class OkoBere
 {
-    private readonly Player banker;
-    private readonly List<Player> players;
+    private readonly TcpPlayer banker;
+    private readonly List<TcpPlayer> players;
 
-    private readonly List<(Player, int)> currentBets = new();
+    private readonly List<(TcpPlayer, int)> currentBets = new();
 
     private int bank;
     private int initialBank;
@@ -14,57 +17,67 @@ public class OkoBere
     
     private readonly Deck deck = new();
 
-    public OkoBere()
+    public OkoBere(IReadOnlyList<TcpPlayer> players)
     {
-        banker = new Player("Banker", 100);
-        players = new List<Player>
-        {
-            new("Player 1", 100),
-            new("Player 2", 100),
-            new("Player 3", 100)
-        };
+        banker = players[0];
+        this.players = players.Skip(1).ToList();
     }
 
     public void Start()
     {
-        Console.WriteLine("Welcome to the game!\n");
-        Console.WriteLine("The banker is " + banker.Name + " and has " + banker.Balance + " money.");
-        
+        var welcomeString = "None\n\n" + "Welcome to the game!\n" +
+                            "The banker is " + banker.Name + " and has " + banker.Balance + " money.\n" +
+                            "The players are:\n" + 
+                            players.Aggregate("", (current, player) => current + "Player " + player.Name + " has " + player.Balance + " money.\n");
+
         foreach (var player in players)
-            Console.WriteLine("Player " + player.Name + " has " + player.Balance + " money.");
+        {
+            player.SendString(welcomeString);
+        }
 
-        Console.WriteLine("------------------------------------------------------");
-        Console.WriteLine("So banker, how much would you like to put into the bank?");
+        banker.SendString("You\n\n" + "Welcome to the game!\n" +
+                          "You are the banker and have " + banker.Balance + " money.\n" +
+                          "The players are:\n" +
+                          players.Aggregate("",
+                              (current, player) =>
+                                  current + "Player " + player.Name + " has " + player.Balance + " money.\n") + 
+                          "So, how much money do you want to put in the bank?");
 
-        while (int.TryParse(Console.ReadLine(), out bank) == false || banker.Balance < bank)
-            Console.WriteLine("Please enter a valid amount.");
-
-        Console.WriteLine();
+        var bankerInput = banker.ReceiveString();
         
+        while (int.TryParse(bankerInput, out bank) == false || banker.Balance < bank) {
+            banker.SendString("You have " + banker.Balance + " money. Please enter a valid amount.");
+            bankerInput = banker.ReceiveString();
+        }
+
         banker.Balance -= bank;
         initialBank = bank;
-
-        Console.WriteLine($"The bank has {bank} in it.");
-        Console.WriteLine("Let's play!\n\n");
-
+        
         while (bank > 0) OneRound();
 
-        Console.WriteLine("Would anyone like to play again? (y/n)");
-        Console.WriteLine("Let's decide the banker");
-        
-        Console.Read();
+        // ...
     }
     
     private void OneRound()
     {
-        Console.WriteLine("Round started!\n");
-        Console.WriteLine("Banker, would you like to end this game? (y/n)");
+        var message = "Banker\n\n" + "Round started!\n" +
+                      "There is currently " + bank + " money in the bank.\n";
         
-        endPending = Console.ReadLine() == "y";
+        foreach (var player in players)
+        {
+            player.SendString(message);
+        }
+        
+        message = "You\n\n" + "Round started!\n" +
+                  "There is currently " + bank + " money in the bank.\n" +
+                  "Banker, would you like to end this game? (y/n)";
+        
+        banker.SendString(message);
+        endPending = banker.ReceiveString() == "y";
         
         if (endPending && bank < initialBank * 2)
         {
-            Console.WriteLine("Sorry, you can't yet. The initial bank was " + initialBank + ", so you need to have at least " + initialBank * 2 + " to end the game.");
+            banker.SendString("Sorry, you can't yet. The initial bank was " + initialBank + ", so you need to have at least " + initialBank * 2 + " to end the game.");
             endPending = false;
         }
         
@@ -86,10 +99,13 @@ public class OkoBere
 
         if (endPending)
         {
-            if (banker.Hand[0].rank is Rank.King or Rank.Eight)
+            if (banker.Hand[0].Rank is Rank.King or Rank.Eight)
             {
-                Console.WriteLine("The banker has a " + banker.Hand[0].rank + " of " + banker.Hand[0].suit + ".\n");
+                Console.WriteLine("The banker has a " + banker.Hand[0].Rank + " of " + banker.Hand[0].Suit + ".\n");
                 Console.WriteLine("So he gets to keep the bank.");
+                
+                
+                
                 banker.Balance += bank;
                 bank = 0;
                 
@@ -103,7 +119,7 @@ public class OkoBere
         Evaluation();
     }
 
-    private void PlayersTurn(Player player)
+    private void PlayersTurn(TcpPlayer player)
     {
         Console.WriteLine($"{player.Name}'s turn.");
         Console.WriteLine($"{player.Name} has {player.Balance} in their account.");
@@ -195,7 +211,7 @@ public class OkoBere
         else Console.WriteLine($"{player.Name} has no money left to bet.");
     }
 
-    private void DrawCard(Player player)
+    private void DrawCard(TcpPlayer player)
     {
         var card = deck.Draw();
         player.Hand.Add(card);
@@ -205,7 +221,7 @@ public class OkoBere
         if (player.OptionToChange()) ExchangeCards(player);
     }
 
-    private void ExchangeCards(Player player)
+    private void ExchangeCards(TcpPlayer player)
     {
         if (player.Exchnaged) return;
         

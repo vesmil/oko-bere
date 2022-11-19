@@ -1,4 +1,4 @@
-﻿namespace OkoServer.Interface;
+﻿namespace OkoCommon.Interface;
 
 public interface IAction
 {

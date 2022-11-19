@@ -1,12 +1,11 @@
 ﻿namespace OkoCommon;
 
-internal class Deck
+public class Deck
 {
     private readonly List<Card> cards = new();
 
     public Deck()
     {
-        var i = 0;
         foreach (Suit suit in Enum.GetValues(typeof(Suit)))
         foreach (Rank rank in Enum.GetValues(typeof(Rank)))
             cards.Add(new Card(suit, rank));
@@ -30,29 +29,7 @@ internal class Deck
     }
 }
 
-internal class Card
-{
-    public readonly Rank rank;
-    public readonly Suit suit;
-
-    public Card(Suit suit, Rank rank)
-    {
-        this.suit = suit;
-        this.rank = rank;
-    }
-    
-    public override string ToString()
-    {
-        return $"{rank} of {suit}";
-    }
-
-    public bool IsImage()
-    {
-        return (int)rank >= 12;
-    }
-}
-
-internal enum Suit
+public enum Suit
 {
     Clubs,
     Diamonds,
@@ -60,7 +37,7 @@ internal enum Suit
     Spades
 }
 
-internal enum Rank
+public enum Rank
 {
     Seven = 7,
     Eight = 8,
