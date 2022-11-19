@@ -75,6 +75,7 @@ public static class Program
         while (true)
         {
             client.SendMessage("Hello World");
+            
             var message = client.ReceiveMessage();
             Console.WriteLine(message);
         }

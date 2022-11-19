@@ -2,7 +2,7 @@
 
 public class OkoBere
 {
-    private Player banker;
+    private readonly Player banker;
     private readonly List<Player> players;
 
     private readonly List<(Player, int)> currentBets = new();
