@@ -38,10 +38,9 @@ public class OkoBere
         banker.SendString("You\n\n" + "Welcome to the game!\n" +
                           "You are the banker and have " + banker.Balance + " money.\n" +
                           "The players are:\n" +
-                          players.Aggregate("",
-                              (current, player) =>
+                          players.Aggregate("", (current, player) =>
                                   current + "Player " + player.Name + " has " + player.Balance + " money.\n") + 
-                          "So, how much money do you want to put in the bank?");
+                          "\nSo, how much money do you want to put in the bank?");
 
         var bankerInput = banker.ReceiveString();
         
@@ -215,8 +214,9 @@ public class OkoBere
     {
         var card = deck.Draw();
         player.Hand.Add(card);
-        Console.WriteLine("You have drawn a " + card);
-        Console.WriteLine($"Your total count is {player.Total()}.");
+        
+        player.SendString("You\n\n" + "You have drawn a " + card + "\n" +
+                          "Your total count is " + player.Total() + ".\n");
                         
         if (player.OptionToChange()) ExchangeCards(player);
     }

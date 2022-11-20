@@ -8,6 +8,7 @@ public static class Program
 
         // var thread = new Thread(server.AcceptLoop);
         // thread.Start();
+        
         server.AcceptLoop();
 
         var players = server.GetPlayers();

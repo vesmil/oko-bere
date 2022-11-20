@@ -16,6 +16,7 @@ public class Server
     {
         Debug.WriteLine("Starting server...");
         
+        // net stop hns && net start hns
         server = new TcpListener(IPAddress.Any, Port);
         server.Start();
     }
@@ -38,13 +39,18 @@ public class Server
 
             var networkStream = client.GetStream();
             
-            var message = new byte[1024];
-            var bytesRead = networkStream.Read(message, 0, 1024);
-            var name = Encoding.ASCII.GetString(message, 0, bytesRead);
+            var message = Encoding.UTF8.GetBytes("Enter your name: ");
+            networkStream.Write(message, 0, message.Length);
+
+            var buffer = new byte[1024];
             
+            // TODO - Do it async
+            var bytesRead = networkStream.Read(buffer, 0, 1024);
+            var name = Encoding.ASCII.GetString(buffer, 0, bytesRead);
+
             clients.Add(new TcpPlayer(client, networkStream, name));
-            Thread.Sleep(1000);
             
+            // TODO - Not close after two players - but add ready confirmation
             if (clients.Count == 2)
             {
                 foreach (var player in clients)
