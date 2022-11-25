@@ -65,13 +65,15 @@ public class TcpPlayer : OkoCommon.Interface.PlayerBase
         return closest;
     }
 
-    public override IAction GetResponse()
+    public override IResponse GetResponse()
     {
+        // TODO
         throw new NotImplementedException();
     }
 
-    public override bool SendAction(IAction action)
+    public override bool SendNotification(INotification notification)
     {
+        // TODO
         throw new NotImplementedException();
     }
 }

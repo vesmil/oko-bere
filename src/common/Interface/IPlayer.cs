@@ -36,6 +36,6 @@ public abstract class PlayerBase
         return Name.GetHashCode();
     }
 
-    public abstract IAction GetResponse();
-    public abstract bool SendAction(IAction action);
+    public abstract IResponse GetResponse();
+    public abstract bool SendNotification(INotification notification);
 }

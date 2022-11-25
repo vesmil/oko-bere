@@ -35,6 +35,7 @@ public class OkoBere
     public void Start()
     {
         // Select banker
+        RaffleBanker();
         
         // Set initial bank
 
@@ -42,7 +43,22 @@ public class OkoBere
 
         // Would you like to play again?
     }
-    
+
+    private void RaffleBanker()
+    {
+        var num = new Random().Next(players.Count);
+        
+        banker = players[num];
+        players.Remove(banker);
+
+        foreach (var player in allPlayers)
+        {
+            // TODO player.SendAction();
+        }
+        
+        
+    }
+
     private void OneRound()
     {
         // Ask about "Malá domů" in case...

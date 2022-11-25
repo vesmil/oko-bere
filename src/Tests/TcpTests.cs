@@ -11,7 +11,7 @@ public class TcpTests
     [SetUp]
     public void Setup()
     {
-        server.AcceptLoop();
+        // server.AcceptLoop();
         
         for (var i = 0; i < 10; i++)
         {

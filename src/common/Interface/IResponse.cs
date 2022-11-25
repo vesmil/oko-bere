@@ -1,8 +1,9 @@
 ﻿namespace OkoCommon.Interface;
 
-interface IResponse
+public interface IResponse
 {
-    
+    // From which plauer...
+    //
 }
 
 public enum PlayerResponseEnum : byte

@@ -1,51 +1,55 @@
-﻿namespace OkoCommon;
+﻿using System.Collections;
+
+namespace OkoCommon;
 
 public class Deck
 {
-    private readonly List<Card> cards = new();
+    protected readonly List<Card> Cards = new();
+    public int Count => Cards.Count;
+    
     private readonly Random random = new();
     
     public Deck()
     {
         foreach (Suit suit in Enum.GetValues(typeof(Suit)))
         foreach (Rank rank in Enum.GetValues(typeof(Rank)))
-            cards.Add(new Card(suit, rank));
+            Cards.Add(new Card(suit, rank));
     }
 
-    public bool IsEmpty => cards.Count == 0;
+    public bool IsEmpty => Cards.Count == 0;
 
     public void Shuffle()
     {
         // Each card is swapped with another card at a random index.
-        for (var i = 0; i < cards.Count; i++)
+        for (var i = 0; i < Cards.Count; i++)
         {
-            var j = random.Next(i, cards.Count);
-            (cards[i], cards[j]) = (cards[j], cards[i]);
+            var j = random.Next(i, Cards.Count);
+            (Cards[i], Cards[j]) = (Cards[j], Cards[i]);
         }
     }
     
     public bool TryDraw(out Card card)
     {
-        if (cards.Count == 0)
+        if (Cards.Count == 0)
         {
             card = default;
             return false;
         }
         
-        card = cards[^1];
-        cards.RemoveAt(cards.Count - 1);
+        card = Cards[^1];
+        Cards.RemoveAt(Cards.Count - 1);
         return true;
     }
     
     public Card Draw()
     {
-        if (cards.Count == 0)
+        if (Cards.Count == 0)
         {
             throw new InvalidOperationException("Deck is empty");
         }
 
-        var card = cards[^1];
-        cards.RemoveAt(cards.Count - 1);
+        var card = Cards[^1];
+        Cards.RemoveAt(Cards.Count - 1);
         return card;
     }
     
@@ -55,24 +59,56 @@ public class Deck
     /// <returns> Visible card on the bottom of the first half. </returns>
     public Card Cut()
     {
-        if (cards.Count == 0)
+        if (Cards.Count == 0)
         {
             throw new InvalidOperationException("Deck is empty");
         }
         
-        var half = cards.Count / new Random().Next(cards.Count);
+        var half = Cards.Count / new Random().Next(Cards.Count);
         
-        var firstHalf = cards.Take(half).ToList();
-        var secondHalf = cards.Skip(half).ToList();
+        var firstHalf = Cards.Take(half).ToList();
+        var secondHalf = Cards.Skip(half).ToList();
         
         var visibleCard = secondHalf[0];
         
-        cards.Clear();
+        Cards.Clear();
         
-        cards.AddRange(secondHalf);
-        cards.AddRange(firstHalf);
+        Cards.AddRange(secondHalf);
+        Cards.AddRange(firstHalf);
         
         return visibleCard;
+    }
+}
+
+internal class TestDeck : Deck, IEnumerable<Card>
+{
+    public string GetCardsString()
+    {
+        // Cards are stored in reverse order.
+        return string.Join(", ", Cards.Select(c => c.ToString()).Reverse());
+    }
+    
+    public bool TryRemoveCards(IEnumerable<Card> cards)
+    {
+        return cards.All(card => Cards.Remove(card));
+    }
+    
+    public TestDeck Clone()
+    {
+        var clone = new TestDeck();
+        clone.Cards.AddRange(Cards);
+        return clone;
+    }
+
+
+    public IEnumerator<Card> GetEnumerator()
+    {
+        return Cards.GetEnumerator();
+    }
+
+    IEnumerator IEnumerable.GetEnumerator()
+    {
+        return GetEnumerator();
     }
 }
 

@@ -4,19 +4,9 @@ namespace Tests;
 
 public class TestPlayer : PlayerBase
 {
-    public TestPlayer(string name, int balance) : base(name, balance)
-    {
-    }
-
-    public override IAction GetResponse()
-    {
-        throw new NotImplementedException();
-    }
-
-    public override bool SendAction(IAction action)
-    {
-        throw new NotImplementedException();
-    }
+    public TestPlayer(string name, int balance) : base(name, balance) { }
+    public override IResponse GetResponse() => throw new NotImplementedException();
+    public override bool SendNotification(INotification notification) => throw new NotImplementedException();
 }
 
 public class PlayerTests

@@ -62,7 +62,8 @@ public static class CardExtensions
     
     public static int GetBestValue(this IEnumerable<Card> cards)
     {
-        return cards.GetSum().Where(value => value <= 21).Max();
+        var possibleSums = cards.GetSum();
+        return possibleSums.Any(sum => sum <= 21) ? possibleSums.Where(sum => sum <= 21).Max() : possibleSums[0];
     }
     
     public static bool IsBust(this IEnumerable<Card> cards)
