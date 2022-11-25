@@ -2,6 +2,7 @@
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
+using OkoCommon.Interface;
 
 namespace OkoServer;
 
@@ -47,8 +48,8 @@ public class Server
             // TODO - Do it async
             var bytesRead = networkStream.Read(buffer, 0, 1024);
             var name = Encoding.ASCII.GetString(buffer, 0, bytesRead);
-
-            clients.Add(new TcpPlayer(client, networkStream, name));
+            
+            clients.Add(new TcpPlayer(client, networkStream, name, 1000)); // TODO - Get money from elsewhere
             
             // TODO - Not close after two players - but add ready confirmation
             if (clients.Count == 2)
@@ -63,8 +64,8 @@ public class Server
         }
     }
     
-    public List<TcpPlayer> GetPlayers()
+    public List<OkoCommon.Interface.PlayerBase> GetPlayers()
     {
-        return clients;
+        return new List<OkoCommon.Interface.PlayerBase>(clients);
     }
 }

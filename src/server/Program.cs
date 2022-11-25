@@ -1,4 +1,6 @@
-﻿namespace OkoServer;
+﻿using OkoCommon;
+
+namespace OkoServer;
 
 public static class Program
 {

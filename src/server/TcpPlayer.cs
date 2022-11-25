@@ -1,26 +1,19 @@
 using System.Net.Sockets;
 using System.Text;
 using OkoCommon;
+using OkoCommon.Interface;
 
 namespace OkoServer;
 
-public class TcpPlayer
+public class TcpPlayer : OkoCommon.Interface.PlayerBase
 {
     private readonly TcpClient client;
     private readonly NetworkStream stream;
-    
-    public readonly string Name;
-    public int Balance = 1000;
 
-    public readonly List<Card> Hand = new();
-    public bool Exchanged = false;
-
-    public TcpPlayer(TcpClient client, NetworkStream stream, string name)
+    public TcpPlayer(TcpClient client, NetworkStream stream, string name, int balance) : base(name, balance)
     {
         this.client = client;
         this.stream = stream;
-        
-        Name = name; 
     }
 
     public void SendString(string message)
@@ -70,6 +63,16 @@ public class TcpPlayer
         // TODO     
         
         return closest;
+    }
+
+    public override IAction GetResponse()
+    {
+        throw new NotImplementedException();
+    }
+
+    public override bool SendAction(IAction action)
+    {
+        throw new NotImplementedException();
     }
 }
 
