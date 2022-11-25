@@ -5,9 +5,9 @@ namespace OkoServer;
 
 public class OkoBere
 {
-    private readonly TcpPlayer banker;
+    private TcpPlayer banker;
     private readonly List<TcpPlayer> players;
-
+    
     private readonly List<(TcpPlayer, int)> currentBets = new();
 
     private int bank;
@@ -17,14 +17,16 @@ public class OkoBere
     
     private readonly Deck deck = new();
 
-    public OkoBere(IReadOnlyList<TcpPlayer> players)
+    public OkoBere(List<TcpPlayer> players)
     {
         banker = players[0];
-        this.players = players.Skip(1).ToList();
+        this.players = players;
     }
 
     public void Start()
     {
+        banker = players[0];
+
         var welcomeString = "None\n\n" + "Welcome to the game!\n" +
                             "The banker is " + banker.Name + " and has " + banker.Balance + " money.\n" +
                             "The players are:\n" + 
@@ -90,8 +92,8 @@ public class OkoBere
             player.Hand.Add(deck.Draw());
             banker.Hand.Add(deck.Draw());
 
-            player.Exchnaged = false;
-            banker.Exchnaged = false;
+            player.Exchanged = false;
+            banker.Exchanged = false;
         }
 
         Console.WriteLine("The cards have been dealt.\n");
@@ -125,7 +127,7 @@ public class OkoBere
         Console.WriteLine($"{player.Name}, your first card is {player.Hand[0]}.");
         Console.WriteLine("The bank is " + bank);
 
-        if (player.OptionToChange()) ExchangeCards(player);
+        // if (player.OptionToChange()) ExchangeCards(player);
 
         if (player.Balance > 0)
         {
@@ -157,7 +159,7 @@ public class OkoBere
             Console.WriteLine("You have drawn a " + card);
             Console.WriteLine($"Your total count is {player.Total()}.");
             
-            if (player.OptionToChange()) ExchangeCards(player);
+            // if (player.OptionToChange()) ExchangeCards(player);
 
             while (player.Total() < 21)
             {
@@ -218,12 +220,12 @@ public class OkoBere
         player.SendString("You\n\n" + "You have drawn a " + card + "\n" +
                           "Your total count is " + player.Total() + ".\n");
                         
-        if (player.OptionToChange()) ExchangeCards(player);
+        // if (player.OptionToChange()) ExchangeCards(player);
     }
 
     private void ExchangeCards(TcpPlayer player)
     {
-        if (player.Exchnaged) return;
+        if (player.Exchanged) return;
         
         Console.WriteLine("Would you like to change your bet? (y/n)");
             
@@ -234,7 +236,7 @@ public class OkoBere
             player.Hand.Add(card);
             Console.WriteLine($"{player.Name} has drawn a {card}.");
             
-            player.Exchnaged = true;
+            player.Exchanged = true;
         }
     }
 

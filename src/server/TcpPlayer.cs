@@ -13,13 +13,14 @@ public class TcpPlayer
     public int Balance = 1000;
 
     public readonly List<Card> Hand = new();
-    public bool Exchnaged = false;
+    public bool Exchanged = false;
 
     public TcpPlayer(TcpClient client, NetworkStream stream, string name)
     {
         this.client = client;
         this.stream = stream;
-        this.Name = name; 
+        
+        Name = name; 
     }
 
     public void SendString(string message)
@@ -40,20 +41,7 @@ public class TcpPlayer
         stream.Close();
         client.Close();
     }
-
-    public bool OptionToChange()
-    {
-        return Hand.Count switch
-        {
-            1 when Hand[0].Rank == Rank.Seven => true,
-            2 when Hand[0].Rank == Rank.Eight && Hand[1].Rank == Rank.Seven ||
-                   Hand[0].Rank == Rank.Seven && Hand[1].Rank == Rank.Eight => true,
-            5 when Hand.All(x => x.IsImage()) => true,
-          
-            _ => false
-        };
-    }
-
+    
     public bool InstantWin()
     {
         if (Hand.Count == 2)
@@ -71,19 +59,17 @@ public class TcpPlayer
 
     public int Total()
     {
-        var total = 0;
-        var sevenHearts = false;
-        
-        foreach (var card in Hand)
+        var possibles = Hand.GetSum();
+
+        if (possibles.Count == 1)
         {
-            if (card.Rank != Rank.Seven || card.Suit != Suit.Hearts)
-                total += card.IsImage() ? 1 : (int)card.Rank;
-            else sevenHearts = true;
+            return possibles[0];
         }
 
-        if (sevenHearts) total += total <= 10 ? 11 : total == 11 ? 10 : 7;
-
-        return total;
+        var closest = possibles[0];
+        // TODO     
+        
+        return closest;
     }
 }
 
