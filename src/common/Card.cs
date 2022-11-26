@@ -81,6 +81,16 @@ public static class CardExtensions
                );
     }
 
+    public static bool WouldExchange(this List<Card> cards)
+    {
+        if (cards.Count == 1 && cards[0].Rank == Rank.Seven && cards[0].Suit == Suit.Hearts)
+        {
+            return false;
+        }
+
+        return IsExchangeable(cards);
+    }
+    
     public static bool IsExchangeable(this List<Card> cards)
     {
         return cards.Count switch

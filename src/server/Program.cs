@@ -17,7 +17,7 @@ public static class Program
 
         var players = server.GetPlayers();
 
-        var oko = new OkoBere(players);
-        oko.Start();
+        var oko = new GameTable(players);
+        oko.GameLoop();
     }
 }

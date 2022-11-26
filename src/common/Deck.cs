@@ -28,6 +28,15 @@ public class Deck
         }
     }
     
+    public void Restart()
+    {
+        Cards.Clear();
+        
+        foreach (Suit suit in Enum.GetValues(typeof(Suit)))
+        foreach (Rank rank in Enum.GetValues(typeof(Rank)))
+            Cards.Add(new Card(suit, rank));
+    }
+    
     public bool TryDraw(out Card card)
     {
         if (Cards.Count == 0)
@@ -57,17 +66,17 @@ public class Deck
     /// Split the deck into two halfs and change their order.
     /// </summary>
     /// <returns> Visible card on the bottom of the first half. </returns>
-    public Card Cut()
+    public Card Cut(int cutIndex = -1)
     {
         if (Cards.Count == 0)
         {
             throw new InvalidOperationException("Deck is empty");
         }
         
-        var half = Cards.Count / new Random().Next(Cards.Count);
+        if (cutIndex == -1) { cutIndex = random.Next(0, Cards.Count); }
         
-        var firstHalf = Cards.Take(half).ToList();
-        var secondHalf = Cards.Skip(half).ToList();
+        var firstHalf = Cards.Take(cutIndex).ToList();
+        var secondHalf = Cards.Skip(cutIndex).ToList();
         
         var visibleCard = secondHalf[0];
         
