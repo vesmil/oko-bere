@@ -9,25 +9,22 @@ public class GameTable
     private PlayerBase? bankBrokePlayer;
     
     private IEnumerable<PlayerBase> AllPlayers => players.Append(banker);
-    private IEnumerable<PlayerBase> AllExcept(PlayerBase player) => AllPlayers.Where(p => !Equals(p, player));
+    private IEnumerable<PlayerBase> AllExcept(PlayerBase player) => AllPlayers.Where(p => p != player);
 
-    /*
-    private void NotifyAllPlayers(INotification notification)
+    private void NotifyAllPlayers<T>(INotification<T> notification)
     {
         foreach (var player in AllPlayers)
         {
-            player.SendNotification(notification);
+            player.Notify(notification);
         }
     }
-    private void NotifyAllExcept(PlayerBase except, INotification notification)
+    private void NotifyAllExcept<T>(PlayerBase except, INotification<T> notification)
     {
         foreach (var player in AllExcept(except))
         {
-            player.SendNotification(notification);
+            player.Notify(notification);
         }
-            
     }
-    */
 
     private readonly Dictionary<PlayerBase, int> currentBets;
 
@@ -69,7 +66,7 @@ public class GameTable
     private void SetBanker()
     {
         // Banker is either the one who took bank or raffled
-        if (bankBrokePlayer != null)
+        if (bankBrokePlayer is not null)
         {
             AssignBanker(bankBrokePlayer);
             bankBrokePlayer = null;
@@ -85,7 +82,10 @@ public class GameTable
             var num = new Random().Next(players.Count);
 
             // Might add animation for the raffle here
+
             AssignBanker(players[num]);
+            
+            NotifyAllPlayers(new GenericNotif<PlayerBase>(NotifEnum.NewBanker, banker));
         }
     }
     
@@ -94,12 +94,7 @@ public class GameTable
         banker = newBanker;
         players.Remove(banker);
 
-        // TODO
-        
-        // NotifyAll();
-        // let the banker choose the initial bank
-        // banker.SendAction();
-        // ...
+        banker.Notify(new NoDataNotif(NotifEnum.SetInitialBank));
         
         initialBank = 100;
         bank = initialBank;
@@ -109,23 +104,21 @@ public class GameTable
     {
         deck.Restart();
         
-        
         var malaDomu = false;
         if (initialBank * 2 >= bank)
         {
-            // TODO
-            // Ask about "Malá domů"
+            banker.Notify(new NoDataNotif(NotifEnum.AskForMalaDomu));
+            malaDomu = banker.GetResponse<bool>().Data;
 
-            banker.SendNotification(null!);
-            malaDomu = true;
+            if (malaDomu) { NotifyAllPlayers(new NoDataNotif(NotifEnum.MalaDomuCalled)); }
         }
 
         deck.Shuffle();
         
-        // Ask banker who should cut
-        // ...
-        
-        var duelInitiated = CutAndDuel(players[0]);
+        banker.Notify(new NoDataNotif(NotifEnum.ChooseCutPlayer));
+        var cutPlayer = banker.GetResponse<PlayerBase>().Data;
+
+        var duelInitiated = CutAndDuel(cutPlayer!); // Should this warning be supressed? This should be null right?
         
         if (duelInitiated)
         {
@@ -137,13 +130,14 @@ public class GameTable
             player.Hand.Clear();
             player.Hand.Add(deck.Draw());
             player.Exchanged = false;
+            
+            player.Notify(new CardNotif(NotifEnum.ReceivedCard, player.Hand[0]));
         }
-
-        // Cards have been dealt - show them to the players
         
         if (malaDomu && banker.Hand[0].Rank is Rank.King or Rank.Eight)
         {
-            // Notify about banker's hand and end the round
+            NotifyAllPlayers(new NoDataNotif(NotifEnum.MalaDomuSuccess));
+            
             banker.Balance += bank;
             bank = 0;
             
@@ -174,23 +168,54 @@ public class GameTable
         var duelPlayer = players[(index + 1) % players.Count];
         
         // Let the cutPlayer choose where to cut
-        const int cutIndex = 0;
-        deck.Cut(cutIndex);
+        cutPlayer.Notify(new NoDataNotif(NotifEnum.ChooseCutPosition));
+        var cutIndex = cutPlayer.GetResponse<int>().Data;
         
-        // Start duel
-        // Show the visible card...
-        // Ask both players if they want to play
+        var cutCard = deck.Cut(cutIndex);
+        NotifyAllPlayers(new GenericNotif<Card>(NotifEnum.SeeCutCard,cutCard));
 
+        duelPlayer.Notify(new NoDataNotif(NotifEnum.DuelOffer));
+        var bet = duelPlayer.GetResponse<int>().Data;
+        
+        if (bet == 0)
+        {
+            return false;
+        }
+        
+        banker.Notify(new GenericNotif<int>(NotifEnum.DuelOffer, bet));
+        var accept = banker.GetResponse<bool>().Data;
+        
+        if (!accept)
+        {
+            duelPlayer.Notify(new NoDataNotif(NotifEnum.DuelDeclined));
+            return false;
+        }
+        
+        duelPlayer.Notify(new NoDataNotif(NotifEnum.DuelAccepted));
+        Duel(duelPlayer);
 
         return true;
     }
 
+    private void Duel(PlayerBase duelPlayer)
+    {
+        duelPlayer.Notify(new NoDataNotif(NotifEnum.DuelAskNextCard));
+        // ...
+        
+        banker.Notify(new NoDataNotif(NotifEnum.DuelAskNextCard));
+        // ...
+        
+        // Announce winner
+        
+    }
+
     private void PlayersTurn(PlayerBase player)
     {
+        
         while (true)
         {
-            // Ask player for decision
-            // Send Would you like to next, bet, exchane or end
+            player.Notify(new NoDataNotif(NotifEnum.AskForCardDecision));
+            // var decision = player.GetResponse<CardDecision>().Data;
             
             // if(...)
             {
@@ -233,8 +258,7 @@ public class GameTable
     {
         if (player.Exchanged)
         {
-            // Notify player that he has already exchanged
-            // ...
+            player.Notify(new NoDataNotif(NotifEnum.AlreadyExchanged));
         }
         
         player.Hand.Clear();
