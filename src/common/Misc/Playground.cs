@@ -1,12 +1,12 @@
-﻿using OkoCommon;
+﻿using OkoCommon.Game;
 
-namespace ProbabilityPlayground;
+namespace OkoCommon.Misc;
 
 using prob = ProbabilityCalc;
 
-public static class Program
+public static class Playground
 {
-    public static void Main(string[] args)
+    public static void PrintAllProbs()
     {
         var hand = new List<Card>{new (Suit.Hearts, Rank.Seven) };
         Console.Write($"{hand[0]} - ");

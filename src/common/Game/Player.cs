@@ -1,5 +1,8 @@
-﻿namespace OkoCommon.Interface;
+﻿using OkoCommon.Communication;
 
+namespace OkoCommon.Game;
+
+[Serializable]
 public abstract class PlayerBase
 {
     public readonly string Name;

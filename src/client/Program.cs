@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using System.Net.Sockets;
+using OkoCommon.Communication;
 
 namespace OkoClient;
 
@@ -10,18 +11,19 @@ public static class Program
         var client = new Client();
         ConnectToSelf(client);
         
+        var client2 = new Client();
+        ConnectToSelf(client2);
+        
         while (true)
         {
-            var update = client.ReceiveMessage();
-            if (update == "exit") break;
+            var update = client.ReceiveNotification<object>();
+            Console.WriteLine(update.Type.GetType().GetEnumName(update.Type));
             
-            Console.Clear();;
-            Console.WriteLine("Current player: " + update);
-
-            if (update.Split()[0] == "You")
+            // client.SendResponse(); ...
+            
+            if (update is { Type: NotifEnum.EndOfGame })
             {
-                var move = Console.ReadLine() ?? "";
-                client.SendMessage(move);
+                break;
             }
         }
     }

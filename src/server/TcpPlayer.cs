@@ -1,14 +1,21 @@
 using System.Net.Sockets;
+using System.Runtime.Serialization;
+using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
-using OkoCommon;
-using OkoCommon.Interface;
+
+using OkoCommon.Communication;
+using OkoCommon.Game;
 
 namespace OkoServer;
 
-public class TcpPlayer : OkoCommon.Interface.PlayerBase
+[Serializable]
+public class TcpPlayer : PlayerBase
 {
     private readonly TcpClient client;
     private readonly NetworkStream stream;
+    
+    // TODO change to not obsolete thing
+    private readonly IFormatter formatter = new BinaryFormatter();
 
     public TcpPlayer(TcpClient client, NetworkStream stream, string name, int balance) : base(name, balance)
     {
@@ -60,51 +67,23 @@ public class TcpPlayer : OkoCommon.Interface.PlayerBase
         }
 
         var closest = possibles[0];
-        // TODO     
         
         return closest;
     }
 
     public override IResponse<T> GetResponse<T>()
     {
-        // TODO
-        throw new NotImplementedException();
+        return (IResponse<T>) formatter.Deserialize(stream);
     }
 
     public override bool Notify<T>(INotification<T> notification)
     {
-        // TODO
-        throw new NotImplementedException();
-    }
-}
+        if (stream.CanWrite)
+        {
+            formatter.Serialize(stream, notification);
+            return true;
+        }
 
-/*
-public IAction GetAction()
-{
-    var buffer = new byte[1024];
-    var bytesRead = stream.Read(buffer, 0, buffer.Length);
-                
-    if (bytesRead > 0)
-    {
-        var message = Encoding.UTF8.GetString(buffer, 0, bytesRead);
-        Console.WriteLine("Received: " + message);
+        return false;
     }
-    
-    return new Action();
 }
-public bool SendAction(IAction action)
-{
-    var data = Encoding.UTF8.GetBytes("Action");
-    stream.Write(data, 0, data.Length);
-    
-    if (stream.CanRead)
-    {
-        var buffer = new byte[1024];
-        var bytesRead = stream.Read(buffer, 0, buffer.Length);
-        var response = Encoding.UTF8.GetString(buffer, 0, bytesRead);
-        return response == "OK";
-    }
-    
-    return false;
-}
-*/

@@ -1,4 +1,6 @@
-﻿namespace OkoCommon;
+﻿using OkoCommon.Game;
+
+namespace OkoCommon;
 
 public static class ProbabilityCalc
 {

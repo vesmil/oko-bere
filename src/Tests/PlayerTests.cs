@@ -1,4 +1,5 @@
-﻿using OkoCommon.Interface;
+﻿using OkoCommon.Communication;
+using OkoCommon.Game;
 
 namespace Tests;
 

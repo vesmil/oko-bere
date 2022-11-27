@@ -1,4 +1,4 @@
-﻿using OkoCommon.Interface;
+﻿using OkoCommon.Game;
 
 namespace OkoServer;
 

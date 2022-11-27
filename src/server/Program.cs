@@ -1,4 +1,5 @@
 ﻿using OkoCommon;
+using OkoCommon.Game;
 
 namespace OkoServer;
 
@@ -17,7 +18,7 @@ public static class Program
 
         var players = server.GetPlayers();
 
-        var oko = new GameTable(players);
+        var oko = new Game(players);
         oko.GameLoop();
     }
 }

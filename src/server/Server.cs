@@ -2,14 +2,14 @@
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
-using OkoCommon.Interface;
+using OkoCommon.Game;
 
 namespace OkoServer;
 
 public class Server
 {
     private readonly TcpListener server;
-    private readonly List<TcpPlayer> clients = new(); // <KeyValuePair<TcpClient, NetworkStream>
+    private readonly List<TcpPlayer> clients = new();
 
     private const int Port = 1234;
 
@@ -64,8 +64,8 @@ public class Server
         }
     }
     
-    public List<OkoCommon.Interface.PlayerBase> GetPlayers()
+    public List<PlayerBase> GetPlayers()
     {
-        return new List<OkoCommon.Interface.PlayerBase>(clients);
+        return new List<PlayerBase>(clients);
     }
 }

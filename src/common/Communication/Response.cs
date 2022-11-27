@@ -1,15 +1,9 @@
-﻿namespace OkoCommon.Interface;
+﻿namespace OkoCommon.Communication;
 
 public interface IResponse<T>
 {
     T? Data { get; init; }
 }
-
-public enum ResponseType
-{
-    
-}
-
 
 public enum PlayerResponseEnum : byte
 {
@@ -24,11 +18,24 @@ public enum BankResponseEnum : byte
     End,
 }
 
+public class GenericResponse<T> : IResponse<T>
+{
+    public T? Data { get; init; }
+}
+
+[Serializable]
+public struct EnumResponse<T> : IResponse<T> where T : Enum
+{
+    public T? Data { get; init; }
+}
+
+[Serializable]
 public struct PlayerResponse : IResponse<int>
 {
     public int Data { get; init; }
 }
 
+[Serializable]
 public struct BooleanResponse : IResponse<bool>
 {
     public bool Data { get; init; }
