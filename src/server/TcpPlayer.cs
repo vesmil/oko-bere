@@ -6,6 +6,8 @@ using System.Text;
 using OkoCommon.Communication;
 using OkoCommon.Game;
 
+#pragma warning disable SYSLIB0011
+
 namespace OkoServer;
 
 [Serializable]

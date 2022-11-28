@@ -4,6 +4,8 @@ using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 using OkoCommon.Communication;
 
+#pragma warning disable SYSLIB0011
+
 namespace OkoClient;
 
 public class Client
