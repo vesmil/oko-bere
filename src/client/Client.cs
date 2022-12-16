@@ -12,8 +12,6 @@ public class Client
 {
     private readonly TcpClient client;
     private NetworkStream? stream;
-    
-    // TODO change to not obsolete thing
     private readonly IFormatter formatter = new BinaryFormatter();
     
     private readonly byte[] buffer;
@@ -29,12 +27,12 @@ public class Client
         client.Connect(ip, port);
         stream = client.GetStream();
         
-        // Console.Write("Enter your name: ");
+        Console.Write("Enter your name: ");
         // var name = Console.ReadLine() ?? string.Empty;
-
-        var name = new Random().Next().ToString();
+        Console.WriteLine();
         
-        SendMessage(name);
+        var name = new Random().Next().ToString();
+        SendResponse(name);
     }
     
     ~Client()
@@ -48,7 +46,7 @@ public class Client
         stream = null;
     }
 
-    public void SendResponse<T>(T data)
+    private void SendResponse<T>(T data)
     {
         if (stream != null)
         {
@@ -63,23 +61,11 @@ public class Client
     {
         if (stream != null)
         {
-            var response = formatter.Deserialize(stream) as GenericNotif<T>;
-            return response;
+            var response = formatter.Deserialize(stream);
+            var notification = response as INotification<T>;
+            return notification;
         }
 
         throw new Exception("Stream is null");
-    }
-
-    private void SendMessage(string message)
-    {
-        stream?.Write(Encoding.UTF8.GetBytes(message), 0, message.Length);
-    }
-
-    public string ReceiveMessage()
-    {
-        var _ = stream?.Read(buffer, 0, buffer.Length);
-        var message = Encoding.UTF8.GetString(buffer);
-        
-        return message;
     }
 }

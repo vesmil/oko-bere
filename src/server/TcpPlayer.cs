@@ -15,8 +15,6 @@ public class TcpPlayer : PlayerBase
 {
     private readonly TcpClient client;
     private readonly NetworkStream stream;
-    
-    // TODO change to not obsolete thing
     private readonly IFormatter formatter = new BinaryFormatter();
 
     public TcpPlayer(TcpClient client, NetworkStream stream, string name, int balance) : base(name, balance)
@@ -30,7 +28,7 @@ public class TcpPlayer : PlayerBase
         var data = Encoding.ASCII.GetBytes(message);
         stream.Write(data, 0, data.Length);
     }
-    
+
     public string ReceiveString()
     {
         var data = new byte[1024];

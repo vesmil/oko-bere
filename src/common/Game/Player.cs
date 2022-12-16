@@ -5,7 +5,7 @@ namespace OkoCommon.Game;
 [Serializable]
 public abstract class PlayerBase
 {
-    public readonly string Name;
+    public string Name;
     public int Balance;
     public readonly List<Card> Hand = new();
     

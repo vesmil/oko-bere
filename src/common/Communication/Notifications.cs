@@ -10,6 +10,9 @@ public interface INotification<out T>
 
 public enum NotifEnum
 {
+    AskForName,
+    GameStart,
+    
     NewBanker,
     NewPlayer,
     

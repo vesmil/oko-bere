@@ -18,6 +18,7 @@ public enum BankResponseEnum : byte
     End,
 }
 
+[Serializable]
 public class GenericResponse<T> : IResponse<T>
 {
     public T? Data { get; init; }
