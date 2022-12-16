@@ -5,7 +5,8 @@ namespace OkoServer;
 public class PlayerDb
 {
     private readonly Dictionary<string, PlayerBase> players = new();
-
+    // TODO? Add dictionary to search on GUID
+    
     public PlayerBase? GetPlayer(string name)
     {
         players.TryGetValue(name, out var playerBase);

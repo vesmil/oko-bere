@@ -136,7 +136,7 @@ public partial class Game
         
         while (true)
         {
-            player.Notify(new NoDataNotif(NotifEnum.AskForCardDecision));
+            player.Notify(new NoDataNotif(NotifEnum.AskForTurn));
             // var decision = player.GetResponse<CardDecision>().Data;
             
             // if(...)

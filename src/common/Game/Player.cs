@@ -5,6 +5,7 @@ namespace OkoCommon.Game;
 [Serializable]
 public abstract class PlayerBase
 {
+    private readonly Guid id;
     public string Name;
     public int Balance;
     public readonly List<Card> Hand = new();
@@ -21,6 +22,8 @@ public abstract class PlayerBase
 
         Name = name;
         Balance = balance;
+        
+        id = Guid.NewGuid();
     }
     
     // Could be replaced with GUID in the future
@@ -28,7 +31,7 @@ public abstract class PlayerBase
     {
         if (obj is PlayerBase player)
         {
-            return player.Name == Name;
+            return player.id == id;
         }
     
         return false;
@@ -36,7 +39,7 @@ public abstract class PlayerBase
 
     public override int GetHashCode()
     {
-        return Name.GetHashCode();
+        return id.GetHashCode();
     }
 
     public abstract IResponse<T> GetResponse<T>();

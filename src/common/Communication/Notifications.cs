@@ -19,8 +19,7 @@ public enum NotifEnum
     SetInitialBank,
     BankBusted,
     
-    AskForCardDecision,
-    AskBankerForCardDecision,
+    AskForTurn,
     
     ReceivedCard,
     CardsDealt,

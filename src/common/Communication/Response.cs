@@ -7,9 +7,9 @@ public interface IResponse<T>
 
 public enum PlayerResponseEnum : byte
 {
-    NextCard,
+    Draw,
     Bet,
-    End,
+    Stop,
 }
 
 public enum BankResponseEnum : byte
@@ -20,12 +20,6 @@ public enum BankResponseEnum : byte
 
 [Serializable]
 public class GenericResponse<T> : IResponse<T>
-{
-    public T? Data { get; init; }
-}
-
-[Serializable]
-public struct EnumResponse<T> : IResponse<T> where T : Enum
 {
     public T? Data { get; init; }
 }

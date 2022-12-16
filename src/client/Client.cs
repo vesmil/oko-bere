@@ -13,7 +13,7 @@ public class Client
     private NetworkStream? stream;
     private readonly IFormatter formatter = new BinaryFormatter();
 
-    private string name = "";
+    public string Name = "";
     
     public Client()
     {
@@ -22,28 +22,13 @@ public class Client
     
     public void PresetName(string namePreset)
     {
-        name = namePreset;
+        Name = namePreset;
     }
 
     public void Connect(string ip, int port)
     {
         client.Connect(ip, port);
         stream = client.GetStream();
-        
-        if (name == "")
-        {
-            // TODO
-            
-            /*
-            Console.Write("Enter your name: ");
-            var name = Console.ReadLine() ?? string.Empty;
-            Console.WriteLine(); 
-            */
-            
-            name = new Random().Next().ToString();
-        }
-        
-        SendResponse(name);
     }
     
     ~Client()
@@ -57,11 +42,21 @@ public class Client
         stream = null;
     }
 
-    private void SendResponse<T>(T data)
+    public void SendGenericResponse<T>(T data)
+    {
+        Send(new GenericResponse<T> { Data = data });
+    }
+    
+    public void SendResponse<T>(IResponse<T> response)
+    {
+        Send(response);
+    }
+
+    private void Send(object data)
     {
         if (stream != null)
         {
-            formatter.Serialize(stream, new GenericResponse<T> { Data = data });
+            formatter.Serialize(stream, data);
         }
         else
         {

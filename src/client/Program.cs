@@ -14,23 +14,17 @@ public static class Program
         var client2 = new Client();
         ConnectToSelf(client2);
         
-        while (true)
-        {
-            var update = client.ReceiveNotification<object>();
-            Console.WriteLine($"Type: {update?.Type.GetType().GetEnumName(update.Type)}");
-
-            if (update?.Data != null)
-            {
-                Console.WriteLine($"Data: {update.Data}");
-            }
-            
-            // client.SendResponse(); ...
-            
-            if (update is { Type: NotifEnum.EndOfGame })
-            {
-                break;
-            }
-        }
+        var player1 = new ClientPlayerLogics(client);
+        var player2 = new ClientPlayerLogics(client2);
+        
+        var playerThread1 = new Thread(player1.PlayerLoop);
+        var playerThread2 = new Thread(player2.PlayerLoop);
+        
+        playerThread1.Start();
+        playerThread2.Start();
+        
+        playerThread1.Join();
+        playerThread2.Join();
     }
 
     private static void ConnectToSelf(Client client)
