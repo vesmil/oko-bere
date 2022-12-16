@@ -6,10 +6,11 @@
 
 ## Introduction
 
-This repository contains two applications: **Oko bere - server** and **Oko bere - client**.
-Combined they allow multiple players to play typical Czech card game together.
+This repository contains two applications: **Oko bere - server** and **Oko bere - client**. Combined they allow multiple players to play Oko bere.
 
-...
+Oko bere is a card game that is popular in the Czech Republic. It is typically played with a deck of 32 cards (7, 8, 9, 10, Jack, Queen, King, and Ace in hearts, clubs, spades, and diamonds) among friends in social settings. The game is led by the banker, who is the player holding the bank.
+
+
 
 ---
 
@@ -30,8 +31,6 @@ Combined they allow multiple players to play typical Czech card game together.
 ## Game rules
 
 ...
-
-
 
 *For more details, see the `doc` folder*
 

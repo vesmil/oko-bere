@@ -1,27 +1,75 @@
+using System.Net;
+using System.Net.Sockets;
 using OkoClient;
 using OkoServer;
+using OkoCommon.Game;
 
 namespace Tests;
 
 public class TcpTests
 {
-    Server server = new();
-    List<Client> clients = new();
+    private List<PlayerBase> players;
+    private readonly Server server;
 
-    [SetUp]
-    public void Setup()
+    public TcpTests()
     {
-        // server.AcceptLoop();
+        server = new Server();
+
+        var serverThread = new Thread(server.AcceptLoop);
+        var clientInitThread = new Thread(ClientLoop);
         
-        for (var i = 0; i < 10; i++)
-        {
-            // TODO...
-        }
-    }
+        serverThread.Start();
+        clientInitThread.Start();
 
-    [Test]
-    public void Test1()
+        clientInitThread.Join();
+        serverThread.Join();
+
+        players = server.GetPlayers();
+    }
+    
+    private static void ClientLoop()
     {
-        Assert.Pass();
+        using var socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, 0);
+        socket.Connect("8.8.8.8", 65530);
+        var endPoint = socket.LocalEndPoint as IPEndPoint;
+        var ip = endPoint?.Address.ToString();
+
+        if (ip != null)
+        {
+            var client = new Client();
+            var client2 = new Client();
+            
+            client.PresetName("Alice");
+            client2.PresetName("Bob");
+            
+            client.Connect(ip, 1234);
+            client2.Connect(ip, 1234); ;
+            
+            return;
+        }
+        
+        throw new Exception("Could not get local IP address");
+    }
+    
+    [Test]
+    public void PlayerTest()
+    {
+        players = server.GetPlayers();  
+        
+        Assert.That(players, Has.Count.EqualTo(2));
+        
+        Assert.Multiple(() =>
+        {
+            Assert.That(players[0].Name, Is.EqualTo("Alice"));
+            Assert.That(players[1].Name, Is.EqualTo("Bob"));
+        });
+    }
+    
+    [Test]
+    public void GameTest()
+    {
+        var game = new Game(players);
+        
+        // TODO...
     }
 }

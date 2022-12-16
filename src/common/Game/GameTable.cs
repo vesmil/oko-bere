@@ -18,7 +18,7 @@ public partial class Game
         public GameTable(List<PlayerBase> players)
         {
             Banker = players[0];
-            this.Players = players;
+            Players = players;
 
             CurrentBets = new Dictionary<PlayerBase, int>();
             ClearBets();
