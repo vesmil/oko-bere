@@ -15,7 +15,7 @@ public class Server
 
     public Server()
     {
-        Debug.WriteLine("Starting server...");
+        Console.WriteLine("Starting server...");
         
         // net stop hns && net start hns
         server = new TcpListener(IPAddress.Any, Port);
@@ -24,7 +24,7 @@ public class Server
     
     ~Server()
     {
-        Debug.WriteLine("Stopping server...");
+        Console.WriteLine("Stopping server...");
         
         foreach (var client in clients) client.Close();
         server.Stop();
@@ -36,7 +36,7 @@ public class Server
         {
             var client = server.AcceptTcpClient();
             
-            Debug.WriteLine ("Connection accepted from " + client.Client.RemoteEndPoint);
+            Console.WriteLine ("Connection accepted from " + client.Client.RemoteEndPoint);
 
             var networkStream = client.GetStream();
             var newPlayer = new TcpPlayer(client, networkStream, "unknown", 1000);
@@ -47,11 +47,12 @@ public class Server
             if (nameResponse.Data != null)
             {
                 newPlayer.Name = nameResponse.Data;
-                Console.WriteLine($"User with name {newPlayer.Name}");
+                Console.WriteLine($"User with name {newPlayer.Name} connected");
             }
             else continue;
 
             clients.Add(newPlayer);
+            
             if (clients.Count == 2)
             {
                 foreach (var player in clients)

@@ -40,10 +40,15 @@ public partial class Game
             table.Banker.Notify(new NoDataNotif(NotifEnum.AskForMalaDomu));
             malaDomu = table.Banker.GetResponse<bool>().Data;
 
-            if (malaDomu) { table.NotifyAllPlayers(new NoDataNotif(NotifEnum.MalaDomuCalled)); }
+            if (malaDomu)
+            {
+                Console.WriteLine("Mala domu was called");
+                table.NotifyAllPlayers(new NoDataNotif(NotifEnum.MalaDomuCalled));
+            }
         }
 
         deck.Shuffle();
+        Console.WriteLine("Deck was shuffled");
         
         table.Banker.Notify(new NoDataNotif(NotifEnum.ChooseCutPlayer));
         var cutPlayer = table.Banker.GetResponse<PlayerBase>().Data;

@@ -51,17 +51,16 @@ public partial class Game
             }
             else
             {
-                // Raffle includes even the original banker
                 if (!Players.Contains(Banker)) Players.Add(Banker);
-
                 var num = new Random().Next(Players.Count);
 
                 // Might add animation for the raffle here
-
+                
                 AssignBanker(Players[num]);
-
                 NotifyAllPlayers(new PlayerNotif(NotifEnum.NewBanker, Banker));
             }
+            
+            Console.WriteLine($"Banker was set to {Banker.Name}");
         }
 
         private void AssignBanker(PlayerBase newBanker)

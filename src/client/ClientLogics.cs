@@ -17,19 +17,17 @@ public class ClientPlayerLogics : IPlayerLogics
     {
         while (true)
         {
+            // TODO this will be a lot different
+            
             var update = Client.ReceiveNotification<object>();
-            Console.WriteLine($"Type: {update?.Type.GetType().GetEnumName(update.Type)}");
+            Console.WriteLine($"{Client.Name} - Type: {update?.Type.GetType().GetEnumName(update.Type)}");
 
             if (update?.Data != null)
             {
-                Console.WriteLine($"Data: {update.Data}");
-            }
-
-            if (update is { Type: NotifEnum.EndOfGame })
-            {
-                break;
+                Console.WriteLine($"{Client.Name} - Data: {update.Data}");
             }
             
+            Console.WriteLine();
             
             switch (update?.Type)
             {
@@ -42,12 +40,22 @@ public class ClientPlayerLogics : IPlayerLogics
                     break;
                 
                 case NotifEnum.NewBanker:
-                    // TODO
                     if (update.Data is string bankerName && Client.Name == bankerName)
                     {
                         isBanker = true;
                     }
+                    
                     break;
+                
+                case NotifEnum.AskForMalaDomu:
+                    OnAskForMalaDomu();
+                    break;
+                
+                case NotifEnum.EndOfGame:
+                    // ...
+                    return;
+                
+                // Choose cut player
                 
                 default:
                     break;
