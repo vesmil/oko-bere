@@ -6,20 +6,28 @@ public partial class Game
 {
     private readonly Deck deck = new();
     private readonly GameTable table;
+
+    private readonly PlayersDelegate playersDelegate;
     
-    public Game(List<PlayerBase> players)
+    public Game(PlayersDelegate playerDel)
     {
-        table = new GameTable(players);
+        playersDelegate = playerDel;
+        table = new GameTable(playersDelegate.Invoke());
     }
     
     public void GameLoop()
     {
+        table.UpdatePlayers(playersDelegate.Invoke());
+        
         while (true)
         {
             table.SetBanker();
 
             while (table.Bank > 0)
             {
+                var newPlayers = playersDelegate.Invoke();
+                if (newPlayers.Count != table.Players.Count) table.UpdatePlayers(newPlayers);
+
                 OneRound();
             }
 
@@ -32,13 +40,23 @@ public partial class Game
 
     private void OneRound()
     {
+        if (table.Banker is null) throw new Exception("Can not start round without a banker.");
+
         deck.Restart();
         
         var malaDomu = false;
-        if (table.InitialBank * 2 >= table.Bank)
+        
+        if (table.InitialBank * 2 <= table.Bank)
         {
-            table.Banker.Notify(new NoDataNotif(NotifEnum.AskForMalaDomu));
-            malaDomu = table.Banker.GetResponse<bool>().Data;
+            if (table.Banker is not null)
+            {
+                table.Banker.Notify(new NoDataNotif(NotifEnum.AskForMalaDomu));
+                malaDomu = table.Banker.GetResponse<bool>().Data;
+            }
+            else
+            {
+                throw new Exception("Banker is missing");
+            }
 
             if (malaDomu)
             {
@@ -51,9 +69,9 @@ public partial class Game
         Console.WriteLine("Deck was shuffled");
         
         table.Banker.Notify(new NoDataNotif(NotifEnum.ChooseCutPlayer));
-        var cutPlayer = table.Banker.GetResponse<PlayerBase>().Data;
+        // TODO var cutPlayer = table.Banker.GetResponse<PlayerBase>().Data;
 
-        var duelInitiated = CutAndDuel(cutPlayer!); // Should this warning be supressed? This should be null right?
+        var duelInitiated = false; // CutAndDuel(cutPlayer!); // Should this warning be supressed? This should be null right?
         
         if (duelInitiated)
         {
@@ -91,6 +109,8 @@ public partial class Game
 
     private bool CutAndDuel(PlayerBase cutPlayer)
     {
+        if (table.Banker is null) throw new Exception("Can not start duel without a banker.");
+
         var index = table.Players.IndexOf(cutPlayer);
         var duelPlayer = table.Players[(index + 1) % table.Players.Count];
         
@@ -129,7 +149,7 @@ public partial class Game
         duelPlayer.Notify(new NoDataNotif(NotifEnum.DuelAskNextCard));
         // ...
         
-        table.Banker.Notify(new NoDataNotif(NotifEnum.DuelAskNextCard));
+        table.Banker!.Notify(new NoDataNotif(NotifEnum.DuelAskNextCard));
         // ...
         
         // Announce winner
@@ -142,17 +162,22 @@ public partial class Game
         while (true)
         {
             player.Notify(new NoDataNotif(NotifEnum.AskForTurn));
-            // var decision = player.GetResponse<CardDecision>().Data;
-            
-            // if(...)
+            var decision = player.GetResponse<PlayerResponseEnum>().Data;
+
+            switch (decision)
             {
-                
+                case PlayerResponseEnum.Bet:
+                    // ...
+                case PlayerResponseEnum.Draw:
+                    DrawCard(player);
+                    break;
+                case PlayerResponseEnum.Stop:
+                    return;
             }
 
-            DrawCard(player);
-            
             if (player.Hand.IsBust())
             {
+                player.Notify(new NoDataNotif(NotifEnum.Bust));
                 break;
             }
         }
@@ -161,7 +186,7 @@ public partial class Game
     private void BankersTurn()
     {
         var card = deck.Draw();
-        table.Banker.Hand.Add(card);
+        table.Banker!.Hand.Add(card);
         
         // Ask if he would like to make it visible
         

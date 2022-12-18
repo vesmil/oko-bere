@@ -23,7 +23,8 @@ public enum NotifEnum
     
     ReceivedCard,
     CardsDealt,
-    
+    Bust,
+
     AskForMalaDomu,
     MalaDomuCalled,
     MalaDomuSuccess,
@@ -45,7 +46,7 @@ public enum NotifEnum
     AskForContinue,
     Continue,
     NotEnoughPlayers,
-    EndOfGame,
+    EndOfGame
 }
 
 [Serializable]

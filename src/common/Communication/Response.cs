@@ -12,12 +12,6 @@ public enum PlayerResponseEnum : byte
     Stop,
 }
 
-public enum BankResponseEnum : byte
-{
-    NextCard,
-    End,
-}
-
 [Serializable]
 public class GenericResponse<T> : IResponse<T>
 {

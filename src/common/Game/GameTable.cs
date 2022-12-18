@@ -7,24 +7,22 @@ public partial class Game
     private class GameTable
     {
         public readonly Dictionary<PlayerBase, int> CurrentBets;
-        public readonly List<PlayerBase> Players;
+        public List<PlayerBase> Players;
 
         public int Bank;
-        public PlayerBase Banker;
+        public PlayerBase? Banker;
         public int InitialBank;
-        
+
         private PlayerBase? bankBrokePlayer;
 
         public GameTable(List<PlayerBase> players)
         {
-            Banker = players[0];
             Players = players;
-
             CurrentBets = new Dictionary<PlayerBase, int>();
             ClearBets();
         }
 
-        private IEnumerable<PlayerBase> AllPlayers => Players.Append(Banker);
+        private IEnumerable<PlayerBase> AllPlayers => Banker is not null ? Players.Append(Banker) : Players;
 
         public IEnumerable<PlayerBase> AllExcept(PlayerBase player)
         {
@@ -51,16 +49,16 @@ public partial class Game
             }
             else
             {
-                if (!Players.Contains(Banker)) Players.Add(Banker);
+                if (Banker is not null && !Players.Contains(Banker)) Players.Add(Banker);
                 var num = new Random().Next(Players.Count);
 
                 // Might add animation for the raffle here
-                
+
                 AssignBanker(Players[num]);
-                NotifyAllPlayers(new PlayerNotif(NotifEnum.NewBanker, Banker));
+                NotifyAllPlayers(new PlayerNotif(NotifEnum.NewBanker, Banker!));
             }
-            
-            Console.WriteLine($"Banker was set to {Banker.Name}");
+
+            Console.WriteLine($"Banker was set to {Banker!.Name}");
         }
 
         private void AssignBanker(PlayerBase newBanker)
@@ -76,7 +74,6 @@ public partial class Game
 
         private void ClearBets()
         {
-            // This should be zero, right?...
             foreach (var player in Players) CurrentBets[player] = 0;
         }
 
@@ -97,14 +94,15 @@ public partial class Game
             {
                 RemovePlayer(player);
             }
-            
+
             NotifyAllPlayers(new NoDataNotif(NotifEnum.Continue));
 
             return true;
         }
 
-        private List<PlayerBase> WouldContinue() => AllPlayers.Where(player => player.GetResponse<bool>().Data).ToList();
-        
+        private List<PlayerBase> WouldContinue() =>
+            AllPlayers.Where(player => player.GetResponse<bool>().Data).ToList();
+
         private void RemovePlayer(PlayerBase player)
         {
             Players.Remove(player);
@@ -114,6 +112,12 @@ public partial class Game
             {
                 otherPlayer.Notify(new PlayerNotif(NotifEnum.PlayerLeft, player));
             }
-        } 
+        }
+
+        public void UpdatePlayers(List<PlayerBase> newPlayers)
+        {
+            Players = newPlayers;
+            ClearBets();
+        }
     }
 }

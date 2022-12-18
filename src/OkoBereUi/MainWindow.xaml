@@ -1,0 +1,35 @@
+﻿<Window x:Class="OkoBereUi.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:OkoBereUi"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="450" Width="800">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <!-- Top row for buttons -->
+        <StackPanel Grid.Row="0" Orientation="Horizontal">
+            <Button x:Name="btnDrawCard" Content="Draw Card" Click="btnDrawCard_Click" />
+            <Button x:Name="btnBet" Content="Bet" Click="btnBet_Click" />
+            <Button x:Name="btnStop" Content="Stop" Click="btnStop_Click" />
+        </StackPanel>
+
+        <!-- Middle row for card display -->
+        <ListBox x:Name="lstCardsOnHand" Grid.Row="1" />
+
+        <!-- Bottom row for player information -->
+        <StackPanel Grid.Row="2" Orientation="Horizontal">
+            <StackPanel Orientation="Vertical">
+                <TextBlock x:Name="txtCurrentBalance" Text="Current Balance: " />
+                <TextBlock x:Name="txtCurrentBank" Text="Current Bank: " />
+            </StackPanel>
+            <ListBox x:Name="lstOtherPlayers" />
+        </StackPanel>
+    </Grid>
+</Window>

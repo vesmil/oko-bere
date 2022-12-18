@@ -1,5 +1,4 @@
-﻿using System.Diagnostics;
-using System.Net;
+﻿using System.Net;
 using System.Net.Sockets;
 using OkoCommon.Communication;
 using OkoCommon.Game;
@@ -34,34 +33,26 @@ public class Server
     {
         while (true)
         {
-            var client = server.AcceptTcpClient();
-            
-            Console.WriteLine ("Connection accepted from " + client.Client.RemoteEndPoint);
+                var client = server.AcceptTcpClient();
 
-            var networkStream = client.GetStream();
-            var newPlayer = new TcpPlayer(client, networkStream, "unknown", 1000);
+                Console.WriteLine("Server - Connection accepted from " + client.Client.RemoteEndPoint);
 
-            newPlayer.Notify(new NoDataNotif(NotifEnum.AskForName));
-            var nameResponse = newPlayer.GetResponse<string>();
+                var networkStream = client.GetStream();
+                var newPlayer = new TcpPlayer(client, networkStream, "unknown", 1000);
 
-            if (nameResponse.Data != null)
-            {
-                newPlayer.Name = nameResponse.Data;
-                Console.WriteLine($"User with name {newPlayer.Name} connected");
-            }
-            else continue;
+                newPlayer.Notify(new NoDataNotif(NotifEnum.AskForName));
+                var nameResponse = newPlayer.GetResponse<string>();
 
-            clients.Add(newPlayer);
-            
-            if (clients.Count == 2)
-            {
-                foreach (var player in clients)
+                if (nameResponse.Data != null)
                 {
-                    player.Notify(new NoDataNotif(NotifEnum.GameStart));
+                    newPlayer.Name = nameResponse.Data;
+                    Console.WriteLine($"Server - User with name {newPlayer.Name} connected");
                 }
+                else continue;
+
+                clients.Add(newPlayer);
                 
-                return;
-            }
+                // Should it notify? Or rather the game will poll...
         }
     }
     

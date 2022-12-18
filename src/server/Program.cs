@@ -1,5 +1,4 @@
-﻿using OkoCommon;
-using OkoCommon.Game;
+﻿using OkoCommon.Game;
 
 namespace OkoServer;
 
@@ -9,15 +8,10 @@ public static class Program
     {
         var server = new Server();
 
-        // TODO
-        // var thread = new Thread(server.AcceptLoop);
-        // thread.Start();
-        
-        server.AcceptLoop();
+        var serverThread = new Thread(server.AcceptLoop);
+        serverThread.Start();
 
-        var players = server.GetPlayers();
-
-        var oko = new Game(players);
+        var oko = new Game(server.GetPlayers);
         oko.GameLoop();
     }
 }

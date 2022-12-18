@@ -5,12 +5,12 @@ namespace OkoClient;
 
 public class ClientPlayerLogics : IPlayerLogics
 {
-    private readonly Client Client;
-    bool isBanker = false;
+    private readonly Client client;
+    private bool isBanker;
 
     public ClientPlayerLogics(Client client)
     {
-        Client = client;
+        this.client = client;
     }
 
     public void PlayerLoop()
@@ -19,12 +19,12 @@ public class ClientPlayerLogics : IPlayerLogics
         {
             // TODO this will be a lot different
             
-            var update = Client.ReceiveNotification<object>();
-            Console.WriteLine($"{Client.Name} - Type: {update?.Type.GetType().GetEnumName(update.Type)}");
+            var update = client.ReceiveNotification<object>();
+            Console.WriteLine($"{client.Name} - Type: {update?.Type.GetType().GetEnumName(update.Type)}");
 
             if (update?.Data != null)
             {
-                Console.WriteLine($"{Client.Name} - Data: {update.Data}");
+                Console.WriteLine($"{client.Name} - Data: {update.Data}");
             }
             
             Console.WriteLine();
@@ -40,7 +40,7 @@ public class ClientPlayerLogics : IPlayerLogics
                     break;
                 
                 case NotifEnum.NewBanker:
-                    if (update.Data is string bankerName && Client.Name == bankerName)
+                    if (update.Data is string bankerName && client.Name == bankerName)
                     {
                         isBanker = true;
                     }
@@ -54,7 +54,15 @@ public class ClientPlayerLogics : IPlayerLogics
                 case NotifEnum.EndOfGame:
                     // ...
                     return;
+
+                case NotifEnum.ChooseCutPlayer:
+                    OnChooseCutPlayer();
+                    break;
                 
+                case NotifEnum.ChooseCutPosition:
+                    OnAskToCut();
+                    break;
+
                 // Choose cut player
                 
                 default:
@@ -63,22 +71,23 @@ public class ClientPlayerLogics : IPlayerLogics
         }
     }
 
+    private void OnChooseCutPlayer()
+    {
+        Console.WriteLine("You are asked to choose cut player...");
+        Console.WriteLine("But its not done yet");
+        // TODO
+    }
+
     public void OnAskForName()
     {
-        if (Client.Name == "")
+        if (client.Name == "")
         {
-            // TODO
-            
-            /*
             Console.Write("Enter your name: ");
             var name = Console.ReadLine() ?? string.Empty;
-            Console.WriteLine(); 
-            */
-            
-            Client.Name = new Random().Next().ToString();
+            Console.WriteLine();
         }
 
-        Client.SendGenericResponse(Client.Name);
+        client.SendGenericResponse(client.Name);
     }
 
     public void OnAskForTurn()
@@ -94,23 +103,33 @@ public class ClientPlayerLogics : IPlayerLogics
         
         if (response == "d")
         {
-            Client.SendGenericResponse(PlayerResponseEnum.Draw);
+            client.SendGenericResponse(PlayerResponseEnum.Draw);
         }
-        else if (response.Trim()[0] == 'b')
+        else if (response.Length > 0 && response.Trim()[0] == 'b')
         {
-            Client.SendGenericResponse(PlayerResponseEnum.Bet);
-            Client.SendGenericResponse(int.Parse(response.Trim()[1..]));
+            client.SendGenericResponse(PlayerResponseEnum.Bet);
+            client.SendGenericResponse(int.Parse(response.Trim()[1..]));
         }
         else if (response == "s")
         {
-            Client.SendGenericResponse(PlayerResponseEnum.Stop);
+            client.SendGenericResponse(PlayerResponseEnum.Stop);
         }
     }
-    
-    public new void OnAskForTurnBanker()
+
+    private void OnAskForTurnBanker()
     {
         Console.WriteLine("It's your move, (d,s)");
         var response = Console.ReadLine() ?? string.Empty;
+        
+        switch (response)
+        {
+            case "d":
+                client.SendGenericResponse(PlayerResponseEnum.Draw);
+                break;
+            case "s":
+                client.SendGenericResponse(PlayerResponseEnum.Stop);
+                break;
+        }
     }
 
     public void OnAskToCut()
@@ -118,21 +137,21 @@ public class ClientPlayerLogics : IPlayerLogics
         Console.WriteLine("Where do you want to cut? (0-32)");
         var response = Console.ReadLine() ?? string.Empty;
         var cut = int.Parse(response);
-        Client.SendGenericResponse(cut);
+        client.SendGenericResponse(cut);
     }
 
     public void OnAskForContinue()
     {
         Console.WriteLine("Do you want to continue? (y/n)");
         var response = Console.ReadLine() ?? string.Empty;
-        Client.SendGenericResponse(response == "y");
+        client.SendGenericResponse(response == "y");
     }
     
     private void OnAskForMalaDomu()
     {
         Console.WriteLine("Do you want Mala domu? (y/n)");
         var answer = Console.ReadLine();
-        Client.SendGenericResponse(answer == "y");
+        client.SendGenericResponse(answer == "y");
     }
 
     public void OnAskForInitialBank()
@@ -140,13 +159,13 @@ public class ClientPlayerLogics : IPlayerLogics
         Console.WriteLine("How much money do you want to put in the bank?");
         var response = Console.ReadLine() ?? string.Empty;
         var bank = int.Parse(response);
-        Client.SendGenericResponse(bank);
+        client.SendGenericResponse(bank);
     }
 
     public void OnAskForDuel()
     {
         Console.WriteLine("Do you want to duel?");
         var response = Console.ReadLine() ?? string.Empty;
-        Client.SendGenericResponse(response == "y");
+        client.SendGenericResponse(response == "y");
     }
 }

@@ -1,12 +1,17 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OkoCommon", "common\OkoCommon.csproj", "{A10B2315-7554-4207-85FD-8E9C517BE990}"
+# Visual Studio Version 17
+VisualStudioVersion = 17.4.33103.184
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OkoCommon", "common\OkoCommon.csproj", "{A10B2315-7554-4207-85FD-8E9C517BE990}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OkoServer", "server\OkoServer.csproj", "{440B2ABB-FEB1-42B9-9C16-073E50AD7534}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OkoServer", "server\OkoServer.csproj", "{440B2ABB-FEB1-42B9-9C16-073E50AD7534}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OkoClient", "client\OkoClient.csproj", "{5CCA0029-CD95-446A-B385-67F060C55290}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OkoClient", "client\OkoClient.csproj", "{5CCA0029-CD95-446A-B385-67F060C55290}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests", "Tests\Tests.csproj", "{58EC5712-310F-41C8-81E7-92D3E1BC0C09}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tests", "Tests\Tests.csproj", "{58EC5712-310F-41C8-81E7-92D3E1BC0C09}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OkoBereUi", "OkoBereUi\OkoBereUi.csproj", "{215D732C-36AC-447D-9481-4E70055C22E1}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -30,5 +35,15 @@ Global
 		{58EC5712-310F-41C8-81E7-92D3E1BC0C09}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{58EC5712-310F-41C8-81E7-92D3E1BC0C09}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{58EC5712-310F-41C8-81E7-92D3E1BC0C09}.Release|Any CPU.Build.0 = Release|Any CPU
+		{215D732C-36AC-447D-9481-4E70055C22E1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{215D732C-36AC-447D-9481-4E70055C22E1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{215D732C-36AC-447D-9481-4E70055C22E1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{215D732C-36AC-447D-9481-4E70055C22E1}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {4DD687BF-AA95-43C3-95BD-8289C0A7AFBA}
 	EndGlobalSection
 EndGlobal
