@@ -16,6 +16,12 @@
     <Compile Update="Menu.cs">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Update="ConnectionDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="SettingsDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
   </ItemGroup>
 
 </Project>

@@ -64,9 +64,6 @@ public class ClientPlayerLogics : IPlayerLogics
                     break;
 
                 // Choose cut player
-                
-                default:
-                    break;
             }
         }
     }

@@ -1,5 +1,4 @@
-﻿using OkoCommon;
-using OkoCommon.Game;
+﻿using OkoCommon.Game;
 
 namespace Tests;
 

@@ -2,7 +2,7 @@
 
 namespace OkoBereUi;
 
-sealed partial class Menu
+partial class SettingsDialog
 {
     /// <summary>
     /// Required designer variable.
@@ -34,7 +34,7 @@ sealed partial class Menu
         this.components = new System.ComponentModel.Container();
         this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
         this.ClientSize = new System.Drawing.Size(800, 450);
-        this.Text = "Oko bere";
+        this.Text = "SettingsDialog";
     }
 
     #endregion

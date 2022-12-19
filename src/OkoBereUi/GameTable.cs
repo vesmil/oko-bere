@@ -1,8 +1,6 @@
-using OkoCommon.Game;
-
 namespace OkoBereUi
 {
-    public partial class Form1 : Form
+    public partial class GameTableForm : Form
     {
         private List<PictureBox> cardBoxes;
         private Label balanceLabel;
@@ -13,7 +11,7 @@ namespace OkoBereUi
         private Button betButton;
         private Button endTurnButton;
 
-        public Form1()
+        public GameTableForm()
         {
             InitializeComponent();
 
@@ -28,7 +26,7 @@ namespace OkoBereUi
                 Controls.Add(cardBox);
                 cardBoxes.Add(cardBox);
                 
-                cardBoxes[i].Image = ImageGetter.GetImage(new Card(Suit.Clubs, Rank.Ace));
+                // cardBoxes[i].Image = ImageGetter.GetImage(new Card(Suit.Clubs, Rank.Ace));
             }
 
             // Initialize balance label
@@ -64,7 +62,7 @@ namespace OkoBereUi
             drawButton.Size = new Size(75, 23);
             drawButton.Location = new Point(10, 210);
             drawButton.Text = "Draw";
-            drawButton.Click += new EventHandler(DrawButton_Click!);
+            drawButton.Click += DrawButton_Click!;
             Controls.Add(drawButton);
 
             // Initialize bet button
@@ -72,7 +70,7 @@ namespace OkoBereUi
             betButton.Size = new Size(75, 23);
             betButton.Location = new Point(95, 210);
             betButton.Text = "Bet";
-            betButton.Click += new EventHandler(BetButton_Click!);
+            betButton.Click += BetButton_Click!;
             Controls.Add(betButton);
 
             // Initialize end turn button
@@ -80,7 +78,7 @@ namespace OkoBereUi
             endTurnButton.Size = new Size(75, 23);
             endTurnButton.Location = new Point(180, 210);
             endTurnButton.Text = "End Turn";
-            endTurnButton.Click += new EventHandler(EndTurnButton_Click!);
+            endTurnButton.Click += EndTurnButton_Click!;
             Controls.Add(endTurnButton);
         }
 

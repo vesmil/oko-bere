@@ -1,11 +1,13 @@
-﻿namespace OkoBereUi
+﻿using System.ComponentModel;
+
+namespace OkoBereUi
 {
-    partial class Form1
+    partial class GameTableForm
     {
         /// <summary>
         ///  Required designer variable.
         /// </summary>
-        private System.ComponentModel.IContainer components = null;
+        private IContainer components = null;
 
         /// <summary>
         ///  Clean up any resources being used.

@@ -33,7 +33,9 @@ public class ImageGetter
             foreach (var rank in RankMap.Keys)
             {
                 var card = new Card(suite, rank);
-                var image = Image.FromFile($"cards/{RankMap[rank]}_{SuitNames[suite]}.png");
+                
+                var imagePath = Path.Combine(Directory.GetCurrentDirectory(), "res", $"{SuitNames[suite]}_{RankMap[rank]}.png");
+                var image = Image.FromFile(imagePath);
                 
                 Images.Add(card, image);
             }
