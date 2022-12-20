@@ -6,8 +6,8 @@ namespace Tests;
 public class TestPlayer : PlayerBase
 {
     public TestPlayer(string name, int balance) : base(name, balance) { }
-    public override IResponse<T> GetResponse<T>() => throw new NotImplementedException();
-    public override bool Notify<T>(INotification<T> notification) => throw new NotImplementedException();
+    public override IResponse<T> GetResponse<T>() => default!;
+    public override bool Notify<T>(INotification<T> notification) => default;
 }
 
 public class PlayerTests

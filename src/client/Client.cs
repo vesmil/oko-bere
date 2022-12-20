@@ -3,9 +3,17 @@ using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 using OkoCommon.Communication;
 
-#pragma warning disable SYSLIB0011
-
 namespace OkoClient;
+
+public class MessageReceivedEventArgs : EventArgs
+{
+    public MessageReceivedEventArgs()
+    {
+        
+    }
+
+    // INotification<object> notification { get; set; }
+}
 
 public class Client
 {
@@ -13,11 +21,18 @@ public class Client
     private NetworkStream? stream;
     private readonly IFormatter formatter = new BinaryFormatter();
 
+    public event EventHandler<MessageReceivedEventArgs> MessageReceived;
+    
     public string Name = "";
     
     public Client()
     {
         client = new TcpClient();
+    }
+    
+    public void OnMessageReceived(string message)
+    {
+        MessageReceived?.Invoke(this, new MessageReceivedEventArgs { });
     }
     
     public void PresetName(string namePreset)

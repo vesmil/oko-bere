@@ -8,7 +8,7 @@ namespace OkoClient;
 public static class Program
 {
     // This program is just a placeholder - it will be replaced with UI
-    public static void Main(string[] args)
+    public static void Main()
     {
         var server = new Server();
         

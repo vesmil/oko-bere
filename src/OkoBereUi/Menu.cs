@@ -5,7 +5,7 @@ public partial class Menu : Form
     public Menu()
     {
         InitializeComponent();
-        // BackColor = Color.FromArgb(124, 173, 100);
+        BackColor = Color.FromArgb(173, 172, 102);
 
         var connectButton = UiCommon.InitializeMenuButton("Connect to Server", 0, ConnectButton_Click!);
         Controls.Add(connectButton);
@@ -46,15 +46,15 @@ public partial class Menu : Form
     private void ConnectToServer(string serverIp, string playerName)
     {
         // TODO connect ...
-        var gameTableForm = new GameTableForm();
-        gameTableForm.Show();
+        // var gameTableForm = new GameTableForm();
+        // gameTableForm.Show();
     }
 
     private void StartSinglePlayerGame(int numPlayers)
     {
         // ...
         
-        var gameTableForm = new GameTableForm();
-        gameTableForm.Show();
+        // var gameTableForm = new GameTableForm();
+        // gameTableForm.Show();
     }
 }

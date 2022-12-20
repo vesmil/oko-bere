@@ -17,7 +17,7 @@ public class ClientPlayerLogics : IPlayerLogics
     {
         while (true)
         {
-            // TODO this will be a lot different
+            // This will be a lot different
             
             var update = client.ReceiveNotification<object>();
             Console.WriteLine($"{client.Name} - Type: {update?.Type.GetType().GetEnumName(update.Type)}");
@@ -70,9 +70,8 @@ public class ClientPlayerLogics : IPlayerLogics
 
     private void OnChooseCutPlayer()
     {
-        Console.WriteLine("You are asked to choose cut player...");
-        Console.WriteLine("But its not done yet");
-        // TODO
+        Console.Write("Enter a name of selected player: ");
+        client.SendGenericResponse(client.Name);
     }
 
     public void OnAskForName()

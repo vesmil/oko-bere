@@ -1,7 +1,25 @@
-﻿namespace OkoBereUi;
+﻿using OkoCommon.Game;
+
+namespace OkoBereUi;
 
 public static class UiCommon
 {
+    static UiCommon()
+    {
+        foreach (var suite in SuitNames.Keys)
+        {
+            foreach (var rank in RankMap.Keys)
+            {
+                var card = new Card(suite, rank);
+
+                var imagePath = Path.Combine(Directory.GetCurrentDirectory(), "res", $"{SuitNames[suite]}_{RankMap[rank]}.png");
+                var image = Image.FromFile(imagePath);
+
+                Images.Add(card, image);
+            }
+        }
+    }
+    
     private static readonly Font MenuFont = new Font("Microsoft Sans Serif", 12F, FontStyle.Bold, GraphicsUnit.Point, 204);
     private static readonly Color UiColor = Color.FromArgb(161, 87, 72);
     private static readonly Color UiOverColor = Color.FromArgb(81, 26, 17);
@@ -29,5 +47,32 @@ public static class UiCommon
         button.Click += clickEvent;
         
         return button;
+    }
+    
+    // I could use three arrays instead of dictionaries... but it doesnt matter
+    private static readonly Dictionary<Suit, string> SuitNames = new()
+    {     {Suit.Clubs, "kule"},
+        {Suit.Diamonds, "srdce"},
+        {Suit.Hearts, "listy"},
+        {Suit.Spades, "zaludy"}
+    };
+    
+    private static readonly Dictionary<Rank, string> RankMap = new()
+    {
+        { Rank.Seven, "7" },
+        { Rank.Eight, "8" },
+        { Rank.Nine, "9" },
+        { Rank.Ten, "10" },
+        { Rank.Jack, "spodek" },
+        { Rank.Queen, "dama" },
+        { Rank.King, "kral" },
+        { Rank.Ace, "eso" }
+    };
+
+    private static Dictionary<Card, Image> Images { get; } = new ();
+    
+    public static Image GetImage(Card card)
+    {
+        return Images[card];
     }
 }

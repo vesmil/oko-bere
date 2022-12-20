@@ -9,6 +9,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\client\OkoClient.csproj" />
     <ProjectReference Include="..\common\OkoCommon.csproj" />
   </ItemGroup>
 
@@ -21,6 +22,12 @@
     </Compile>
     <Compile Update="SettingsDialog.cs">
       <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="GameTable.Designer.cs">
+      <DependentUpon>GameTable.cs</DependentUpon>
+    </Compile>
+    <Compile Update="SettingsDialog.Designer.cs">
+      <DependentUpon>SettingsDialog.cs</DependentUpon>
     </Compile>
   </ItemGroup>
 

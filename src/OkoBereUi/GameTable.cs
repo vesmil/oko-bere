@@ -1,27 +1,32 @@
+using OkoClient;
+
 namespace OkoBereUi
 {
     public partial class GameTableForm : Form
     {
-        private List<PictureBox> cardBoxes;
-        private Label balanceLabel;
-        private Label betLabel;
-        private Label bankLabel;
-        private Label playerTurnLabel;
-        private Button drawButton;
-        private Button betButton;
-        private Button endTurnButton;
+        private readonly List<PictureBox> cardBoxes;
+        private readonly Label balanceLabel;
+        private readonly Label betLabel;
+        private readonly Label bankLabel;
+        private readonly Label playerTurnLabel;
+        private readonly Button drawButton;
+        private readonly Button betButton;
+        private readonly Button endTurnButton;
 
-        public GameTableForm()
+        private readonly Client client;
+
+        public GameTableForm(Client client)
         {
+            this.client = client;
             InitializeComponent();
 
             // Initialize card boxes
             cardBoxes = new List<PictureBox>();
-            for (int i = 0; i < 5; i++)
+            for (var i = 0; i < 5; i++)
             {
-                PictureBox cardBox = new PictureBox();
+                var cardBox = new PictureBox();
                 cardBox.Size = new Size(75, 100);
-                cardBox.Location = new Point(10 + (80 * i), 10);
+                cardBox.Location = new Point(10 + 80 * i, 300);
                 cardBox.SizeMode = PictureBoxSizeMode.StretchImage;
                 Controls.Add(cardBox);
                 cardBoxes.Add(cardBox);
@@ -82,9 +87,15 @@ namespace OkoBereUi
             Controls.Add(endTurnButton);
         }
 
+        private void OnMessageReceived(object sender, MessageReceivedEventArgs e)
+        {
+            // TODO Update the UI here based on the message received
+        }
+        
         private void DrawButton_Click(object sender, EventArgs e)
         {
             // Send request to server
+            // client...
             
             // Receive response from server
         }
@@ -92,6 +103,7 @@ namespace OkoBereUi
         private void BetButton_Click(object sender, EventArgs e)
         {
             // Send request to server
+            // 
             
             // Receive response from server
         }

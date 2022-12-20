@@ -68,17 +68,21 @@ public partial class Game
         deck.Shuffle();
         Console.WriteLine("Deck was shuffled");
         
-        table.Banker.Notify(new NoDataNotif(NotifEnum.ChooseCutPlayer));
-        // TODO var cutPlayer = table.Banker.GetResponse<PlayerBase>().Data;
-
-        var duelInitiated = false; // CutAndDuel(cutPlayer!); // Should this warning be supressed? This should be null right?
+        PlayerBase? cutPlayer = null;
+        while (cutPlayer is null)
+        {
+            table.Banker.Notify(new NoDataNotif(NotifEnum.ChooseCutPlayer));
+            var cutPlayerName = table.Banker.GetResponse<string>().Data;
+            cutPlayer = table.Players.FirstOrDefault(x => x.Name == cutPlayerName);
+        }
+        var duelInitiated = CutAndDuel(cutPlayer);
         
         if (duelInitiated)
         {
             return;
         }
         
-        foreach (var player in table.Players.Where(player => player.Balance != 0).Append(table.Banker))
+        foreach (var player in table.Players.Where(p => p.Balance != 0).Append(table.Banker))
         {
             player.Hand.Clear();
             player.Hand.Add(deck.Draw());
