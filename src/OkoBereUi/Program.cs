@@ -1,5 +1,6 @@
 using System.Net;
 using System.Net.Sockets;
+using OkoBereUi;
 using OkoClient;
 using OkoCommon.Game;
 using OkoServer;
@@ -14,56 +15,74 @@ namespace OkoBereUi
         [STAThread]
         public static void Main()
         {
-            var server = new Server();
-        
-            var serverThread = new Thread(server.AcceptLoop);
-            serverThread.Start();
-        
-            Thread.Sleep(500);
-        
-            var client = new Client();
-            client.PresetName("Alice");
-            ConnectToSelf(client);
-        
-            var client2 = new Client();
-            client2.PresetName("Bob");
-            ConnectToSelf(client2);
-
-            Thread.Sleep(500);
-
-            
             ApplicationConfiguration.Initialize();
-            Application.Run(new GameTableForm(client));
-
-            var ui2 = new GameTableForm(client2);
-            ui2.Show();
-            
-            // TODO Show UI in two threads
-            
-            var player1 = new ClientPlayerLogics(client);
-            var player2 = new ClientPlayerLogics(client2);
-        
-            var playerThread1 = new Thread(player1.PlayerLoop);
-            var playerThread2 = new Thread(player2.PlayerLoop);
-        
-            playerThread1.Start();
-            playerThread2.Start();
-
-            var oko = new Game(server.GetPlayers);
-        
-            while (server.GetPlayers().Count < 2) Thread.Sleep(200);
-        
-            oko.GameLoop();
+            Application.Run(new TestTables());
         }
+    }
+}
 
-        private static void ConnectToSelf(Client client)
+public class TestTables : Form
+{
+    private readonly Server server = new();
+    private readonly Thread serverThread;
+    private readonly Thread gameThread;
+
+    private readonly List<Client> clients = new();
+    private readonly List<Thread> clientThreads = new();
+
+    public TestTables()
+    {
+        serverThread = new Thread(server.AcceptLoop);
+        serverThread.Start();
+
+        NewClient("Alice");
+        NewClient("Bob");
+        NewClient("Cyril");
+
+
+        foreach (var client in clients)
         {
-            using var socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, 0);
-            socket.Connect("8.8.8.8", 65530);
-            var endPoint = socket.LocalEndPoint as IPEndPoint;
-            var ip = endPoint?.Address.ToString();
-
-            if (ip != null) client.Connect(ip, 1234);
+            var player = new ClientPlayerLogics(client);
+            
+            var clientThread = new Thread(player.PlayerLoop);
+            clientThreads.Add(clientThread);
+            clientThread.Start();
         }
+        
+        while (server.GetPlayers().Count < 2) Thread.Sleep(200);
+
+        gameThread = new Thread(new Game(server.GetPlayers).GameLoop);
+    }
+    
+    ~TestTables()
+    {
+        serverThread.Interrupt();
+        gameThread.Interrupt();
+        foreach (var clientThread in clientThreads)
+        {
+            clientThread.Interrupt();
+        }
+    }
+
+    private void NewClient(string name)
+    {
+        var client = new Client();
+        clients.Add(client);
+        
+        client.PresetName(name);
+        ConnectToSelf(client);
+        
+        var ui = new GameTableForm(client);
+        ui.Show();
+    }
+    
+    private static void ConnectToSelf(Client client)
+    {
+        using var socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, 0);
+        socket.Connect("8.8.8.8", 65530);
+        var endPoint = socket.LocalEndPoint as IPEndPoint;
+        var ip = endPoint?.Address.ToString();
+
+        if (ip != null) client.Connect(ip, 1234);
     }
 }

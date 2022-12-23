@@ -2,7 +2,7 @@
 
 namespace OkoBereUi
 {
-    partial class GameTableForm
+    sealed partial class GameTableForm
     {
         /// <summary>
         ///  Required designer variable.

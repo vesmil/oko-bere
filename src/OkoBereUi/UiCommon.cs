@@ -4,6 +4,8 @@ namespace OkoBereUi;
 
 public static class UiCommon
 {
+    static bool isInitialized;
+    
     static UiCommon()
     {
         foreach (var suite in SuitNames.Keys)
@@ -18,6 +20,8 @@ public static class UiCommon
                 Images.Add(card, image);
             }
         }
+        
+        isInitialized = true;
     }
     
     private static readonly Font MenuFont = new Font("Microsoft Sans Serif", 12F, FontStyle.Bold, GraphicsUnit.Point, 204);
@@ -73,6 +77,17 @@ public static class UiCommon
     
     public static Image GetImage(Card card)
     {
-        return Images[card];
+        if (isInitialized) return Images[card];
+
+        try
+        {
+            var imagePath = Path.Combine(Directory.GetCurrentDirectory(), "res", $"{SuitNames[card.Suit]}_{RankMap[card.Rank]}.png");
+            var image = Image.FromFile(imagePath);
+            return image;
+        }
+        catch (Exception)
+        {
+            throw new Exception("Missing file for card " + card);
+        }
     }
 }

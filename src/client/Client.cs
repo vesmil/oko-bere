@@ -21,7 +21,7 @@ public class Client
     private NetworkStream? stream;
     private readonly IFormatter formatter = new BinaryFormatter();
 
-    public event EventHandler<MessageReceivedEventArgs> MessageReceived;
+    public event EventHandler<MessageReceivedEventArgs>? MessageReceived;
     
     public string Name = "";
     
@@ -30,8 +30,10 @@ public class Client
         client = new TcpClient();
     }
     
-    public void OnMessageReceived(string message)
+    public void OnMessageReceived()
     {
+        
+        
         MessageReceived?.Invoke(this, new MessageReceivedEventArgs { });
     }
     
@@ -57,6 +59,12 @@ public class Client
         stream = null;
     }
 
+    public GameState GetGameState()
+    {
+        // TODO ...
+        return new GameState();
+    }
+    
     public void SendGenericResponse<T>(T data)
     {
         Send(new GenericResponse<T> { Data = data });

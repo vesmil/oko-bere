@@ -18,9 +18,17 @@ public class Server
     {
         Console.WriteLine("Starting server...");
         
-        // net stop hns && net start hns
         server = new TcpListener(IPAddress.Any, Port);
-        server.Start();
+
+        try
+        {
+            server.Start();
+        }
+        catch (Exception)
+        {
+            Console.WriteLine("Couldn't start server, try - net stop hns && net start hns");
+            Environment.Exit(1);
+        }
     }
     
     ~Server()

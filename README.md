@@ -1,4 +1,4 @@
-# Card game Oko bere
+# Oko bere Card game
 
 *Final project - NPRG035 a NPRG038*
 
@@ -8,9 +8,9 @@
 
 This repository contains two applications: **Oko bere - server** and **Oko bere - client**. Combined they allow multiple players to play Oko bere.
 
-Oko bere is a card game that is popular in the Czech Republic. It is typically played with a deck of 32 cards (7, 8, 9, 10, Jack, Queen, King, and Ace in hearts, clubs, spades, and diamonds) among friends in social settings. The game is led by the banker, who is the player holding the bank.
+Oko bere is a card game that is popular in the Czech Republic. It is typically played with a deck of 32 cards (7, 8, 9, 10, Jack, Queen, King, and Ace in hearts, clubs, spades, and diamonds) among friends in social settings. The game is led by the banker, who is the player holding the bank. The goal of each player is to get as close to 21 without overdrawing.
 
-
+*For more details, see the `doc` folder*
 
 ---
 
@@ -22,44 +22,38 @@ Oko bere is a card game that is popular in the Czech Republic. It is typically p
 
 ---
 
-## Controls
-
-...
-
----
-
-## Game rules
-
-...
-
-*For more details, see the `doc` folder*
-
----
-
 ## TODO
 
-- [x] Client and server communication
-
-- [ ] Console version of the game
+- [x] Server part
   
-  - [ ] Client will send decisions and server will send back the entire game
-    
-    - [ ] Client
-      
-      - [x] Clear and print board
-      
-      - [ ] When his turn request decision
-    
-    - [ ] Server
-      
-      - [ ] Start game when enough players are connected
-      
-      - [ ] Take turns
-      
-      - [ ] ...
+  - [x] TCP and object serialization
   
-  - [ ] Allow only game updates
+  - [x] Proper IPlayer implementation
 
-- [ ] UI version
+- [x] Common part
+  
+  - [x] Game logic with use of IPlayer
+  
+  - [x] Notifications and response preparation
 
-- [ ] Proper security...
+- [x] Client part
+  
+  - [x] TCP and object serialization
+  
+  - [x] GUI
+    
+    - [x] Base
+    
+    - [ ] Dynamic
+  
+  - [ ] Initialization based on game state
+  
+  - [ ] Proper updates with response
+    
+    - [ ] Player connected, banker changed, etc. -> Change in game state -> Reload game state
+    
+    - [ ] Player's turn, cut player, ... -> Show UI and send back to server...
+    
+    - [ ] Different for banker
+  
+  - [ ] Server logging

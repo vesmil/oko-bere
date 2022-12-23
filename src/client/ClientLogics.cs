@@ -131,7 +131,7 @@ public class ClientPlayerLogics : IPlayerLogics
     public void OnAskToCut()
     {
         Console.WriteLine("Where do you want to cut? (0-32)");
-        var response = Console.ReadLine() ?? string.Empty;
+        var response = Console.ReadLine() ?? "0";
         var cut = int.Parse(response);
         client.SendGenericResponse(cut);
     }
@@ -139,7 +139,7 @@ public class ClientPlayerLogics : IPlayerLogics
     public void OnAskForContinue()
     {
         Console.WriteLine("Do you want to continue? (y/n)");
-        var response = Console.ReadLine() ?? string.Empty;
+        var response = Console.ReadLine();
         client.SendGenericResponse(response == "y");
     }
     
