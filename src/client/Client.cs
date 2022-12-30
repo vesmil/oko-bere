@@ -5,47 +5,39 @@ using OkoCommon.Communication;
 
 namespace OkoClient;
 
+/// <summary>
+/// Recieved message wrapper for event handling.
+/// </summary>
 public class MessageReceivedEventArgs : EventArgs
 {
-    public MessageReceivedEventArgs()
-    {
-        
-    }
+    public object? Data { get; }
+    public NotifEnum Type { get; }
 
-    // INotification<object> notification { get; set; }
+    public MessageReceivedEventArgs(object? data, NotifEnum type)
+    {
+        Data = data;
+        Type = type;
+    }
 }
 
+/// <summary>
+/// This class is mainly used to send and receive messages to and from the server.
+/// </summary>
 public class Client
 {
-    private readonly TcpClient client;
+    private readonly TcpClient tcpClient;
     private NetworkStream? stream;
     private readonly IFormatter formatter = new BinaryFormatter();
-
-    public event EventHandler<MessageReceivedEventArgs>? MessageReceived;
-    
-    public string Name = "";
     
     public Client()
     {
-        client = new TcpClient();
-    }
-    
-    public void OnMessageReceived()
-    {
-        
-        
-        MessageReceived?.Invoke(this, new MessageReceivedEventArgs { });
-    }
-    
-    public void PresetName(string namePreset)
-    {
-        Name = namePreset;
+        tcpClient = new TcpClient();
     }
 
     public void Connect(string ip, int port)
     {
-        client.Connect(ip, port);
-        stream = client.GetStream();
+        tcpClient.Connect(ip, port);
+        stream = tcpClient.GetStream();
     }
     
     ~Client()
@@ -55,16 +47,10 @@ public class Client
 
     private void Disconnect()
     {
-        client.Close();
+        tcpClient.Close();
         stream = null;
     }
 
-    public GameState GetGameState()
-    {
-        // TODO ...
-        return new GameState();
-    }
-    
     public void SendGenericResponse<T>(T data)
     {
         Send(new GenericResponse<T> { Data = data });

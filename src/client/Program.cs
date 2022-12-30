@@ -38,6 +38,8 @@ public class TestTables : Form
         serverThread = new Thread(server.AcceptLoop);
         serverThread.Start();
 
+        Thread.Sleep(500);
+        
         var ip = GetSelfIp();
         
         NewClientLogics("Alice", ip);
@@ -50,9 +52,13 @@ public class TestTables : Form
             clientThreads.Add(clientThread);
             clientThread.Start();
         }
-
-        while (server.GetPlayers().Count < 3) 
+        
+        var players = server.GetPlayers();
+        while (players.Count < 3)
+        {
             Thread.Sleep(200);
+            players = server.GetPlayers();
+        }
 
         gameThread = new Thread(new Game(server.GetPlayers).GameLoop);
         gameThread.Start();

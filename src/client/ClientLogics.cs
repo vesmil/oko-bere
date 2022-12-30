@@ -1,13 +1,14 @@
 ﻿using OkoCommon.Communication;
-using OkoCommon.Game;
 
 namespace OkoClient;
 
 public class ClientLogics
 {
     private readonly Client client;
+    public GameState gameState { get; }
     
-    private bool isBanker;
+    // private bool isBanker;
+    
     private string NamePreset { get; set; } = "";
     
     public event EventHandler<MessageReceivedEventArgs>? MessageReceived;
@@ -25,6 +26,8 @@ public class ClientLogics
         client = new Client();
         client.Connect(ip, port);
         
+        NamePreset = name;
+        
         // TODO... on connect it will receive gameState and will give its name...
     }
 
@@ -36,17 +39,15 @@ public class ClientLogics
         while (true)
         {
             var update = client.ReceiveNotification<object>();
-            
-            // TODO remove debug
-            Console.WriteLine($"{NamePreset} - Type: {update?.Type.GetType().GetEnumName(update.Type)}");
 
-            if (update?.Data != null)
+            // ClientLogics updates
+            if (update?.Type == NotifEnum.AskForName)
             {
-                Console.WriteLine($"{NamePreset} - Data: {update.Data}");
+                client.SendGenericResponse(NamePreset);
             }
-            
-            Console.WriteLine();
-            
+            // ...
+
+            // Rest of the updates should go to event handler
             if (update != null)
             {
                 MessageReceived?.Invoke(this, new MessageReceivedEventArgs(update.Data, update.Type));

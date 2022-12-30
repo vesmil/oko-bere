@@ -5,7 +5,7 @@ namespace OkoBereUi;
 
 public sealed partial class GameTableForm : Form
 {
-    private readonly ClientLogics client;
+    private readonly ClientLogics clientLogics;
 
     private readonly Label playerTurnLabel = new();
 
@@ -27,8 +27,10 @@ public sealed partial class GameTableForm : Form
         InitializeComponent();
         WindowState = FormWindowState.Maximized;
 
-        this.client = client;
-        client.MessageReceived += OnMessageReceived;
+        clientLogics = client;
+        clientLogics.MessageReceived += OnMessageReceived;
+        
+        
 
         AddTurnInfo();
         AddPlayerBoxes(5);
