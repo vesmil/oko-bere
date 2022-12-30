@@ -4,7 +4,7 @@ namespace OkoBereUi;
 
 public static class UiCommon
 {
-    static bool isInitialized;
+    private static readonly bool IsInitialized;
     
     static UiCommon()
     {
@@ -21,7 +21,7 @@ public static class UiCommon
             }
         }
         
-        isInitialized = true;
+        IsInitialized = true;
     }
     
     private static readonly Font MenuFont = new Font("Microsoft Sans Serif", 12F, FontStyle.Bold, GraphicsUnit.Point, 204);
@@ -77,7 +77,7 @@ public static class UiCommon
     
     public static Image GetImage(Card card)
     {
-        if (isInitialized) return Images[card];
+        if (IsInitialized) return Images[card];
 
         try
         {

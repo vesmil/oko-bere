@@ -17,7 +17,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\client\OkoClient.csproj" />
       <ProjectReference Include="..\common\OkoCommon.csproj" />
       <ProjectReference Include="..\server\OkoServer.csproj" />
     </ItemGroup>

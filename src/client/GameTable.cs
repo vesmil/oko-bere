@@ -5,7 +5,7 @@ namespace OkoBereUi;
 
 public sealed partial class GameTableForm : Form
 {
-    private readonly Client client;
+    private readonly ClientLogics client;
 
     private readonly Label playerTurnLabel = new();
 
@@ -22,22 +22,18 @@ public sealed partial class GameTableForm : Form
     private readonly List<GroupBox> playerBoxes = new();
     private readonly List<PictureBox> cardBoxes = new();
 
-    // TODO handle the constants
-    public GameTableForm(Client client)
+    public GameTableForm(ClientLogics client)
     {
         InitializeComponent();
         WindowState = FormWindowState.Maximized;
 
         this.client = client;
+        client.MessageReceived += OnMessageReceived;
 
         AddTurnInfo();
-        
         AddPlayerBoxes(5);
-        
         AddMoneyLabels();
-        
         AddCardBoxes(5);
-        
         AddButtonPanel();
     }
 
@@ -153,15 +149,67 @@ public sealed partial class GameTableForm : Form
         buttonPanel.Hide();
     }
 
-    private void OnMessageReceived(object sender, MessageReceivedEventArgs message)
+    private void OnMessageReceived(object? sender, MessageReceivedEventArgs message)
     {
-        // if (messa)
-
-        // If cut request...
-
-        // If new player, new banker, bank busted...
-
-        // ...
+        switch (message.Type)
+        {
+            case NotifEnum.GameStart:
+                playerTurnLabel.Text = "Game Started";
+                break;
+            
+            case NotifEnum.NewBanker:
+                
+                break;
+            
+            case NotifEnum.NewPlayer:
+                break;
+            case NotifEnum.SetInitialBank:
+                break;
+            case NotifEnum.BankBusted:
+                break;
+            case NotifEnum.AskForTurn:
+                break;
+            case NotifEnum.ReceivedCard:
+                break;
+            case NotifEnum.CardsDealt:
+                break;
+            case NotifEnum.Bust:
+                break;
+            case NotifEnum.AskForMalaDomu:
+                break;
+            case NotifEnum.MalaDomuCalled:
+                break;
+            case NotifEnum.MalaDomuSuccess:
+                break;
+            case NotifEnum.ChooseCutPlayer:
+                break;
+            case NotifEnum.ChooseCutPosition:
+                break;
+            case NotifEnum.SeeCutCard:
+                break;
+            case NotifEnum.DuelOffer:
+                break;
+            case NotifEnum.DuelDeclined:
+                break;
+            case NotifEnum.DuelAccepted:
+                break;
+            case NotifEnum.DuelAskNextCard:
+                break;
+            case NotifEnum.AlreadyExchanged:
+                break;
+            case NotifEnum.ExchangeAllowed:
+                break;
+            case NotifEnum.PlayerLeft:
+                break;
+            case NotifEnum.AskForContinue:
+                break;
+            case NotifEnum.Continue:
+                break;
+            case NotifEnum.NotEnoughPlayers:
+                break;
+            case NotifEnum.EndOfGame:
+                break;
+        }
     }
 
     private void DrawButton_Click(object sender, EventArgs e)
@@ -182,7 +230,7 @@ public sealed partial class GameTableForm : Form
 
     private void EndTurnButton_Click(object sender, EventArgs e)
     {
-        client.SendGenericResponse(PlayerResponseEnum.Stop);
+        // client.SendGenericResponse(PlayerResponseEnum.Stop);
         playerTurnLabel.Text = "Next Player's Turn";
     }
 
