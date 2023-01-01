@@ -2,7 +2,7 @@
 
 namespace OkoCommon.Game;
 
-public delegate List<PlayerBase> PlayersDelegate();
+public delegate List<PlayerBase> GetPlayersDelegate();
 
 [Serializable]
 public abstract class PlayerBase
@@ -47,12 +47,12 @@ public abstract class PlayerBase
     public abstract IResponse<T> GetResponse<T>();
     public abstract bool Notify<T> (INotification<T> notification);
     
-    public static bool operator ==(PlayerBase? left, PlayerBase? right)
+    public static bool operator ==(PlayerBase left, PlayerBase? right)
     {
         return left.Equals(right);
     }
 
-    public static bool operator !=(PlayerBase? left, PlayerBase? right)
+    public static bool operator !=(PlayerBase left, PlayerBase? right)
     {
         return !(left == right);
     }

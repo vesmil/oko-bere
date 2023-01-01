@@ -10,7 +10,7 @@ public class Server
     private readonly TcpListener server;
     private readonly List<TcpPlayer> clients = new();
 
-    private bool accepting = false;
+    private bool accepting;
 
     private const int Port = 1234;
 

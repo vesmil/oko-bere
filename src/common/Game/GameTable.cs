@@ -3,7 +3,7 @@
 namespace OkoCommon.Game;
 
 public partial class Game
-{
+{   
     private class GameTable
     {
         public readonly Dictionary<PlayerBase, int> CurrentBets;

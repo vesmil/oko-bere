@@ -7,17 +7,17 @@ public partial class Game
     private readonly Deck deck = new();
     private readonly GameTable table;
 
-    private readonly PlayersDelegate playersDelegate;
+    private readonly GetPlayersDelegate getGetPlayersDelegate;
     
-    public Game(PlayersDelegate playerDel)
+    public Game(GetPlayersDelegate getGetPlayerDel)
     {
-        playersDelegate = playerDel;
-        table = new GameTable(playersDelegate.Invoke());
+        getGetPlayersDelegate = getGetPlayerDel;
+        table = new GameTable(getGetPlayersDelegate.Invoke());
     }
     
     public void GameLoop()
     {
-        table.UpdatePlayers(playersDelegate.Invoke());
+        table.UpdatePlayers(getGetPlayersDelegate.Invoke());
         
         while (true)
         {
@@ -25,7 +25,7 @@ public partial class Game
 
             while (table.Bank > 0)
             {
-                var newPlayers = playersDelegate.Invoke();
+                var newPlayers = getGetPlayersDelegate.Invoke();
                 if (newPlayers.Count != table.Players.Count) table.UpdatePlayers(newPlayers);
 
                 OneRound();
@@ -228,7 +228,7 @@ public partial class Game
     {
         // Inform the players...
         
-        foreach (var player in table.Players.Where(player => player.Hand.GetBestValue() > table.Banker.Hand.GetBestValue()))
+        foreach (var player in table.Players.Where(player => player.Hand.GetBestValue() > table.Banker!.Hand.GetBestValue()))
         {
             player.Balance += 2 * table.CurrentBets[player];
             table.CurrentBets[player] = 0;

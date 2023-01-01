@@ -2,6 +2,7 @@ using System.Net;
 using System.Net.Sockets;
 using OkoBereUi;
 using OkoClient;
+using OkoClient.Forms;
 using OkoCommon.Game;
 using OkoServer;
 
@@ -16,6 +17,8 @@ namespace OkoBereUi
         public static void Main()
         {
             ApplicationConfiguration.Initialize();
+            
+            // ...this won't create TestTables but Menu
             Application.Run(new TestTables());
         }
     }
@@ -40,7 +43,7 @@ public class TestTables : Form
 
         Thread.Sleep(500);
         
-        var ip = GetSelfIp();
+        var ip = GetSelfIp() ?? throw new Exception("Couldn't get own IP address.");
         
         NewClientLogics("Alice", ip);
         NewClientLogics("Bob", ip);

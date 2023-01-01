@@ -1,11 +1,12 @@
-using OkoClient;
+using OkoBereUi;
 using OkoCommon.Communication;
 
-namespace OkoBereUi;
+namespace OkoClient.Forms;
 
 public sealed partial class GameTableForm : Form
 {
     private readonly ClientLogics clientLogics;
+    private GameState GameState => clientLogics.gameState;
 
     private readonly Label playerTurnLabel = new();
 
@@ -30,12 +31,10 @@ public sealed partial class GameTableForm : Form
         clientLogics = client;
         clientLogics.MessageReceived += OnMessageReceived;
         
-        
-
         AddTurnInfo();
-        AddPlayerBoxes(5);
+        AddPlayerBoxes();
         AddMoneyLabels();
-        AddCardBoxes(5);
+        AddCardBoxes();
         AddButtonPanel();
     }
 
@@ -44,9 +43,12 @@ public sealed partial class GameTableForm : Form
         BackColor = Color.FromArgb(174, 203, 143);
         playerTurnLabel.AutoSize = true;
         playerTurnLabel.Location = new Point(Width / 2 - playerTurnLabel.Size.Width / 2, 20);
+
+        // Text based on GameState
         playerTurnLabel.Text = "Wait";
         Controls.Add(playerTurnLabel);    
     }
+    
     private void AddMoneyLabels()
     {
         var labelFont = new Font("Arial", 12, FontStyle.Bold);
@@ -69,7 +71,7 @@ public sealed partial class GameTableForm : Form
         balanceLabel.Text = "Balance: ";
         Controls.Add(balanceLabel);
     }
-    private void AddCardBoxes(int count)
+    private void AddCardBoxes()
     {
         const int cardBoxWidth = 75;
         const int cardBoxHeight = 100;
@@ -77,41 +79,46 @@ public sealed partial class GameTableForm : Form
         const int cardBoxStartX = 10;
         const int cardBoxStartY = 360;
 
-        for (var i = 0; i < count; i++)
+        for (var i = 0; i < GameState.Hand.Count; i++)
         {
             var cardBox = new PictureBox();
             cardBox.Size = new Size(cardBoxWidth, cardBoxHeight);
             cardBox.Location = new Point(cardBoxStartX + cardBoxSpacing * i, cardBoxStartY);
             cardBox.SizeMode = PictureBoxSizeMode.StretchImage;
+            
+            cardBox.Image = UiCommon.GetImage(GameState.Hand[i]);
+            
             Controls.Add(cardBox);
             cardBoxes.Add(cardBox);
         }    
     }
-    private void AddPlayerBoxes(int count)
+    private void AddPlayerBoxes()
     {
-        for (var i = 0; i < count; i++)
+        for (var i = 0; i < GameState.Players.Count; i++)
         {
+            var player = GameState.Players[i];
+            
             var playerBox = new GroupBox();
             playerBox.Size = new Size(200, 130);
             playerBox.Location = new Point(30 + 210 * i, 70);
-            playerBox.Text = $"Player {i + 1}";
+            playerBox.Text = $"{(player.IsBanker ? "Banker" : "Player")} - {player.Name}";
             
             var balancePlayerLabel = new Label();
             balancePlayerLabel.AutoSize = true;
             balancePlayerLabel.Location = new Point(10, 30);
-            balancePlayerLabel.Text = "Balance: 1000";
+            balancePlayerLabel.Text = $"Balance: {player.Balance}";
             playerBox.Controls.Add(balancePlayerLabel);
             
             var betPlayerLabel = new Label();
             betPlayerLabel.AutoSize = true;
             betPlayerLabel.Location = new Point(10, 60);
-            betPlayerLabel.Text = "Bet: 0";
+            betPlayerLabel.Text = $"Bet: {player.Bet}";
             playerBox.Controls.Add(betPlayerLabel);
             
             var cardCountLabel = new Label();
             cardCountLabel.AutoSize = true;
             cardCountLabel.Location = new Point(10, 90);
-            cardCountLabel.Text = "Cards: 0";
+            cardCountLabel.Text = $"Cards: {player.CardCount}";
             playerBox.Controls.Add(cardCountLabel);
 
             Controls.Add(playerBox);
