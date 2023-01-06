@@ -1,4 +1,5 @@
 using OkoBereUi;
+using OkoCommon;
 using OkoCommon.Communication;
 
 namespace OkoClient.Forms;
@@ -6,7 +7,7 @@ namespace OkoClient.Forms;
 public sealed partial class GameTableForm : Form
 {
     private readonly ClientLogics clientLogics;
-    private GameState GameState => clientLogics.gameState;
+    private GameState GameState => clientLogics.GameState;
 
     private readonly Label playerTurnLabel = new();
 
@@ -26,7 +27,7 @@ public sealed partial class GameTableForm : Form
     public GameTableForm(ClientLogics client)
     {
         InitializeComponent();
-        WindowState = FormWindowState.Maximized;
+        // WindowState = FormWindowState.Maximized;
 
         clientLogics = client;
         clientLogics.MessageReceived += OnMessageReceived;

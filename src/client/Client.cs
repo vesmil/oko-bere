@@ -1,6 +1,7 @@
 using System.Net.Sockets;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
+using OkoCommon;
 using OkoCommon.Communication;
 
 namespace OkoClient;
@@ -83,5 +84,18 @@ public class Client
         }
 
         throw new Exception("Stream is null");
+    }
+
+    public GameState GetGameState()
+    {
+        var notification = ReceiveNotification<GameState>();
+        
+        if (notification != null)
+        {
+            return notification.Data;
+        }
+
+        return new GameState();
+        // throw new Exception("Notification is null");
     }
 }

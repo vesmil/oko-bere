@@ -63,8 +63,6 @@ classDiagram
 
 This part is WinForm executable which will be used by client to connect to server.
 
-
-
 ```mermaid
 classDiagram
     class GameTableForm {
@@ -77,24 +75,23 @@ classDiagram
     }
 
     class Client { 
-        
+
     }
 
     class GameState { 
         # TODO should be held by Logics or by TableForm?
     }
-    
+
     class Menu { 
-        
+
     }
 
     class Dialog { 
-        
+
     }
 
     GameTableForm *-- ClientLogics
     ClientLogics *-- Client
-
 ```
 
 ---
@@ -102,8 +99,6 @@ classDiagram
 ### Server part
 
 The last part implements IPlayer so it can be used and also provides way to run it in parallel with accepting new clients. ...
-
-
 
 ```mermaid
 classDiagram
@@ -114,5 +109,3 @@ classDiagram
 ## Communication
 
 ## ...
-
-

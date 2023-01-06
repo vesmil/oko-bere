@@ -1,11 +1,12 @@
-﻿using OkoCommon.Communication;
+﻿using OkoCommon;
+using OkoCommon.Communication;
 
 namespace OkoClient;
 
 public class ClientLogics
 {
     private readonly Client client;
-    public GameState gameState { get; }
+    public GameState GameState { get; } = new();
     
     // private bool isBanker;
     
@@ -28,7 +29,21 @@ public class ClientLogics
         
         NamePreset = name;
         
-        // TODO... on connect it will receive gameState and will give its name...
+        var notif = client.ReceiveNotification<object>();
+
+        if (notif is { Type: NotifEnum.AskForName })
+        {
+            client.SendGenericResponse(name);
+        }
+        else
+        {
+            // TODO problem
+        }
+
+        GameState = client.GetGameState();
+        
+        // TODO add valid balance
+        GameState.Players.Add(new PlayerInfo(NamePreset,0,0,0));
     }
 
     /// <summary>
@@ -40,12 +55,12 @@ public class ClientLogics
         {
             var update = client.ReceiveNotification<object>();
 
-            // ClientLogics updates
             if (update?.Type == NotifEnum.AskForName)
             {
                 client.SendGenericResponse(NamePreset);
             }
-            // ...
+            
+            // TODO ...
 
             // Rest of the updates should go to event handler
             if (update != null)

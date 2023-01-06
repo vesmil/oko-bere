@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using System.Net.Sockets;
+using OkoCommon;
 using OkoCommon.Communication;
 using OkoCommon.Game;
 
@@ -61,10 +62,25 @@ public class Server
             }
             else continue;
 
+            var gameState = CreateGameState();
+            newPlayer.Notify(new GenericNotif<GameState>(NotifEnum.GameStateInfo, gameState));
+
             clients.Add(newPlayer);
         }
     }
-    
+
+    private GameState CreateGameState()
+    {
+        var gameState = new GameState();
+
+        foreach (var player in clients)
+        {
+            gameState.Players.Add(new PlayerInfo(player.Name, 0, 0, 0));
+        }
+        
+        return gameState;
+    }
+
     public void StopAccepting()
     {
         accepting = false;
