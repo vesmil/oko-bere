@@ -1,13 +1,11 @@
-﻿namespace OkoBereUi;
+﻿namespace OkoClient.Forms;
 
 public partial class ConnectionDialog : Form
 {
-    public string ServerIp { get; private set; }= "";
-    public string PlayerName { get; private set; } = "";
-    
-    private readonly TextBox serverIpTextBox;
     private readonly TextBox playerNameTextBox;
-    
+
+    private readonly TextBox serverIpTextBox;
+
     public ConnectionDialog()
     {
         InitializeComponent();
@@ -35,6 +33,9 @@ public partial class ConnectionDialog : Form
         DialogResult = DialogResult.Cancel;
     }
 
+    public string ServerIp { get; private set; } = "";
+    public string PlayerName { get; private set; } = "";
+
     private void ConnectButton_Click(object sender, EventArgs e)
     {
         ServerIp = serverIpTextBox.Text;
@@ -43,7 +44,7 @@ public partial class ConnectionDialog : Form
         // TODO try to connect
         DialogResult = DialogResult.OK;
         // else...
-        
+
         Close();
     }
 }

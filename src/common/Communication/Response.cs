@@ -9,7 +9,7 @@ public enum PlayerResponseEnum : byte
 {
     Draw,
     Bet,
-    Stop,
+    Stop
 }
 
 [Serializable]

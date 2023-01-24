@@ -5,11 +5,13 @@ namespace OkoCommon;
 [Serializable]
 public struct GameState
 {
-    public GameState() { }
+    public GameState()
+    {
+    }
 
     public readonly List<PlayerInfo> Players = new();
     public readonly List<Card> Hand = new();
-    
+
     public TurnState TurnState = TurnState.NotStarted;
     public object? TurnStateData = null;
 }
@@ -24,7 +26,7 @@ public struct PlayerInfo
         Bet = bet;
         CardCount = cardCount;
     }
-    
+
     public string Name;
     public int Balance;
     public int Bet;
@@ -37,6 +39,7 @@ public enum TurnState
 {
     NotStarted,
     PlayerTurn,
-    Duel,
+
+    Duel
     // ...
 }

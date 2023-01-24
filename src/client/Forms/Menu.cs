@@ -1,4 +1,4 @@
-﻿namespace OkoBereUi;
+﻿namespace OkoClient.Forms;
 
 public partial class Menu : Form
 {
@@ -13,14 +13,14 @@ public partial class Menu : Form
         var playButton = UiCommon.InitializeMenuButton("Single player", 1, PlayButton_Click!);
         Controls.Add(playButton);
 
-        var exitButton = UiCommon.InitializeMenuButton("Exit", 2 , ExitButton_Click!);
+        var exitButton = UiCommon.InitializeMenuButton("Exit", 2, ExitButton_Click!);
         Controls.Add(exitButton);
     }
 
     private void ConnectButton_Click(object sender, EventArgs e)
     {
         var connectionDialog = new ConnectionDialog();
-        
+
         if (connectionDialog.ShowDialog() == DialogResult.OK)
         {
             var serverIp = connectionDialog.ServerIp;
@@ -32,10 +32,7 @@ public partial class Menu : Form
     private void PlayButton_Click(object sender, EventArgs e)
     {
         var singleDialog = new SettingsDialog();
-        if (singleDialog.ShowDialog() == DialogResult.OK)
-        {
-            StartSinglePlayerGame(singleDialog.NumPlayers);
-        }
+        if (singleDialog.ShowDialog() == DialogResult.OK) StartSinglePlayerGame(singleDialog.NumPlayers);
     }
 
     private void ExitButton_Click(object sender, EventArgs e)
@@ -53,7 +50,7 @@ public partial class Menu : Form
     private void StartSinglePlayerGame(int numPlayers)
     {
         // ...
-        
+
         // var gameTableForm = new GameTableForm();
         // gameTableForm.Show();
     }

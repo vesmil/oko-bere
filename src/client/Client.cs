@@ -7,29 +7,29 @@ using OkoCommon.Communication;
 namespace OkoClient;
 
 /// <summary>
-/// Recieved message wrapper for event handling.
+///     Recieved message wrapper for event handling.
 /// </summary>
 public class MessageReceivedEventArgs : EventArgs
 {
-    public object? Data { get; }
-    public NotifEnum Type { get; }
-
     public MessageReceivedEventArgs(object? data, NotifEnum type)
     {
         Data = data;
         Type = type;
     }
+
+    public object? Data { get; }
+    public NotifEnum Type { get; }
 }
 
 /// <summary>
-/// This class is mainly used to send and receive messages to and from the server.
+///     This class is mainly used to send and receive messages to and from the server.
 /// </summary>
 public class Client
 {
+    private readonly IFormatter formatter = new BinaryFormatter();
     private readonly TcpClient tcpClient;
     private NetworkStream? stream;
-    private readonly IFormatter formatter = new BinaryFormatter();
-    
+
     public Client()
     {
         tcpClient = new TcpClient();
@@ -40,7 +40,7 @@ public class Client
         tcpClient.Connect(ip, port);
         stream = tcpClient.GetStream();
     }
-    
+
     ~Client()
     {
         Disconnect();
@@ -56,7 +56,7 @@ public class Client
     {
         Send(new GenericResponse<T> { Data = data });
     }
-    
+
     public void SendResponse<T>(IResponse<T> response)
     {
         Send(response);
@@ -65,15 +65,11 @@ public class Client
     private void Send(object data)
     {
         if (stream != null)
-        {
             formatter.Serialize(stream, data);
-        }
         else
-        {
             throw new Exception("Stream is null");
-        }
     }
-    
+
     public INotification<T>? ReceiveNotification<T>()
     {
         if (stream != null)
@@ -90,12 +86,6 @@ public class Client
     {
         var notification = ReceiveNotification<GameState>();
         
-        if (notification != null)
-        {
-            return notification.Data;
-        }
-
-        return new GameState();
-        // throw new Exception("Notification is null");
+        return notification?.Data ?? new GameState();
     }
 }

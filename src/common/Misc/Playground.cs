@@ -8,13 +8,13 @@ public static class Playground
 {
     public static void PrintAllProbs()
     {
-        var hand = new List<Card>{new (Suit.Hearts, Rank.Seven) };
+        var hand = new List<Card> { new(Suit.Hearts, Rank.Seven) };
         Console.Write($"{hand[0]} - ");
         PrintForHand(hand);
-        
+
         foreach (var rank in Enum.GetValues(typeof(Rank)).Cast<Rank>())
         {
-            hand = new List<Card>{new (Suit.Clubs, rank) };
+            hand = new List<Card> { new(Suit.Clubs, rank) };
             Console.Write($"{hand[0]} - ");
             PrintForHand(hand);
         }
@@ -23,10 +23,10 @@ public static class Playground
 
         hand = new List<Card>
         {
-            new Card(Suit.Clubs, Rank.Seven),
-            new Card(Suit.Spades, Rank.Seven),
+            new(Suit.Clubs, Rank.Seven),
+            new(Suit.Spades, Rank.Seven)
         };
-        
+
         PrintForHand(hand);
     }
 
@@ -35,14 +35,11 @@ public static class Playground
         var i = 0;
         foreach (var value in prob.NextValues(hand))
         {
-            if (value != 0)
-            {
-                Console.Write($"{i}: {Math.Round(value * 100, 1)}%, ");
-            }
+            if (value != 0) Console.Write($"{i}: {Math.Round(value * 100, 1)}%, ");
 
             i++;
         }
-        
+
         Console.WriteLine();
     }
 }

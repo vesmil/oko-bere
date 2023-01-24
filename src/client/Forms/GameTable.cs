@@ -1,4 +1,3 @@
-using OkoBereUi;
 using OkoCommon;
 using OkoCommon.Communication;
 
@@ -6,23 +5,21 @@ namespace OkoClient.Forms;
 
 public sealed partial class GameTableForm : Form
 {
-    private readonly ClientLogics clientLogics;
-    private GameState GameState => clientLogics.GameState;
-
-    private readonly Label playerTurnLabel = new();
-
     private readonly Label balanceLabel = new();
     private readonly Label bankLabel = new();
     private readonly Button betButton = new();
     private readonly Label betLabel = new();
     private readonly TextBox betTextBox = new();
     private readonly Panel buttonPanel = new();
+    private readonly List<PictureBox> cardBoxes = new();
+    private readonly ClientLogics clientLogics;
 
     private readonly Button drawButton = new();
     private readonly Button endTurnButton = new();
 
     private readonly List<GroupBox> playerBoxes = new();
-    private readonly List<PictureBox> cardBoxes = new();
+
+    private readonly Label playerTurnLabel = new();
 
     public GameTableForm(ClientLogics client)
     {
@@ -31,7 +28,14 @@ public sealed partial class GameTableForm : Form
 
         clientLogics = client;
         clientLogics.MessageReceived += OnMessageReceived;
-        
+
+        Render();
+    }
+
+    private GameState GameState => clientLogics.GameState;
+
+    private void Render()
+    {
         AddTurnInfo();
         AddPlayerBoxes();
         AddMoneyLabels();
@@ -39,17 +43,39 @@ public sealed partial class GameTableForm : Form
         AddButtonPanel();
     }
 
+    private void AddControl(Control control)
+    {
+        if (InvokeRequired)
+        {
+            Invoke((MethodInvoker)delegate { Controls.Add(control); });
+        }
+        else
+        {
+            Controls.Add(control);
+        }
+    }
+    
     private void AddTurnInfo()
     {
         BackColor = Color.FromArgb(174, 203, 143);
         playerTurnLabel.AutoSize = true;
-        playerTurnLabel.Location = new Point(Width / 2 - playerTurnLabel.Size.Width / 2, 20);
 
-        // Text based on GameState
+        if (playerTurnLabel.InvokeRequired)
+        {
+            playerTurnLabel.Invoke((MethodInvoker)delegate
+            {
+                playerTurnLabel.Location = new Point(Width / 2 - playerTurnLabel.Size.Width / 2, 20);
+            });
+        }
+        else
+        {
+            playerTurnLabel.Location = new Point(Width / 2 - playerTurnLabel.Size.Width / 2, 20);
+        }
+        
         playerTurnLabel.Text = "Wait";
-        Controls.Add(playerTurnLabel);    
+        AddControl(playerTurnLabel);
     }
-    
+
     private void AddMoneyLabels()
     {
         var labelFont = new Font("Arial", 12, FontStyle.Bold);
@@ -58,20 +84,21 @@ public sealed partial class GameTableForm : Form
         bankLabel.Location = new Point(30, 250);
         bankLabel.Font = labelFont;
         bankLabel.Text = "Bank: ";
-        Controls.Add(bankLabel);
+        AddControl(bankLabel);
 
         betLabel.AutoSize = true;
         betLabel.Location = new Point(30, 290);
         betLabel.Font = labelFont;
         betLabel.Text = "Bet: ";
-        Controls.Add(betLabel);
+        AddControl(betLabel);
 
         balanceLabel.AutoSize = true;
         balanceLabel.Location = new Point(30, 330);
         balanceLabel.Font = labelFont;
         balanceLabel.Text = "Balance: ";
-        Controls.Add(balanceLabel);
+        AddControl(balanceLabel);
     }
+
     private void AddCardBoxes()
     {
         const int cardBoxWidth = 75;
@@ -86,46 +113,48 @@ public sealed partial class GameTableForm : Form
             cardBox.Size = new Size(cardBoxWidth, cardBoxHeight);
             cardBox.Location = new Point(cardBoxStartX + cardBoxSpacing * i, cardBoxStartY);
             cardBox.SizeMode = PictureBoxSizeMode.StretchImage;
-            
+
             cardBox.Image = UiCommon.GetImage(GameState.Hand[i]);
-            
-            Controls.Add(cardBox);
+
+            AddControl(cardBox);
             cardBoxes.Add(cardBox);
-        }    
+        }
     }
+
     private void AddPlayerBoxes()
     {
         for (var i = 0; i < GameState.Players.Count; i++)
         {
             var player = GameState.Players[i];
-            
+
             var playerBox = new GroupBox();
             playerBox.Size = new Size(200, 130);
             playerBox.Location = new Point(30 + 210 * i, 70);
             playerBox.Text = $"{(player.IsBanker ? "Banker" : "Player")} - {player.Name}";
-            
+
             var balancePlayerLabel = new Label();
             balancePlayerLabel.AutoSize = true;
             balancePlayerLabel.Location = new Point(10, 30);
             balancePlayerLabel.Text = $"Balance: {player.Balance}";
             playerBox.Controls.Add(balancePlayerLabel);
-            
+
             var betPlayerLabel = new Label();
             betPlayerLabel.AutoSize = true;
             betPlayerLabel.Location = new Point(10, 60);
             betPlayerLabel.Text = $"Bet: {player.Bet}";
             playerBox.Controls.Add(betPlayerLabel);
-            
+
             var cardCountLabel = new Label();
             cardCountLabel.AutoSize = true;
             cardCountLabel.Location = new Point(10, 90);
             cardCountLabel.Text = $"Cards: {player.CardCount}";
             playerBox.Controls.Add(cardCountLabel);
 
-            Controls.Add(playerBox);
+            AddControl(playerBox);
             playerBoxes.Add(playerBox);
         }
     }
+
     private void AddButtonPanel()
     {
         drawButton.Size = new Size(75, 23);
@@ -151,11 +180,11 @@ public sealed partial class GameTableForm : Form
         buttonPanel.Controls.Add(betButton);
         buttonPanel.Controls.Add(betTextBox);
         buttonPanel.Controls.Add(endTurnButton);
-        
+
         betLabel.AutoSize = true;
         buttonPanel.Location = new Point(Width - buttonPanel.Width - 0, Height - buttonPanel.Height - 50);
-        
-        Controls.Add(buttonPanel);
+
+        AddControl(buttonPanel);
         buttonPanel.Hide();
     }
 
@@ -166,11 +195,10 @@ public sealed partial class GameTableForm : Form
             case NotifEnum.GameStart:
                 playerTurnLabel.Text = "Game Started";
                 break;
-            
+
             case NotifEnum.NewBanker:
-                
                 break;
-            
+
             case NotifEnum.NewPlayer:
                 break;
             case NotifEnum.SetInitialBank:
@@ -220,6 +248,8 @@ public sealed partial class GameTableForm : Form
             case NotifEnum.EndOfGame:
                 break;
         }
+
+        Render();
     }
 
     private void DrawButton_Click(object sender, EventArgs e)

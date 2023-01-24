@@ -13,15 +13,15 @@ public enum NotifEnum
     AskForName,
     GameStateInfo,
     GameStart,
-    
+
     NewBanker,
     NewPlayer,
-    
+
     SetInitialBank,
     BankBusted,
-    
+
     AskForTurn,
-    
+
     ReceivedCard,
     CardsDealt,
     Bust,
@@ -29,16 +29,16 @@ public enum NotifEnum
     AskForMalaDomu,
     MalaDomuCalled,
     MalaDomuSuccess,
-    
+
     ChooseCutPlayer,
     ChooseCutPosition,
     SeeCutCard,
-    
+
     DuelOffer,
     DuelDeclined,
     DuelAccepted,
     DuelAskNextCard,
-    
+
     AlreadyExchanged,
     ExchangeAllowed,
 
@@ -96,7 +96,7 @@ internal class PlayerNotif : INotification<string>
         Type = NotifEnum.NewPlayer;
         Data = player.Name;
     }
-    
+
     public NotifEnum Type { get; }
     public string? Data { get; }
 }

@@ -3,22 +3,19 @@
 namespace OkoCommon.Game;
 
 public partial class Game
-{   
+{
     private class GameTable
     {
-        public readonly Dictionary<PlayerBase, int> CurrentBets;
-        public List<PlayerBase> Players;
-
         public int Bank;
-        public PlayerBase? Banker;
-        public int InitialBank;
 
         private PlayerBase? bankBrokePlayer;
+        public PlayerBase? Banker;
+        public int InitialBank;
+        public List<PlayerBase> Players;
 
         public GameTable(List<PlayerBase> players)
         {
             Players = players;
-            CurrentBets = new Dictionary<PlayerBase, int>();
             ClearBets();
         }
 
@@ -41,6 +38,12 @@ public partial class Game
 
         internal void SetBanker()
         {
+            if (Players.Count == 0)
+            {
+                Console.WriteLine("No players, can not assign a banker");
+                return;
+            }
+
             // Banker is either the one who took bank or raffled
             if (bankBrokePlayer is not null)
             {
@@ -74,7 +77,7 @@ public partial class Game
 
         private void ClearBets()
         {
-            foreach (var player in Players) CurrentBets[player] = 0;
+            foreach (var player in Players) player.Bet = 0;
         }
 
 
@@ -90,28 +93,23 @@ public partial class Game
                 return false;
             }
 
-            foreach (var player in Players.Where(p => !newPlayers.Contains(p)))
-            {
-                RemovePlayer(player);
-            }
+            foreach (var player in Players.Where(p => !newPlayers.Contains(p))) RemovePlayer(player);
 
             NotifyAllPlayers(new NoDataNotif(NotifEnum.Continue));
 
             return true;
         }
 
-        private List<PlayerBase> WouldContinue() =>
-            AllPlayers.Where(player => player.GetResponse<bool>().Data).ToList();
+        private List<PlayerBase> WouldContinue()
+        {
+            return AllPlayers.Where(player => player.GetResponse<bool>().Data).ToList();
+        }
 
         private void RemovePlayer(PlayerBase player)
         {
             Players.Remove(player);
-            CurrentBets.Remove(player);
 
-            foreach (var otherPlayer in AllPlayers)
-            {
-                otherPlayer.Notify(new PlayerNotif(NotifEnum.PlayerLeft, player));
-            }
+            foreach (var otherPlayer in AllPlayers) otherPlayer.Notify(new PlayerNotif(NotifEnum.PlayerLeft, player));
         }
 
         public void UpdatePlayers(List<PlayerBase> newPlayers)

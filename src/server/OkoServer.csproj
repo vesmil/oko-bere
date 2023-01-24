@@ -12,7 +12,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\common\OkoCommon.csproj" />
+        <ProjectReference Include="..\common\OkoCommon.csproj"/>
     </ItemGroup>
 
 </Project>

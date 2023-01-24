@@ -1,13 +1,13 @@
-﻿namespace OkoBereUi;
+﻿namespace OkoClient.Forms;
 
 public partial class SettingsDialog : Form
 {
-    public int NumPlayers { get; set; } = 5;
-    
     public SettingsDialog()
     {
         InitializeComponent();
-        
+
         // TODO
     }
+
+    public int NumPlayers { get; set; } = 5;
 }

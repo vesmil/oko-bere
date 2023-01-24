@@ -8,17 +8,16 @@ namespace OkoServer;
 
 public class Server
 {
-    private readonly TcpListener server;
+    private const int Port = 1234;
     private readonly List<TcpPlayer> clients = new();
+    private readonly TcpListener server;
 
     private bool accepting;
-
-    private const int Port = 1234;
 
     public Server()
     {
         Console.WriteLine("Starting server...");
-        
+
         server = new TcpListener(IPAddress.Any, Port);
 
         try
@@ -31,15 +30,15 @@ public class Server
             Environment.Exit(1);
         }
     }
-    
+
     ~Server()
     {
         Console.WriteLine("Stopping server...");
-        
+
         foreach (var client in clients) client.Close();
         server.Stop();
     }
-    
+
     public async void AcceptLoop()
     {
         accepting = true;
@@ -56,16 +55,18 @@ public class Server
             var nameResponse = newPlayer.GetResponse<string>();
 
             if (nameResponse.Data != null)
-            {
                 newPlayer.Name = nameResponse.Data;
-                Console.WriteLine($"Server - User with name {newPlayer.Name} connected");
-            }
-            else continue;
+            else
+                continue;
 
-            var gameState = CreateGameState();
-            newPlayer.Notify(new GenericNotif<GameState>(NotifEnum.GameStateInfo, gameState));
+            // TODO notify including other details mby?
+            foreach (var oldClient in clients)
+                oldClient.Notify(new GenericNotif<string>(NotifEnum.NewPlayer, newPlayer.Name));
 
             clients.Add(newPlayer);
+            
+            var gameState = CreateGameState();
+            newPlayer.Notify(new GenericNotif<GameState>(NotifEnum.GameStateInfo, gameState));
         }
     }
 
@@ -73,11 +74,12 @@ public class Server
     {
         var gameState = new GameState();
 
+        // TODO add more details
         foreach (var player in clients)
         {
-            gameState.Players.Add(new PlayerInfo(player.Name, 0, 0, 0));
+            gameState.Players.Add(new PlayerInfo(player.Name, player.Balance, player.Bet, player.Hand.Count));
         }
-        
+
         return gameState;
     }
 
@@ -85,7 +87,7 @@ public class Server
     {
         accepting = false;
     }
-    
+
     public List<PlayerBase> GetPlayers()
     {
         return new List<PlayerBase>(clients);

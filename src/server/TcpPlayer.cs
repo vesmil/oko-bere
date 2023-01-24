@@ -13,8 +13,8 @@ namespace OkoServer;
 public class TcpPlayer : PlayerBase
 {
     private readonly TcpClient client;
-    private readonly NetworkStream stream;
     private readonly IFormatter formatter = new BinaryFormatter();
+    private readonly NetworkStream stream;
 
     public TcpPlayer(TcpClient client, NetworkStream stream, string name, int balance) : base(name, balance)
     {
@@ -40,16 +40,17 @@ public class TcpPlayer : PlayerBase
         stream.Close();
         client.Close();
     }
-    
+
     public bool InstantWin()
     {
         if (Hand.Count == 2)
         {
             if (Hand[0].Rank == Rank.Ace && Hand[1].Rank == Rank.Ace)
                 return true;
-            
+
             if ((Hand[0].Rank == Rank.Ace || Hand[1].Rank == Rank.Ace) &&
-                (Hand[0].Rank == Rank.Seven && Hand[0].Suit == Suit.Hearts || Hand[1].Rank == Rank.Seven && Hand[0].Suit == Suit.Hearts))
+                ((Hand[0].Rank == Rank.Seven && Hand[0].Suit == Suit.Hearts) ||
+                 (Hand[1].Rank == Rank.Seven && Hand[0].Suit == Suit.Hearts)))
                 return true;
         }
 
@@ -60,19 +61,16 @@ public class TcpPlayer : PlayerBase
     {
         var possibles = Hand.GetSum();
 
-        if (possibles.Count == 1)
-        {
-            return possibles[0];
-        }
+        if (possibles.Count == 1) return possibles[0];
 
         var closest = possibles[0];
-        
+
         return closest;
     }
 
     public override IResponse<T> GetResponse<T>()
     {
-        return (IResponse<T>) formatter.Deserialize(stream);
+        return (IResponse<T>)formatter.Deserialize(stream);
     }
 
     public override bool Notify<T>(INotification<T> notification)

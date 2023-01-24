@@ -5,9 +5,19 @@ namespace Tests;
 
 public class TestPlayer : PlayerBase
 {
-    public TestPlayer(string name, int balance) : base(name, balance) { }
-    public override IResponse<T> GetResponse<T>() => default!;
-    public override bool Notify<T>(INotification<T> notification) => default;
+    public TestPlayer(string name, int balance) : base(name, balance)
+    {
+    }
+
+    public override IResponse<T> GetResponse<T>()
+    {
+        return default!;
+    }
+
+    public override bool Notify<T>(INotification<T> notification)
+    {
+        return default;
+    }
 }
 
 public class PlayerTests
@@ -23,7 +33,7 @@ public class PlayerTests
             Assert.That(player.Balance, Is.EqualTo(1000), "Player balance is not 1000");
         });
     }
-    
+
     [Test]
     public void NegativeBalance()
     {
@@ -32,7 +42,7 @@ public class PlayerTests
             var _ = new TestPlayer("TestPlayer", -1000);
         }, "Balance cannot be negative");
     }
-    
+
     [Test]
     public void EmptyName()
     {
@@ -47,10 +57,7 @@ public class PlayerTests
     {
         var player1 = new TestPlayer("TestPlayer", 1000);
         var player2 = new TestPlayer("TestPlayer", 1000);
-        
-        Assert.Multiple(() =>
-        {
-            Assert.That(player1, Is.EqualTo(player2), "Players are not equal");
-        });
+
+        Assert.Multiple(() => { Assert.That(player1, Is.EqualTo(player2), "Players are not equal"); });
     }
 }

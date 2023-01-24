@@ -5,20 +5,20 @@ namespace OkoCommon.Game;
 public partial class Game
 {
     private readonly Deck deck = new();
-    private readonly GameTable table;
 
     private readonly GetPlayersDelegate getGetPlayersDelegate;
-    
+    private readonly GameTable table;
+
     public Game(GetPlayersDelegate getGetPlayerDel)
     {
         getGetPlayersDelegate = getGetPlayerDel;
         table = new GameTable(getGetPlayersDelegate.Invoke());
     }
-    
+
     public void GameLoop()
     {
         table.UpdatePlayers(getGetPlayersDelegate.Invoke());
-        
+
         while (true)
         {
             table.SetBanker();
@@ -26,15 +26,14 @@ public partial class Game
             while (table.Bank > 0)
             {
                 var newPlayers = getGetPlayersDelegate.Invoke();
+
                 if (newPlayers.Count != table.Players.Count) table.UpdatePlayers(newPlayers);
+                // TODO update gameState accordingly
 
                 OneRound();
             }
 
-            if (!table.AskForContinue())
-            {
-                break;
-            }
+            if (!table.AskForContinue()) break;
         }
     }
 
@@ -43,9 +42,9 @@ public partial class Game
         if (table.Banker is null) throw new Exception("Can not start round without a banker.");
 
         deck.Restart();
-        
+
         var malaDomu = false;
-        
+
         if (table.InitialBank * 2 <= table.Bank)
         {
             if (table.Banker is not null)
@@ -54,9 +53,7 @@ public partial class Game
                 malaDomu = table.Banker.GetResponse<bool>().Data;
             }
             else
-            {
                 throw new Exception("Banker is missing");
-            }
 
             if (malaDomu)
             {
@@ -67,7 +64,7 @@ public partial class Game
 
         deck.Shuffle();
         Console.WriteLine("Deck was shuffled");
-        
+
         PlayerBase? cutPlayer = null;
         while (cutPlayer is null)
         {
@@ -75,39 +72,34 @@ public partial class Game
             var cutPlayerName = table.Banker.GetResponse<string>().Data;
             cutPlayer = table.Players.FirstOrDefault(x => x.Name == cutPlayerName);
         }
+
         var duelInitiated = CutAndDuel(cutPlayer);
-        
-        if (duelInitiated)
-        {
-            return;
-        }
-        
+
+        if (duelInitiated) return;
+
         foreach (var player in table.Players.Where(p => p.Balance != 0).Append(table.Banker))
         {
             player.Hand.Clear();
             player.Hand.Add(deck.Draw());
             player.Exchanged = false;
-            
+
             player.Notify(new CardNotif(NotifEnum.ReceivedCard, player.Hand[0]));
         }
-        
+
         if (malaDomu && table.Banker.Hand[0].Rank is Rank.King or Rank.Eight)
         {
             table.NotifyAllPlayers(new NoDataNotif(NotifEnum.MalaDomuSuccess));
-            
+
             table.Banker.Balance += table.Bank;
             table.Bank = 0;
-            
+
             return;
         }
 
-        foreach (var player in table.Players)
-        {
-            PlayersTurn(player);
-        }
+        foreach (var player in table.Players) PlayersTurn(player);
 
         BankersTurn();
-        
+
         Evaluation();
     }
 
@@ -117,31 +109,28 @@ public partial class Game
 
         var index = table.Players.IndexOf(cutPlayer);
         var duelPlayer = table.Players[(index + 1) % table.Players.Count];
-        
+
         // Let the cutPlayer choose where to cut
         cutPlayer.Notify(new NoDataNotif(NotifEnum.ChooseCutPosition));
         var cutIndex = cutPlayer.GetResponse<int>().Data;
-        
+
         var cutCard = deck.Cut(cutIndex);
-        table.NotifyAllPlayers(new GenericNotif<Card>(NotifEnum.SeeCutCard,cutCard));
+        table.NotifyAllPlayers(new GenericNotif<Card>(NotifEnum.SeeCutCard, cutCard));
 
         duelPlayer.Notify(new NoDataNotif(NotifEnum.DuelOffer));
         var bet = duelPlayer.GetResponse<int>().Data;
-        
-        if (bet == 0)
-        {
-            return false;
-        }
-        
+
+        if (bet == 0) return false;
+
         table.Banker.Notify(new GenericNotif<int>(NotifEnum.DuelOffer, bet));
         var accept = table.Banker.GetResponse<bool>().Data;
-        
+
         if (!accept)
         {
             duelPlayer.Notify(new NoDataNotif(NotifEnum.DuelDeclined));
             return false;
         }
-        
+
         duelPlayer.Notify(new NoDataNotif(NotifEnum.DuelAccepted));
         Duel(duelPlayer);
 
@@ -152,17 +141,15 @@ public partial class Game
     {
         duelPlayer.Notify(new NoDataNotif(NotifEnum.DuelAskNextCard));
         // ...
-        
+
         table.Banker!.Notify(new NoDataNotif(NotifEnum.DuelAskNextCard));
         // ...
-        
+
         // Announce winner
-        
     }
 
     private void PlayersTurn(PlayerBase player)
     {
-        
         while (true)
         {
             player.Notify(new NoDataNotif(NotifEnum.AskForTurn));
@@ -171,7 +158,7 @@ public partial class Game
             switch (decision)
             {
                 case PlayerResponseEnum.Bet:
-                    // ...
+                // ...
                 case PlayerResponseEnum.Draw:
                     DrawCard(player);
                     break;
@@ -186,14 +173,14 @@ public partial class Game
             }
         }
     }
-    
+
     private void BankersTurn()
     {
         var card = deck.Draw();
         table.Banker!.Hand.Add(card);
-        
+
         // Ask if he would like to make it visible
-        
+
         // ...
     }
 
@@ -201,9 +188,9 @@ public partial class Game
     {
         var card = deck.Draw();
         player.Hand.Add(card);
-        
+
         // player.SendNotification(... , card);
-        
+
         foreach (var otherPlayer in table.AllExcept(player))
         {
             // otherPlayer.SendNotification(...);
@@ -212,28 +199,27 @@ public partial class Game
 
     private void ExchangeCards(PlayerBase player)
     {
-        if (player.Exchanged)
-        {
-            player.Notify(new NoDataNotif(NotifEnum.AlreadyExchanged));
-        }
-        
+        if (player.Exchanged) player.Notify(new NoDataNotif(NotifEnum.AlreadyExchanged));
+
         player.Hand.Clear();
         player.Hand.Add(deck.Draw());
-        
+
         // Notify player about his new hand
         // ...
     }
-    
+
     private void Evaluation()
     {
         // Inform the players...
-        
-        foreach (var player in table.Players.Where(player => player.Hand.GetBestValue() > table.Banker!.Hand.GetBestValue()))
+
+        foreach (var player in table.Players.Where(player =>
+                     player.Hand.GetBestValue() > table.Banker!.Hand.GetBestValue()))
         {
-            player.Balance += 2 * table.CurrentBets[player];
-            table.CurrentBets[player] = 0;
+            player.Balance += 2 * player.Bet;
+            player.Bet = 0;
         }
-        
-        table.Bank += table.CurrentBets.Values.Sum();
+
+        table.Bank += table.Players.Sum(player => player.Bet);
+        table.Players.ForEach(player => player.Bet = 0);
     }
 }
