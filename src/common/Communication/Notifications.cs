@@ -50,7 +50,6 @@ public enum NotifEnum
     EndOfGame
 }
 
-[Serializable]
 public class GenericNotif<T> : INotification<T>
 {
     public GenericNotif(NotifEnum type, T data)
@@ -63,7 +62,6 @@ public class GenericNotif<T> : INotification<T>
     public T? Data { get; init; }
 }
 
-[Serializable]
 public class CardNotif : INotification<Card>
 {
     public CardNotif(NotifEnum type, Card data)
@@ -76,7 +74,6 @@ public class CardNotif : INotification<Card>
     public Card Data { get; }
 }
 
-[Serializable]
 public class NoDataNotif : INotification<object>
 {
     public NoDataNotif(NotifEnum type)
@@ -88,7 +85,6 @@ public class NoDataNotif : INotification<object>
     public object? Data => null;
 }
 
-[Serializable]
 internal class PlayerNotif : INotification<string>
 {
     public PlayerNotif(NotifEnum type, PlayerBase player)

@@ -62,6 +62,8 @@ public class TestTables : Form
         clients.Add(client);
 
         var ui = new GameTableForm(client);
+        
+        ui.Text = name;
         ui.Show();
     }
 

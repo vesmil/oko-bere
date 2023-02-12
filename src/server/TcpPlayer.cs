@@ -1,11 +1,8 @@
 using System.Net.Sockets;
-using System.Runtime.Serialization;
-using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
+using Newtonsoft.Json;
 using OkoCommon.Communication;
 using OkoCommon.Game;
-
-#pragma warning disable SYSLIB0011
 
 namespace OkoServer;
 
@@ -13,7 +10,7 @@ namespace OkoServer;
 public class TcpPlayer : PlayerBase
 {
     private readonly TcpClient client;
-    private readonly IFormatter formatter = new BinaryFormatter();
+    private readonly JsonSerializer formatter =  new();
     private readonly NetworkStream stream;
 
     public TcpPlayer(TcpClient client, NetworkStream stream, string name, int balance) : base(name, balance)
@@ -70,14 +67,23 @@ public class TcpPlayer : PlayerBase
 
     public override IResponse<T> GetResponse<T>()
     {
-        return (IResponse<T>)formatter.Deserialize(stream);
+        var response = new byte[1024];
+        var bytesRead = stream.Read(response, 0, response.Length);
+        
+        var jsonResponse = System.Text.Encoding.UTF8.GetString(response, 0, bytesRead);
+        var objResponse = JsonConvert.DeserializeObject<IResponse<T>>(jsonResponse);
+
+        return objResponse ?? throw new JsonException("Response is null.");
     }
 
     public override bool Notify<T>(INotification<T> notification)
     {
         if (stream.CanWrite)
         {
-            formatter.Serialize(stream, notification);
+            var json = JsonConvert.SerializeObject(notification);
+            var data = System.Text.Encoding.UTF8.GetBytes(json);
+            stream.Write(data, 0, data.Length);
+            
             return true;
         }
 

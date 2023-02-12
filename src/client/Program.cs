@@ -9,8 +9,6 @@ internal static class Program
     public static void Main()
     {
         ApplicationConfiguration.Initialize();
-
-        // TODO ...this won't create TestTables but Menu
         Application.Run(new TestTables());
     }
 }

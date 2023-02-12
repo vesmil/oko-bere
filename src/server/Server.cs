@@ -55,13 +55,21 @@ public class Server
             var nameResponse = newPlayer.GetResponse<string>();
 
             if (nameResponse.Data != null)
+            {
                 newPlayer.Name = nameResponse.Data;
+            }
             else
+            {
                 continue;
+            }
 
-            // TODO notify including other details mby?
+            var newPlayerInfo = new PlayerInfo(newPlayer.Name, newPlayer.Balance, newPlayer.Bet, newPlayer.Hand.Count);
             foreach (var oldClient in clients)
-                oldClient.Notify(new GenericNotif<string>(NotifEnum.NewPlayer, newPlayer.Name));
+            {
+                oldClient.Notify(new NoDataNotif(NotifEnum.NewPlayer));
+                
+                oldClient.Notify(new GenericNotif<PlayerInfo>(NotifEnum.NewPlayer, newPlayerInfo));
+            }
 
             clients.Add(newPlayer);
             
@@ -74,7 +82,6 @@ public class Server
     {
         var gameState = new GameState();
 
-        // TODO add more details
         foreach (var player in clients)
         {
             gameState.Players.Add(new PlayerInfo(player.Name, player.Balance, player.Bet, player.Hand.Count));

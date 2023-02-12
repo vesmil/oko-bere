@@ -58,7 +58,7 @@ public partial class Game
                 // Might add animation for the raffle here
 
                 AssignBanker(Players[num]);
-                NotifyAllPlayers(new PlayerNotif(NotifEnum.NewBanker, Banker!));
+                // todo NotifyAllPlayers(new PlayerNotif(NotifEnum.NewBanker, Banker!));
             }
 
             Console.WriteLine($"Banker was set to {Banker!.Name}");

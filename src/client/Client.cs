@@ -65,16 +65,19 @@ public class Client
     private void Send(object data)
     {
         if (stream != null)
-            formatter.Serialize(stream, data);
+            // TODO
+        {}
         else
             throw new Exception("Stream is null");
+
+        throw new Exception("Stream is null");
     }
 
     public INotification<T>? ReceiveNotification<T>()
     {
         if (stream != null)
         {
-            var response = formatter.Deserialize(stream);
+            object? response = null; // TODO    
             var notification = response as INotification<T>;
             return notification;
         }
@@ -85,7 +88,6 @@ public class Client
     public GameState GetGameState()
     {
         var notification = ReceiveNotification<GameState>();
-        
         return notification?.Data ?? new GameState();
     }
 }

@@ -5,12 +5,13 @@ User guide is separated into two parts as usually more people will be interested
 The prerequisites for both are:
 
 * ...
+* Have a positive attitude towards gambling
 
 ---
 
 ## Client side
 
-This part includes both connection to the server and game controls.
+*This part includes both connection to the server and game controls.*
 
 ### Connection
 
@@ -24,7 +25,7 @@ This part includes both connection to the server and game controls.
 
 ## Server side
 
-This part includes info about server configuration.
+*This part includes info about server configuration.*
 
 ## Setup server
 

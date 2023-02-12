@@ -1,4 +1,5 @@
-﻿using OkoCommon;
+﻿using System.Diagnostics;
+using OkoCommon;
 using OkoCommon.Communication;
 
 namespace OkoClient;
@@ -51,9 +52,14 @@ public class ClientLogics
                 continue;
             }
 
-            if (update is { Type: NotifEnum.NewPlayer, Data: string name })
-                GameState.Players.Add(new PlayerInfo(name, 0, 0, 0));
+            // write update type in debug
+            Debug.WriteLine(NamePreset + " - " + update?.Type);
 
+            if (update?.Type == NotifEnum.NewPlayer)
+            {
+                // GameState.Players.Add((PlayerInfo) (update.Data ?? throw new InvalidOperationException()));
+            }
+            
             // TODO add valid balance
             
             // Rest of the updates should go to event handler
