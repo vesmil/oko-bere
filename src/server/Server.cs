@@ -63,12 +63,9 @@ public class Server
                 continue;
             }
 
-            var newPlayerInfo = new PlayerInfo(newPlayer.Name, newPlayer.Balance, newPlayer.Bet, newPlayer.Hand.Count);
             foreach (var oldClient in clients)
             {
-                oldClient.Notify(new NoDataNotif(NotifEnum.NewPlayer));
-                
-                oldClient.Notify(new GenericNotif<PlayerInfo>(NotifEnum.NewPlayer, newPlayerInfo));
+                oldClient.Notify(new PlayerNotif(NotifEnum.NewPlayer, newPlayer));
             }
 
             clients.Add(newPlayer);

@@ -64,20 +64,19 @@ public class Client
 
     private void Send(object data)
     {
+        // TODO rewrite it using JSON
+        
         if (stream != null)
-            // TODO
-        {}
+            formatter.Serialize(stream, data);
         else
             throw new Exception("Stream is null");
-
-        throw new Exception("Stream is null");
     }
 
     public INotification<T>? ReceiveNotification<T>()
     {
         if (stream != null)
         {
-            object? response = null; // TODO    
+            var response = formatter.Deserialize(stream);
             var notification = response as INotification<T>;
             return notification;
         }

@@ -57,7 +57,7 @@ public class ClientLogics
 
             if (update?.Type == NotifEnum.NewPlayer)
             {
-                // GameState.Players.Add((PlayerInfo) (update.Data ?? throw new InvalidOperationException()));
+                GameState.Players.Add((PlayerInfo) (update.Data ?? throw new InvalidOperationException()));
             }
             
             // TODO add valid balance
