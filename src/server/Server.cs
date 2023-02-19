@@ -49,16 +49,11 @@ public class Server
             Console.WriteLine("Server - Connection accepted from " + client.Client.RemoteEndPoint);
 
             var newPlayer = new TcpPlayer(client, null, 1000);
-
-            newPlayer.Notify(new NoDataNotif(NotifEnum.AskForName));
-            var nameResponse = newPlayer.GetResponse<string>();
-
-            if (nameResponse.Data != null)
+            
+            if (newPlayer.Name.Trim() == "")
             {
-                newPlayer.Name = nameResponse.Data;
-            }
-            else
-            {
+                Console.WriteLine("Server - Player doesn't have a name, disconnecting");
+                newPlayer.Dispose();
                 continue;
             }
 

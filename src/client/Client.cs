@@ -41,9 +41,9 @@ public class Client
 
         NamePreset = name;
 
-        // Note might be necessary to check response
+        // Note might be necessary to check response from server
         transfer.Receive<INotification<object>>();
-        transfer.Send(NamePreset);
+        transfer.Send(new GenericResponse<string>{Data=name});
         
         GameState = transfer.Receive<INotification<GameState>>().Data;
     }

@@ -2,21 +2,21 @@
 
 namespace OkoCommon;
 
-[Serializable]
 public struct GameState
 {
     public GameState()
     {
+        Players = new List<PlayerInfo>();
+        Hand = new List<Card>();
     }
-
-    public readonly List<PlayerInfo> Players = new();
-    public readonly List<Card> Hand = new();
+    
+    public List<PlayerInfo> Players;
+    public List<Card> Hand;
 
     public TurnState TurnState = TurnState.NotStarted;
     public object? TurnStateData = null;
 }
 
-[Serializable]
 public struct PlayerInfo
 {
     public PlayerInfo(string name, int balance, int bet, int cardCount)

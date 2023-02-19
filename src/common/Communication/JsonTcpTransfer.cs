@@ -1,6 +1,6 @@
 using System.Net.Sockets;
 using System.Text;
-using System.Text.Json;
+using Newtonsoft.Json;
 
 namespace OkoCommon.Communication;
 
@@ -15,10 +15,12 @@ public class JsonTcpTransfer : IObjectTransfer
     private readonly NetworkStream stream;
     private readonly TcpClient client;
     
-    private static readonly JsonSerializerOptions JsonSerializerOptions = new()
+    private string prevJson = "";
+
+    private JsonSerializerSettings settings = new()
     {
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-        WriteIndented = true
+        TypeNameHandling = TypeNameHandling.All,
+        TypeNameAssemblyFormatHandling = TypeNameAssemblyFormatHandling.Full
     };
     
     public JsonTcpTransfer(string ip, int port)
@@ -44,7 +46,7 @@ public class JsonTcpTransfer : IObjectTransfer
         if (stream == null)
             throw new InvalidOperationException("The stream is null");
 
-        var json = JsonSerializer.Serialize(obj, JsonSerializerOptions);
+        var json = JsonConvert.SerializeObject(obj, settings);
 
         var jsonBytes = Encoding.UTF8.GetBytes(json);
         stream.Write(jsonBytes, 0, jsonBytes.Length);
@@ -63,12 +65,31 @@ public class JsonTcpTransfer : IObjectTransfer
             var bytesRead = stream.Read(buffer, 0, buffer.Length);
             ms.Write(buffer, 0, bytesRead);
         } while (stream.DataAvailable);
-
+        
 
         var jsonBytes = ms.ToArray();
-        var json = Encoding.UTF8.GetString(jsonBytes);
         
-        return JsonSerializer.Deserialize<T>(json, JsonSerializerOptions) ?? throw new InvalidOperationException("The deserialized object is null");
+        var json = prevJson + Encoding.UTF8.GetString(jsonBytes);
+        prevJson = "";
+        
+        var jsons = json.Split("}{");
+
+        // Handle multiple objects in one message
+        if (jsons.Length > 1) json = jsons[0] + "}";
+        for (var i = 1; i < jsons.Length; i++) prevJson += "{" + jsons[i] + "}";
+        if (prevJson.Length > 0) prevJson = prevJson[..^1];
+        
+        var obj = JsonConvert.DeserializeObject(json, settings);
+        
+        if (obj is T t)
+            return t;
+        
+        // TODO Unable to cast object of type 'OkoCommon.Communication.PlayerNotif' to type 'OkoCommon.Communication.INotification`1[System.Object]'.
+        // ...that will solve new players
+        
+        // throw new InvalidCastException($"Unable to cast object of type '{obj.GetType()}' to type '{typeof(T)}'.");
+
+        return default!;
     }
 
     public void Dispose()

@@ -12,19 +12,16 @@ public enum PlayerResponseEnum : byte
     Stop
 }
 
-[Serializable]
 public class GenericResponse<T> : IResponse<T>
 {
     public T? Data { get; init; }
 }
 
-[Serializable]
 public struct PlayerResponse : IResponse<int>
 {
     public int Data { get; init; }
 }
 
-[Serializable]
 public struct BooleanResponse : IResponse<bool>
 {
     public bool Data { get; init; }

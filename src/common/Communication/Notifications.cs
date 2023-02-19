@@ -2,7 +2,7 @@
 
 namespace OkoCommon.Communication;
 
-public interface INotification<out T>
+public interface INotification<T>
 {
     NotifEnum Type { get; }
     public T? Data { get; }
@@ -50,7 +50,6 @@ public enum NotifEnum
     EndOfGame
 }
 
-[Serializable]
 public struct GenericNotif<T> : INotification<T>
 {
     public GenericNotif(NotifEnum type, T data)
@@ -63,7 +62,6 @@ public struct GenericNotif<T> : INotification<T>
     public T? Data { get; init; }
 }
 
-[Serializable]
 public struct CardNotif : INotification<Card>
 {
     public CardNotif(NotifEnum type, Card data)
@@ -76,7 +74,6 @@ public struct CardNotif : INotification<Card>
     public Card Data { get; }
 }
 
-[Serializable]
 public struct NoDataNotif : INotification<object>
 {
     public NoDataNotif(NotifEnum type)
@@ -88,7 +85,6 @@ public struct NoDataNotif : INotification<object>
     public object? Data => null;
 }
 
-[Serializable]
 public struct PlayerNotif : INotification<PlayerInfo>
 {
     public PlayerNotif(NotifEnum type, PlayerBase player)
