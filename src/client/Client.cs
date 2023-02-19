@@ -1,6 +1,4 @@
-using System.Net.Sockets;
-using System.Runtime.Serialization;
-using System.Runtime.Serialization.Formatters.Binary;
+﻿using System.Diagnostics;
 using OkoCommon;
 using OkoCommon.Communication;
 
@@ -21,72 +19,70 @@ public class MessageReceivedEventArgs : EventArgs
     public NotifEnum Type { get; }
 }
 
-/// <summary>
-///     This class is mainly used to send and receive messages to and from the server.
-/// </summary>
 public class Client
 {
-    private readonly IFormatter formatter = new BinaryFormatter();
-    private readonly TcpClient tcpClient;
-    private NetworkStream? stream;
+    private readonly IObjectTransfer transfer;
 
-    public Client()
+    public Client(string ip, int port)
     {
-        tcpClient = new TcpClient();
-    }
-
-    public void Connect(string ip, int port)
-    {
-        tcpClient.Connect(ip, port);
-        stream = tcpClient.GetStream();
-    }
-
-    ~Client()
-    {
-        Disconnect();
-    }
-
-    private void Disconnect()
-    {
-        tcpClient.Close();
-        stream = null;
-    }
-
-    public void SendGenericResponse<T>(T data)
-    {
-        Send(new GenericResponse<T> { Data = data });
-    }
-
-    public void SendResponse<T>(IResponse<T> response)
-    {
-        Send(response);
-    }
-
-    private void Send(object data)
-    {
-        // TODO rewrite it using JSON
+        transfer = new JsonTcpTransfer(ip, port);
         
-        if (stream != null)
-            formatter.Serialize(stream, data);
-        else
-            throw new Exception("Stream is null");
+        transfer.Receive<INotification<object>>();
+        // TODO Ask for name using UI
+        
+        transfer.Send("...");
+        
+        GameState = transfer.Receive<INotification<GameState>>().Data;
     }
 
-    public INotification<T>? ReceiveNotification<T>()
+    public Client(string name, string ip, int port)
     {
-        if (stream != null)
+        transfer = new JsonTcpTransfer(ip, port);
+
+        NamePreset = name;
+
+        // Note might be necessary to check response
+        transfer.Receive<INotification<object>>();
+        transfer.Send(NamePreset);
+        
+        GameState = transfer.Receive<INotification<GameState>>().Data;
+    }
+
+    public GameState GameState { get; }
+    private string NamePreset { get; } = "";
+
+    public event EventHandler<MessageReceivedEventArgs>? MessageReceived;
+
+    /// <summary>
+    ///     Main loop to receive messages from server
+    /// </summary>
+    public void PlayerLoop()
+    {
+        while (true)
         {
-            var response = formatter.Deserialize(stream);
-            var notification = response as INotification<T>;
-            return notification;
+            var update = transfer.Receive<INotification<object>>();
+            
+            Debug.WriteLine(NamePreset + " - " + update?.Type);
+
+            if (update?.Type == NotifEnum.NewPlayer)
+            {
+                GameState.Players.Add((PlayerInfo) (update.Data ?? throw new InvalidOperationException()));
+            }
+            
+            // TODO add valid balance
+            
+            // Rest of the updates should go to event handler
+            if (update != null) MessageReceived?.Invoke(this, new MessageReceivedEventArgs(update.Data, update.Type));
+
+            Thread.Sleep(100);
         }
-
-        throw new Exception("Stream is null");
     }
 
-    public GameState GetGameState()
-    {
-        var notification = ReceiveNotification<GameState>();
-        return notification?.Data ?? new GameState();
-    }
+    // Bet, draw stop...
+
+    // ChooseCutPlayer
+
+    // ChooseCutCard 
+
+    // AcceptDuel
 }

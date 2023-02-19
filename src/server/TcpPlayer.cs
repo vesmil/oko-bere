@@ -1,86 +1,42 @@
 using System.Net.Sockets;
-using System.Runtime.Serialization;
-using System.Runtime.Serialization.Formatters.Binary;
-using System.Text;
 using OkoCommon.Communication;
 using OkoCommon.Game;
 
 namespace OkoServer;
 
-[Serializable]
-public class TcpPlayer : PlayerBase
+public class TcpPlayer : PlayerBase, IDisposable
 {
-    private readonly TcpClient client;
-    private readonly IFormatter formatter = new BinaryFormatter();
-    private readonly NetworkStream stream;
-
-    public TcpPlayer(TcpClient client, NetworkStream stream, string name, int balance) : base(name, balance)
+    private readonly IObjectTransfer transfer;
+    
+    public TcpPlayer(TcpClient client, string? name, int balance) : base("_", balance)
     {
-        this.client = client;
-        this.stream = stream;
-    }
-
-    public void SendString(string message)
-    {
-        var data = Encoding.ASCII.GetBytes(message);
-        stream.Write(data, 0, data.Length);
-    }
-
-    public string ReceiveString()
-    {
-        var data = new byte[1024];
-        var bytes = stream.Read(data, 0, data.Length);
-        return Encoding.ASCII.GetString(data, 0, bytes);
-    }
-
-    public void Close()
-    {
-        stream.Close();
-        client.Close();
-    }
-
-    public bool InstantWin()
-    {
-        if (Hand.Count == 2)
+        transfer = new JsonTcpTransfer(client);
+        
+        if (name != null)
         {
-            if (Hand[0].Rank == Rank.Ace && Hand[1].Rank == Rank.Ace)
-                return true;
-
-            if ((Hand[0].Rank == Rank.Ace || Hand[1].Rank == Rank.Ace) &&
-                ((Hand[0].Rank == Rank.Seven && Hand[0].Suit == Suit.Hearts) ||
-                 (Hand[1].Rank == Rank.Seven && Hand[0].Suit == Suit.Hearts)))
-                return true;
+            Name = name;
         }
-
-        return false;
-    }
-
-    public int Total()
-    {
-        var possibles = Hand.GetSum();
-
-        if (possibles.Count == 1) return possibles[0];
-
-        var closest = possibles[0];
-
-        return closest;
-    }
-
-    public override IResponse<T> GetResponse<T>()
-    {
-        // TODO rewrite it using JSON
-
-        return (IResponse<T>)formatter.Deserialize(stream);
-    }
-
-    public override bool Notify<T>(INotification<T> notification)
-    {
-        if (stream.CanWrite)
+        else
         {
-            formatter.Serialize(stream, notification);
-            return true;
+            Notify(new NoDataNotif(NotifEnum.AskForName));
+            var nameResponse = GetResponse<string>();
+            
+            Name = nameResponse.Data ?? "Unnamed";
         }
+    }
+    
+    public sealed override IResponse<T> GetResponse<T>()
+    {
+        return transfer.Receive<IResponse<T>>();
+    }
 
-        return false;
+    public sealed override void Notify<T>(INotification<T> notification)
+    {
+        transfer.Send(notification);
+    }
+
+    public void Dispose()
+    {
+        transfer.Dispose();
     }
 }

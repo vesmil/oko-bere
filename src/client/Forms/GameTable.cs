@@ -12,7 +12,7 @@ public sealed partial class GameTableForm : Form
     private readonly TextBox betTextBox = new();
     private readonly Panel buttonPanel = new();
     private readonly List<PictureBox> cardBoxes = new();
-    private readonly ClientLogics clientLogics;
+    private readonly Client client;
 
     private readonly Button drawButton = new();
     private readonly Button endTurnButton = new();
@@ -21,18 +21,18 @@ public sealed partial class GameTableForm : Form
 
     private readonly Label playerTurnLabel = new();
 
-    public GameTableForm(ClientLogics client)
+    public GameTableForm(Client client)
     {
         InitializeComponent();
         // WindowState = FormWindowState.Maximized;
 
-        clientLogics = client;
-        clientLogics.MessageReceived += OnMessageReceived;
+        this.client = client;
+        this.client.MessageReceived += OnMessageReceived;
 
         Render();
     }
 
-    private GameState GameState => clientLogics.GameState;
+    private GameState GameState => client.GameState;
 
     private void Render()
     {

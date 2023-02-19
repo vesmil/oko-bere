@@ -12,7 +12,7 @@ namespace OkoClient;
 /// </summary>
 public class TestTables : Form
 {
-    private readonly List<ClientLogics> clients = new();
+    private readonly List<Client> clients = new();
     private readonly List<Thread> clientThreads = new();
     private readonly Thread gameThread;
     private readonly Server server = new();
@@ -58,7 +58,7 @@ public class TestTables : Form
 
     private void NewClientLogics(string name, string ip)
     {
-        var client = new ClientLogics(name, ip, 1234);
+        var client = new Client(name, ip, 1234);
         clients.Add(client);
 
         var ui = new GameTableForm(client);

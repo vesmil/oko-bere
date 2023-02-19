@@ -35,7 +35,8 @@ public class Server
     {
         Console.WriteLine("Stopping server...");
 
-        foreach (var client in clients) client.Close();
+        // NOTE might make server into disposable...
+        foreach (var client in clients) client.Dispose();
         server.Stop();
     }
 
@@ -45,11 +46,9 @@ public class Server
         while (accepting)
         {
             var client = await server.AcceptTcpClientAsync();
-
             Console.WriteLine("Server - Connection accepted from " + client.Client.RemoteEndPoint);
 
-            var networkStream = client.GetStream();
-            var newPlayer = new TcpPlayer(client, networkStream, "unknown", 1000);
+            var newPlayer = new TcpPlayer(client, null, 1000);
 
             newPlayer.Notify(new NoDataNotif(NotifEnum.AskForName));
             var nameResponse = newPlayer.GetResponse<string>();

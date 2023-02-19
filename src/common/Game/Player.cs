@@ -29,11 +29,36 @@ public abstract class PlayerBase
 
         id = Guid.NewGuid();
     }
+    
+    public abstract IResponse<T> GetResponse<T>();
+    public abstract void Notify<T>(INotification<T> notification);
 
-    // Could be replaced with GUID in the future
+    public bool InstantWin()
+    {
+        if (Hand.Count == 2)
+        {
+            if (Hand[0].Rank == Rank.Ace && Hand[1].Rank == Rank.Ace)
+                return true;
+
+            if ((Hand[0].Rank == Rank.Ace || Hand[1].Rank == Rank.Ace) &&
+                ((Hand[0].Rank == Rank.Seven && Hand[0].Suit == Suit.Hearts) ||
+                 (Hand[1].Rank == Rank.Seven && Hand[0].Suit == Suit.Hearts)))
+                return true;
+        }
+
+        return false;
+    }
+
+    public int Total()
+    {
+        var possibles = Hand.GetSum();
+        return possibles[0];
+    }
+    
     public override bool Equals(object? obj)
     {
-        if (obj is PlayerBase player) return player.id == id;
+        if (obj is PlayerBase player) 
+            return player.id == id;
 
         return false;
     }
@@ -42,15 +67,11 @@ public abstract class PlayerBase
     {
         return id.GetHashCode();
     }
-
-    public abstract IResponse<T> GetResponse<T>();
-    public abstract bool Notify<T>(INotification<T> notification);
-
+    
     public static bool operator ==(PlayerBase left, PlayerBase? right)
     {
         return left.Equals(right);
     }
-
     public static bool operator !=(PlayerBase left, PlayerBase? right)
     {
         return !(left == right);

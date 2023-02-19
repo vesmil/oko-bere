@@ -14,9 +14,8 @@ public class TestPlayer : PlayerBase
         return default!;
     }
 
-    public override bool Notify<T>(INotification<T> notification)
+    public override void Notify<T>(INotification<T> notification)
     {
-        return default;
     }
 }
 
