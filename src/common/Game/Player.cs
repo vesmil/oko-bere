@@ -4,7 +4,6 @@ namespace OkoCommon.Game;
 
 public delegate List<PlayerBase> GetPlayersDelegate();
 
-[Serializable]
 public abstract class PlayerBase
 {
     public readonly List<Card> Hand = new();
@@ -76,4 +75,6 @@ public abstract class PlayerBase
     {
         return !(left == right);
     }
+
+    public abstract Task<bool> AskForContinueAsync();
 }

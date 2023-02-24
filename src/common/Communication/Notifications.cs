@@ -2,9 +2,10 @@
 
 namespace OkoCommon.Communication;
 
-public interface INotification<T>
+// Note using multiple Notifs is probably useless?
+public interface INotification<out T>
 {
-    NotifEnum Type { get; }
+    public NotifEnum Type { get; }
     public T? Data { get; }
 }
 
@@ -85,7 +86,7 @@ public struct NoDataNotif : INotification<object>
     public object? Data => null;
 }
 
-public struct PlayerNotif : INotification<PlayerInfo>
+public struct PlayerNotif : INotification<object>
 {
     public PlayerNotif(NotifEnum type, PlayerBase player)
     {
@@ -93,6 +94,7 @@ public struct PlayerNotif : INotification<PlayerInfo>
         Data = new PlayerInfo(player.Name, player.Balance, player.Bet, player.Hand.Count);
     }
 
-    public NotifEnum Type { get; }
-    public PlayerInfo Data { get; }
+    public NotifEnum Type { get; set; }
+    
+    public object Data { get; set; }
 }

@@ -69,6 +69,24 @@ public class Client
                 GameState.Players.Add((PlayerInfo) (update.Data ?? throw new InvalidOperationException()));
             }
             
+            if (update?.Type == NotifEnum.PlayerLeft)
+            {
+                GameState.Players.Remove((PlayerInfo) (update.Data ?? throw new InvalidOperationException()));
+            }
+
+
+            if (update?.Type == NotifEnum.NewBanker)
+            {
+                var bankerInfo = (PlayerInfo)(update.Data ?? throw new InvalidOperationException());
+             
+                // find struct from GameState.Players with the same name and modify it
+                var player = GameState.Players.First(p => p.Name == bankerInfo.Name);
+                
+                GameState.Players.Remove(player);
+                player.IsBanker = true;
+                GameState.Players.Add(player);
+            }
+
             // TODO add valid balance
             
             // Rest of the updates should go to event handler

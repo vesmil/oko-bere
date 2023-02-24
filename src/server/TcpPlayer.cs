@@ -35,6 +35,12 @@ public class TcpPlayer : PlayerBase, IDisposable
         transfer.Send(notification);
     }
 
+    public override Task<bool> AskForContinueAsync()
+    { 
+        Notify(new NoDataNotif(NotifEnum.AskForContinue));
+        return Task.FromResult(Task.Run(() => transfer.Receive<IResponse<bool>>()).Result.Data);
+    }
+
     public void Dispose()
     {
         transfer.Dispose();

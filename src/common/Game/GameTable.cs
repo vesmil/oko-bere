@@ -58,7 +58,8 @@ public partial class Game
                 // Might add animation for the raffle here
 
                 AssignBanker(Players[num]);
-                // todo NotifyAllPlayers(new PlayerNotif(NotifEnum.NewBanker, Banker!));
+                
+                NotifyAllPlayers(new PlayerNotif(NotifEnum.NewBanker, Banker!));
             }
 
             Console.WriteLine($"Banker was set to {Banker!.Name}");
@@ -114,7 +115,13 @@ public partial class Game
 
         public void UpdatePlayers(List<PlayerBase> newPlayers)
         {
+            foreach (var player in newPlayers.Where(player => !Players.Contains(player)))
+            {
+                NotifyAllPlayers(new PlayerNotif(NotifEnum.NewPlayer, player));
+            }
+            
             Players = newPlayers;
+            
             ClearBets();
         }
     }

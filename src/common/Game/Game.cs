@@ -18,6 +18,14 @@ public partial class Game
     public void GameLoop()
     {
         table.UpdatePlayers(getGetPlayersDelegate.Invoke());
+        
+        var tasks = table.Players.Select(p => p.AskForContinueAsync());
+        var results = Task.WhenAll(tasks).Result;
+
+        for (var i = 0; i < results.Length; i++)
+        {
+            if (!results[i]) table.Players.RemoveAt(i);
+        }
 
         while (true)
         {
@@ -28,8 +36,8 @@ public partial class Game
                 var newPlayers = getGetPlayersDelegate.Invoke();
 
                 if (newPlayers.Count != table.Players.Count) table.UpdatePlayers(newPlayers);
-                // TODO update gameState accordingly
-
+                
+                
                 OneRound();
             }
 
