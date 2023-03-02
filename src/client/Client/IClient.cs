@@ -8,7 +8,7 @@ public interface IClient
     
     // TODO use wrapper?
     public void ContinueDecision(bool decision);
-
     public event EventHandler<MessageReceivedEventArgs>? MessageReceived;
+    
     GameState GameState { get; }
 }

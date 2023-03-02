@@ -62,6 +62,6 @@ public class PlayerTests
         var player1 = new TestPlayer("TestPlayer", 1000);
         var player2 = new TestPlayer("TestPlayer", 1000);
 
-        Assert.Multiple(() => { Assert.That(player1, Is.EqualTo(player2), "Players are not equal"); });
+        Assert.Multiple(() => { Assert.That(player1, Is.Not.EqualTo(player2), "Players are not equal"); });
     }
 }

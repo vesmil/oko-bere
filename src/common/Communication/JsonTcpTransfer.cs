@@ -78,18 +78,10 @@ public class JsonTcpTransfer : IObjectTransfer
         if (jsons.Length > 1) json = jsons[0] + "}";
         for (var i = 1; i < jsons.Length; i++) prevJson += "{" + jsons[i] + "}";
         if (prevJson.Length > 0) prevJson = prevJson[..^1];
-        
-        var obj = JsonConvert.DeserializeObject(json, settings);
-        
-        if (obj is T t)
-            return t;
-        
-        // TODO Unable to cast object of type 'OkoCommon.Communication.PlayerNotif' to type 'OkoCommon.Communication.INotification`1[System.Object]'.
-        // ...that will solve new players
-        
-        // throw new InvalidCastException($"Unable to cast object of type '{obj.GetType()}' to type '{typeof(T)}'.");
 
-        return default!;
+        var obj = JsonConvert.DeserializeObject(json, settings) ?? throw new InvalidOperationException();
+        
+        return obj is T t ? t : throw new InvalidOperationException();
     }
 
     public void Dispose()

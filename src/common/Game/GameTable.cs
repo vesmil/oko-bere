@@ -59,7 +59,7 @@ public partial class Game
 
                 AssignBanker(Players[num]);
                 
-                NotifyAllPlayers(new PlayerNotif(NotifEnum.NewBanker, Banker!));
+                NotifyAllPlayers(Notification.Create(NotifEnum.NewBanker, Banker!));
             }
 
             Console.WriteLine($"Banker was set to {Banker!.Name}");
@@ -70,7 +70,7 @@ public partial class Game
             Banker = newBanker;
             Players.Remove(Banker);
 
-            Banker.Notify(new NoDataNotif(NotifEnum.SetInitialBank));
+            Banker.Notify(Notification.Create(NotifEnum.SetInitialBank));
 
             InitialBank = 100;
             Bank = InitialBank;
@@ -84,7 +84,7 @@ public partial class Game
 
         public bool AskForContinue()
         {
-            NotifyAllPlayers(new NoDataNotif(NotifEnum.AskForContinue));
+            NotifyAllPlayers(Notification.Create(NotifEnum.AskForContinue));
 
             var newPlayers = WouldContinue();
             
@@ -102,13 +102,13 @@ public partial class Game
 
             if (newPlayers.Count < 3)
             {
-                NotifyAllPlayers(new NoDataNotif(NotifEnum.NotEnoughPlayers));
+                NotifyAllPlayers(Notification.Create(NotifEnum.NotEnoughPlayers));
                 return false;
             }
 
             foreach (var player in Players.Where(p => !newPlayers.Contains(p))) RemovePlayer(player);
 
-            NotifyAllPlayers(new NoDataNotif(NotifEnum.Continue));
+            NotifyAllPlayers(Notification.Create(NotifEnum.Continue));
 
             return true;
         }
@@ -122,14 +122,14 @@ public partial class Game
         {
             Players.Remove(player);
 
-            foreach (var otherPlayer in AllPlayers) otherPlayer.Notify(new PlayerNotif(NotifEnum.PlayerLeft, player));
+            foreach (var otherPlayer in AllPlayers) otherPlayer.Notify(Notification.Create(NotifEnum.PlayerLeft, player));
         }
 
         public void UpdatePlayers(List<PlayerBase> newPlayers)
         {
             foreach (var player in newPlayers.Where(player => !Players.Contains(player)))
             {
-                NotifyAllPlayers(new PlayerNotif(NotifEnum.NewPlayer, player));
+                NotifyAllPlayers(Notification.Create(NotifEnum.NewPlayer, player));
             }
             
             Players = newPlayers;

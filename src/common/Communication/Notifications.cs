@@ -1,13 +1,4 @@
-﻿using OkoCommon.Game;
-
-namespace OkoCommon.Communication;
-
-// Note using multiple Notifs is probably useless?
-public interface INotification<out T>
-{
-    public NotifEnum Type { get; }
-    public T? Data { get; }
-}
+﻿namespace OkoCommon.Communication;
 
 public enum NotifEnum
 {
@@ -24,7 +15,6 @@ public enum NotifEnum
     AskForTurn,
 
     ReceivedCard,
-    CardsDealt,
     Bust,
 
     AskForMalaDomu,
@@ -51,50 +41,26 @@ public enum NotifEnum
     EndOfGame
 }
 
-public struct GenericNotif<T> : INotification<T>
+public interface INotification<out T>
 {
-    public GenericNotif(NotifEnum type, T data)
-    {
-        Type = type;
-        Data = data;
-    }
-
-    public NotifEnum Type { get; init; }
-    public T? Data { get; init; }
+    public NotifEnum Type { get; }
+    public T? Data { get; }
 }
 
-public struct CardNotif : INotification<Card>
+public struct Notification<T> : INotification<T>
 {
-    public CardNotif(NotifEnum type, Card data)
+    public Notification(NotifEnum type, T data)
     {
         Type = type;
         Data = data;
     }
 
     public NotifEnum Type { get; }
-    public Card Data { get; }
+    public T? Data { get; }
 }
 
-public struct NoDataNotif : INotification<object>
+public static class Notification
 {
-    public NoDataNotif(NotifEnum type)
-    {
-        Type = type;
-    }
-
-    public NotifEnum Type { get; }
-    public object? Data => null;
-}
-
-public struct PlayerNotif : INotification<object>
-{
-    public PlayerNotif(NotifEnum type, PlayerBase player)
-    {
-        Type = NotifEnum.NewPlayer;
-        Data = new PlayerInfo(player.Name, player.Balance, player.Bet, player.Hand.Count);
-    }
-
-    public NotifEnum Type { get; set; }
-    
-    public object Data { get; set; }
+    public static Notification<object> Create(NotifEnum type) => new(type, default!);
+    public static Notification<T> Create<T>(NotifEnum type, T data) => new(type, data);
 }

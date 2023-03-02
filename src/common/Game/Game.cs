@@ -79,7 +79,7 @@ public partial class Game : IGame
         {
             if (table.Banker is not null)
             {
-                table.Banker.Notify(new NoDataNotif(NotifEnum.AskForMalaDomu));
+                table.Banker.Notify(Notification.Create(NotifEnum.AskForMalaDomu));
                 malaDomu = table.Banker.GetResponse<bool>().Data;
             }
             else
@@ -88,7 +88,7 @@ public partial class Game : IGame
             if (malaDomu)
             {
                 Console.WriteLine("Mala domu was called");
-                table.NotifyAllPlayers(new NoDataNotif(NotifEnum.MalaDomuCalled));
+                table.NotifyAllPlayers(Notification.Create(NotifEnum.MalaDomuCalled));
             }
         }
 
@@ -98,7 +98,7 @@ public partial class Game : IGame
         PlayerBase? cutPlayer = null;
         while (cutPlayer is null)
         {
-            table.Banker.Notify(new NoDataNotif(NotifEnum.ChooseCutPlayer));
+            table.Banker.Notify(Notification.Create(NotifEnum.ChooseCutPlayer));
             var cutPlayerName = table.Banker.GetResponse<string>().Data;
             cutPlayer = table.Players.FirstOrDefault(x => x.Name == cutPlayerName);
         }
@@ -113,12 +113,12 @@ public partial class Game : IGame
             player.Hand.Add(deck.Draw());
             player.Exchanged = false;
 
-            player.Notify(new CardNotif(NotifEnum.ReceivedCard, player.Hand[0]));
+            player.Notify(Notification.Create(NotifEnum.ReceivedCard, player.Hand[0]));
         }
 
         if (malaDomu && table.Banker.Hand[0].Rank is Rank.King or Rank.Eight)
         {
-            table.NotifyAllPlayers(new NoDataNotif(NotifEnum.MalaDomuSuccess));
+            table.NotifyAllPlayers(Notification.Create(NotifEnum.MalaDomuSuccess));
 
             table.Banker.Balance += table.Bank;
             table.Bank = 0;
@@ -141,27 +141,27 @@ public partial class Game : IGame
         var duelPlayer = table.Players[(index + 1) % table.Players.Count];
 
         // Let the cutPlayer choose where to cut
-        cutPlayer.Notify(new NoDataNotif(NotifEnum.ChooseCutPosition));
+        cutPlayer.Notify(Notification.Create(NotifEnum.ChooseCutPosition));
         var cutIndex = cutPlayer.GetResponse<int>().Data;
 
         var cutCard = deck.Cut(cutIndex);
-        table.NotifyAllPlayers(new GenericNotif<Card>(NotifEnum.SeeCutCard, cutCard));
+        table.NotifyAllPlayers(Notification.Create(NotifEnum.SeeCutCard, cutCard));
 
-        duelPlayer.Notify(new NoDataNotif(NotifEnum.DuelOffer));
+        duelPlayer.Notify(Notification.Create(NotifEnum.DuelOffer));
         var bet = duelPlayer.GetResponse<int>().Data;
 
         if (bet == 0) return false;
 
-        table.Banker.Notify(new GenericNotif<int>(NotifEnum.DuelOffer, bet));
+        table.Banker.Notify(Notification.Create(NotifEnum.DuelOffer, bet));
         var accept = table.Banker.GetResponse<bool>().Data;
 
         if (!accept)
         {
-            duelPlayer.Notify(new NoDataNotif(NotifEnum.DuelDeclined));
+            duelPlayer.Notify(Notification.Create(NotifEnum.DuelDeclined));
             return false;
         }
 
-        duelPlayer.Notify(new NoDataNotif(NotifEnum.DuelAccepted));
+        duelPlayer.Notify(Notification.Create(NotifEnum.DuelAccepted));
         Duel(duelPlayer);
 
         return true;
@@ -169,10 +169,10 @@ public partial class Game : IGame
 
     private void Duel(PlayerBase duelPlayer)
     {
-        duelPlayer.Notify(new NoDataNotif(NotifEnum.DuelAskNextCard));
+        duelPlayer.Notify(Notification.Create(NotifEnum.DuelAskNextCard));
         // ...
 
-        table.Banker!.Notify(new NoDataNotif(NotifEnum.DuelAskNextCard));
+        table.Banker!.Notify(Notification.Create(NotifEnum.DuelAskNextCard));
         // ...
 
         // Announce winner
@@ -182,7 +182,7 @@ public partial class Game : IGame
     {
         while (true)
         {
-            player.Notify(new NoDataNotif(NotifEnum.AskForTurn));
+            player.Notify(Notification.Create(NotifEnum.AskForTurn));
             var decision = player.GetResponse<PlayerResponseEnum>().Data;
 
             switch (decision)
@@ -198,7 +198,7 @@ public partial class Game : IGame
 
             if (player.Hand.IsBust())
             {
-                player.Notify(new NoDataNotif(NotifEnum.Bust));
+                player.Notify(Notification.Create(NotifEnum.Bust));
                 break;
             }
         }
@@ -229,7 +229,7 @@ public partial class Game : IGame
 
     private void ExchangeCards(PlayerBase player)
     {
-        if (player.Exchanged) player.Notify(new NoDataNotif(NotifEnum.AlreadyExchanged));
+        if (player.Exchanged) player.Notify(Notification.Create(NotifEnum.AlreadyExchanged));
 
         player.Hand.Clear();
         player.Hand.Add(deck.Draw());
@@ -255,9 +255,12 @@ public partial class Game : IGame
 
     public void OnNewPlayer(PlayerBase newPlayer)
     {
-        table.NotifyAllPlayers(new PlayerNotif(NotifEnum.NewPlayer, newPlayer));
+        table.NotifyAllPlayers(Notification.Create(NotifEnum.NewPlayer, newPlayer));
+        
         var gameState = CreateGameState();
-        newPlayer.Notify(new GenericNotif<GameState>(NotifEnum.GameStateInfo, gameState));
+        newPlayer.Notify(Notification.Create(NotifEnum.GameStateInfo, gameState));
+        
+        table.Players.Add(newPlayer);
     }
     
     private GameState CreateGameState()

@@ -12,15 +12,17 @@ namespace OkoClient.Forms;
 /// </summary>
 public sealed partial class GameTableForm : Form
 {
+    private readonly IClient client;
+
     private readonly Label balanceLabel = new();
     private readonly Label bankLabel = new();
     private readonly Button betButton = new();
     private readonly Label betLabel = new();
     private readonly TextBox betTextBox = new();
     private readonly Panel buttonPanel = new();
+    
     private readonly List<PictureBox> cardBoxes = new();
-    private readonly IClient client;
-
+    
     private readonly Button drawButton = new();
     private readonly Button endTurnButton = new();
     
@@ -31,6 +33,7 @@ public sealed partial class GameTableForm : Form
     private const int MaxTime = 60;
 
     private readonly List<GroupBox> playerBoxes = new();
+    private readonly Label noPlayersLabel = new();
 
     private readonly Label topLabel = new();
 
@@ -38,7 +41,7 @@ public sealed partial class GameTableForm : Form
     {
         InitializeComponent();
 
-        // WindowState = FormWindowState.Maximized;
+        // in final WindowState = FormWindowState.Maximized;
 
         this.client = client;
         this.client.MessageReceived += OnMessageReceived;
@@ -150,6 +153,31 @@ public sealed partial class GameTableForm : Form
 
     private void AddPlayerBoxes()
     {
+        /* TODO with invoke
+        if (GameState.Players.Count == 0)
+        {
+            noPlayersLabel.Visible = true;
+            noPlayersLabel.AutoSize = true;
+            noPlayersLabel.Location = new Point(30, 70);
+            noPlayersLabel.Text = "No players yet";
+            AddControl(noPlayersLabel);
+
+            return;
+        }
+        
+        noPlayersLabel.Visible = false;
+        */
+        
+        if (playerBoxes.Count > 0)
+        {
+            foreach (var playerBox in playerBoxes)
+            {
+                playerBox.Dispose();
+            }
+
+            playerBoxes.Clear();
+        }
+        
         for (var i = 0; i < GameState.Players.Count; i++)
         {
             var player = GameState.Players[i];
@@ -223,66 +251,69 @@ public sealed partial class GameTableForm : Form
                 topLabel.Text = "Game Started";
                 break;
 
-            case NotifEnum.NewBanker:
-                break;
-
-            case NotifEnum.NewPlayer:
-                break;
             case NotifEnum.SetInitialBank:
+                // TODO show button panel
                 break;
+            
             case NotifEnum.BankBusted:
                 break;
+            
             case NotifEnum.AskForTurn:
+                // TODO show button panel
                 break;
+            
             case NotifEnum.ReceivedCard:
+                // TODO update card boxes
                 break;
-            case NotifEnum.CardsDealt:
-                break;
+
             case NotifEnum.Bust:
                 break;
+            
             case NotifEnum.AskForMalaDomu:
                 break;
+            
             case NotifEnum.MalaDomuCalled:
                 break;
+            
             case NotifEnum.MalaDomuSuccess:
                 break;
+            
             case NotifEnum.ChooseCutPlayer:
                 break;
+            
             case NotifEnum.ChooseCutPosition:
                 break;
+            
             case NotifEnum.SeeCutCard:
                 break;
+            
             case NotifEnum.DuelOffer:
                 break;
+            
             case NotifEnum.DuelDeclined:
                 break;
+            
             case NotifEnum.DuelAccepted:
                 break;
+            
             case NotifEnum.DuelAskNextCard:
                 break;
+            
             case NotifEnum.AlreadyExchanged:
                 break;
+            
             case NotifEnum.ExchangeAllowed:
-                break;
-            case NotifEnum.PlayerLeft:
                 break;
             
             case NotifEnum.AskForContinue:
                 ShowContinueButton();
                 break;
-            
-            case NotifEnum.Continue:
-                break;
+
             case NotifEnum.NotEnoughPlayers:
                 break;
+            
             case NotifEnum.EndOfGame:
                 break;
-            case NotifEnum.AskForName:
-                break;
-            case NotifEnum.GameStateInfo:
-                break;
-            default:
-                throw new ArgumentOutOfRangeException();
         }
 
         Render();

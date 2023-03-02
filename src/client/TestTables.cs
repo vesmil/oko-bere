@@ -52,6 +52,16 @@ public class TestTables : Form
         
         gameThread = new Thread(game.GameLoop);
         gameThread.Start();
+        
+        NewClientLogics("David", ip);
+        NewClientLogics("Eve", ip);
+        
+        foreach (var client in clients.GetRange(3, 2))
+        {
+            var clientThread = new Thread(client.PlayerLoop);
+            clientThreads.Add(clientThread);
+            clientThread.Start();
+        }
     }
 
     ~TestTables()

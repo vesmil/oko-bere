@@ -14,14 +14,11 @@ public class TcpClient : IClient
 
         NamePreset = name;
 
-        // Note might be necessary to check response from server
         transfer.Receive<INotification<object>>();
         transfer.Send(new GenericResponse<string>{Data=name});
-        
-        GameState = transfer.Receive<INotification<GameState>>().Data;
     }
 
-    public GameState GameState { get; }
+    public GameState GameState { get; private set; } = new();
     private string NamePreset { get; }
 
     public event EventHandler<MessageReceivedEventArgs>? MessageReceived;
@@ -35,35 +32,34 @@ public class TcpClient : IClient
         {
             var update = transfer.Receive<INotification<object>>();
             
-            Debug.WriteLine(NamePreset + " - " + update?.Type);
+            Debug.WriteLine(NamePreset + " - " + update.Type);
 
-            if (update?.Type == NotifEnum.NewPlayer)
+            switch (update.Type)
             {
-                GameState.Players.Add((PlayerInfo) (update.Data ?? throw new InvalidOperationException()));
-            }
-            
-            if (update?.Type == NotifEnum.PlayerLeft)
-            {
-                GameState.Players.Remove((PlayerInfo) (update.Data ?? throw new InvalidOperationException()));
-            }
-
-
-            if (update?.Type == NotifEnum.NewBanker)
-            {
-                var bankerInfo = (PlayerInfo)(update.Data ?? throw new InvalidOperationException());
+                case NotifEnum.NewPlayer:
+                    GameState.Players.Add((PlayerInfo) (update.Data ?? throw new InvalidOperationException()));
+                    break;
+                case NotifEnum.PlayerLeft:
+                    GameState.Players.Remove((PlayerInfo) (update.Data ?? throw new InvalidOperationException()));
+                    break;
+                case NotifEnum.GameStateInfo:
+                    GameState = (GameState) (update.Data ?? throw new InvalidOperationException());
+                    break;
+                case NotifEnum.NewBanker:
+                {
+                    var bankerInfo = (PlayerInfo)(update.Data ?? throw new InvalidOperationException());
              
-                // find struct from GameState.Players with the same name and modify it
-                var player = GameState.Players.First(p => p.Name == bankerInfo.Name);
+                    // find struct from GameState.Players with the same name and modify it - not the best solution
+                    var player = GameState.Players.First(p => p.Name == bankerInfo.Name);
                 
-                GameState.Players.Remove(player);
-                player.IsBanker = true;
-                GameState.Players.Add(player);
+                    GameState.Players.Remove(player);
+                    player.IsBanker = true;
+                    GameState.Players.Add(player);
+                    break;
+                }
             }
 
-            // TODO add valid balance
-            
-            // Rest of the updates should go to event handler
-            if (update != null) MessageReceived?.Invoke(this, new MessageReceivedEventArgs(update.Data, update.Type));
+            MessageReceived?.Invoke(this, new MessageReceivedEventArgs(update.Data, update.Type));
 
             Thread.Sleep(100);
         }

@@ -18,7 +18,7 @@ public class TcpPlayer : PlayerBase, IDisposable
         }
         else
         {
-            Notify(new NoDataNotif(NotifEnum.AskForName));
+            Notify(Notification.Create(NotifEnum.AskForName));
             var nameResponse = GetResponse<string>();
             
             Name = nameResponse.Data ?? "";
