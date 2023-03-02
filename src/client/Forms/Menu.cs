@@ -1,4 +1,7 @@
-﻿namespace OkoClient.Forms;
+﻿using OkoClient.Client;
+using OkoCommon.Game;
+
+namespace OkoClient.Forms;
 
 public partial class Menu : Form
 {
@@ -49,9 +52,8 @@ public partial class Menu : Form
 
     private void StartSinglePlayerGame(int numPlayers)
     {
-        // ...
-
-        // var gameTableForm = new GameTableForm();
-        // gameTableForm.Show();
+        var client = new SoloTcpClient(numPlayers);
+        var gameTableForm = new GameTableForm(client);
+        gameTableForm.Show();
     }
 }

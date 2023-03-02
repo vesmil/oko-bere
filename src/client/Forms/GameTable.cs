@@ -1,3 +1,4 @@
+using OkoClient.Client;
 using OkoCommon;
 using OkoCommon.Communication;
 using Timer = System.Windows.Forms.Timer;
@@ -18,7 +19,7 @@ public sealed partial class GameTableForm : Form
     private readonly TextBox betTextBox = new();
     private readonly Panel buttonPanel = new();
     private readonly List<PictureBox> cardBoxes = new();
-    private readonly Client client;
+    private readonly IClient client;
 
     private readonly Button drawButton = new();
     private readonly Button endTurnButton = new();
@@ -32,8 +33,8 @@ public sealed partial class GameTableForm : Form
     private readonly List<GroupBox> playerBoxes = new();
 
     private readonly Label topLabel = new();
-    
-    public GameTableForm(Client client)
+
+    public GameTableForm(IClient client)
     {
         InitializeComponent();
 

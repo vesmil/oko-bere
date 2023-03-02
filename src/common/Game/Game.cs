@@ -16,6 +16,12 @@ public partial class Game : IGame
     private readonly GetPlayersDelegate getGetPlayersDelegate;
     private readonly GameTable table;
 
+    public static Game PlayAgainstComputer(int numPlayers)
+    {
+        // TODO proper
+        return new Game(() => new List<PlayerBase> {new AiPlayer("Player", 1000), new AiPlayer("Computer", 1000)});
+    }
+    
     public Game(GetPlayersDelegate getGetPlayerDel)
     {
         getGetPlayersDelegate = getGetPlayerDel;

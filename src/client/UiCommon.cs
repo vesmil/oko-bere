@@ -15,7 +15,7 @@ public static class UiCommon
     {
         { Suit.Clubs, "kule" },
         { Suit.Diamonds, "srdce" },
-        { Suit.Hearts, "listy" },
+        { Suit.Hearts, "zelene" },
         { Suit.Spades, "zaludy" }
     };
 
@@ -26,7 +26,7 @@ public static class UiCommon
         { Rank.Nine, "9" },
         { Rank.Ten, "10" },
         { Rank.Jack, "spodek" },
-        { Rank.Queen, "dama" },
+        { Rank.Queen, "svrsek" },
         { Rank.King, "kral" },
         { Rank.Ace, "eso" }
     };

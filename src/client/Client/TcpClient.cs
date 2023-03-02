@@ -2,40 +2,13 @@
 using OkoCommon;
 using OkoCommon.Communication;
 
-namespace OkoClient;
+namespace OkoClient.Client;
 
-/// <summary>
-///     Recieved message wrapper for event handling.
-/// </summary>
-public class MessageReceivedEventArgs : EventArgs
-{
-    public MessageReceivedEventArgs(object? data, NotifEnum type)
-    {
-        Data = data;
-        Type = type;
-    }
-
-    public object? Data { get; }
-    public NotifEnum Type { get; }
-}
-
-public class Client
+public class TcpClient : IClient
 {
     private readonly IObjectTransfer transfer;
-
-    public Client(string ip, int port)
-    {
-        transfer = new JsonTcpTransfer(ip, port);
-        
-        transfer.Receive<INotification<object>>();
-        // TODO Ask for name using UI
-        
-        transfer.Send("...");
-        
-        GameState = transfer.Receive<INotification<GameState>>().Data;
-    }
-
-    public Client(string name, string ip, int port)
+    
+    public TcpClient(string name, string ip, int port)
     {
         transfer = new JsonTcpTransfer(ip, port);
 
@@ -49,7 +22,7 @@ public class Client
     }
 
     public GameState GameState { get; }
-    private string NamePreset { get; } = "";
+    private string NamePreset { get; }
 
     public event EventHandler<MessageReceivedEventArgs>? MessageReceived;
 
