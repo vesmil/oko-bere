@@ -2,7 +2,14 @@
 
 namespace OkoCommon.Game;
 
-public partial class Game
+public interface IGame
+{
+    public void Lobby();
+    public void GameLoop();
+    public void OnNewPlayer(PlayerBase player);
+}
+
+public partial class Game : IGame
 {
     private readonly Deck deck = new();
 
@@ -15,17 +22,27 @@ public partial class Game
         table = new GameTable(getGetPlayersDelegate.Invoke());
     }
 
+    public void Lobby()
+    {
+        // Notify that lobby is open
+        
+        while (true)
+        {
+            table.UpdatePlayers(getGetPlayersDelegate.Invoke());
+            
+            if (table.Players.Count > 2) 
+                break;
+            
+            // Send all players a message to wait for more players
+            // TODO...
+            
+            Thread.Sleep(200);
+        }
+    }
+    
     public void GameLoop()
     {
-        table.UpdatePlayers(getGetPlayersDelegate.Invoke());
-        
-        var tasks = table.Players.Select(p => p.AskForContinueAsync());
-        var results = Task.WhenAll(tasks).Result;
-
-        for (var i = 0; i < results.Length; i++)
-        {
-            if (!results[i]) table.Players.RemoveAt(i);
-        }
+        table.AskForContinue();
 
         while (true)
         {
@@ -36,7 +53,6 @@ public partial class Game
                 var newPlayers = getGetPlayersDelegate.Invoke();
 
                 if (newPlayers.Count != table.Players.Count) table.UpdatePlayers(newPlayers);
-                
                 
                 OneRound();
             }
@@ -229,5 +245,24 @@ public partial class Game
 
         table.Bank += table.Players.Sum(player => player.Bet);
         table.Players.ForEach(player => player.Bet = 0);
+    }
+
+    public void OnNewPlayer(PlayerBase newPlayer)
+    {
+        table.NotifyAllPlayers(new PlayerNotif(NotifEnum.NewPlayer, newPlayer));
+        var gameState = CreateGameState();
+        newPlayer.Notify(new GenericNotif<GameState>(NotifEnum.GameStateInfo, gameState));
+    }
+    
+    private GameState CreateGameState()
+    {
+        var gameState = new GameState();
+
+        foreach (var player in table.AllPlayers)
+        {
+            gameState.Players.Add(new PlayerInfo(player.Name, player.Balance, player.Bet, player.Hand.Count));
+        }
+
+        return gameState;
     }
 }

@@ -34,13 +34,14 @@ public class TcpPlayer : PlayerBase, IDisposable
     {
         transfer.Send(notification);
     }
+    
+    public override async Task<T?> GetResponseAsync<T>() where T : default
+    {
+        var responseTask = Task.Run(() => transfer.Receive<IResponse<T>>());
+        var completedTask = await Task.WhenAny(responseTask, Task.Delay(TimeSpan.FromSeconds(5)));
 
-    public override Task<bool> AskForContinueAsync()
-    { 
-        Notify(new NoDataNotif(NotifEnum.AskForContinue));
-        return Task.FromResult(Task.Run(() => transfer.Receive<IResponse<bool>>()).Result.Data);
+        return completedTask == responseTask ? responseTask.Result.Data : default;
     }
-
     public void Dispose()
     {
         transfer.Dispose();

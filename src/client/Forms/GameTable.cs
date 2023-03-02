@@ -1,8 +1,14 @@
 using OkoCommon;
 using OkoCommon.Communication;
+using Timer = System.Windows.Forms.Timer;
 
 namespace OkoClient.Forms;
 
+/// <summary>
+///    Main form for the game.
+///
+///    Contains playrs, cards, bank and all the controls.
+/// </summary>
 public sealed partial class GameTableForm : Form
 {
     private readonly Label balanceLabel = new();
@@ -16,20 +22,39 @@ public sealed partial class GameTableForm : Form
 
     private readonly Button drawButton = new();
     private readonly Button endTurnButton = new();
+    
+    private readonly Button continueButton = new();
+    private readonly Timer timer = new();
+    private string timerMessage = "Time left: ";
+    private int timeLeft;
+    private const int MaxTime = 60;
 
     private readonly List<GroupBox> playerBoxes = new();
 
-    private readonly Label playerTurnLabel = new();
-
+    private readonly Label topLabel = new();
+    
     public GameTableForm(Client client)
     {
         InitializeComponent();
+
         // WindowState = FormWindowState.Maximized;
 
         this.client = client;
         this.client.MessageReceived += OnMessageReceived;
 
+        InitializeHidden();
         Render();
+    }
+
+    private void InitializeHidden()
+    {
+        continueButton.Size = new Size(200, 50);
+        continueButton.Location = new Point(Width / 2 - continueButton.Width / 2, Height / 2 - continueButton.Height / 2);
+        continueButton.Text = "Join Next Round";
+        continueButton.Click += ContinueButton_Click!;
+        
+        // TODO is not really hidden
+        continueButton.Visible = false;
     }
 
     private GameState GameState => client.GameState;
@@ -46,34 +71,35 @@ public sealed partial class GameTableForm : Form
     private void AddControl(Control control)
     {
         if (InvokeRequired)
-        {
             Invoke((MethodInvoker)delegate { Controls.Add(control); });
-        }
         else
-        {
             Controls.Add(control);
-        }
     }
     
     private void AddTurnInfo()
     {
         BackColor = Color.FromArgb(174, 203, 143);
-        playerTurnLabel.AutoSize = true;
+        topLabel.AutoSize = true;
+        AddControl(topLabel);
 
-        if (playerTurnLabel.InvokeRequired)
+        SetTurnInfo("Waiting for other players to join...");
+    }
+    
+    private void SetTurnInfo(string text)
+    {
+        topLabel.Text = text;
+
+        if (topLabel.InvokeRequired)
         {
-            playerTurnLabel.Invoke((MethodInvoker)delegate
+            topLabel.Invoke((MethodInvoker)delegate
             {
-                playerTurnLabel.Location = new Point(Width / 2 - playerTurnLabel.Size.Width / 2, 20);
+                topLabel.Location = new Point(Width / 2 - topLabel.Size.Width / 2, 20);
             });
         }
         else
         {
-            playerTurnLabel.Location = new Point(Width / 2 - playerTurnLabel.Size.Width / 2, 20);
+            topLabel.Location = new Point(Width / 2 - topLabel.Size.Width / 2, 20);
         }
-        
-        playerTurnLabel.Text = "Wait";
-        AddControl(playerTurnLabel);
     }
 
     private void AddMoneyLabels()
@@ -184,7 +210,7 @@ public sealed partial class GameTableForm : Form
         betLabel.AutoSize = true;
         buttonPanel.Location = new Point(Width - buttonPanel.Width - 0, Height - buttonPanel.Height - 50);
 
-        AddControl(buttonPanel);
+        // TODO AddControl(buttonPanel);
         buttonPanel.Hide();
     }
 
@@ -193,7 +219,7 @@ public sealed partial class GameTableForm : Form
         switch (message.Type)
         {
             case NotifEnum.GameStart:
-                playerTurnLabel.Text = "Game Started";
+                topLabel.Text = "Game Started";
                 break;
 
             case NotifEnum.NewBanker:
@@ -239,17 +265,67 @@ public sealed partial class GameTableForm : Form
                 break;
             case NotifEnum.PlayerLeft:
                 break;
+            
             case NotifEnum.AskForContinue:
+                ShowContinueButton();
                 break;
+            
             case NotifEnum.Continue:
                 break;
             case NotifEnum.NotEnoughPlayers:
                 break;
             case NotifEnum.EndOfGame:
                 break;
+            case NotifEnum.AskForName:
+                break;
+            case NotifEnum.GameStateInfo:
+                break;
+            default:
+                throw new ArgumentOutOfRangeException();
         }
 
         Render();
+    }
+
+    private void ShowContinueButton()
+    {
+        timerMessage = "Confirm to continue in ";
+        
+        continueButton.Show();
+        
+        AddControl(continueButton);
+
+        timeLeft = MaxTime;
+        
+        timer.Interval = 1000;
+        timer.Tick += timer_Tick;
+        timer.Start();
+    }
+    
+    private void timer_Tick(object? sender, EventArgs e)
+    {
+        if (timeLeft > 0)
+        {
+            timeLeft--;
+            SetTurnInfo(timerMessage + timeLeft);
+        }
+        else
+        {
+            client.ContinueDecision(false);
+            
+            continueButton.Hide();
+            SetTurnInfo("See you next time!");
+            timer.Stop();
+        }
+    }
+    
+    private void ContinueButton_Click(object sender, EventArgs e)
+    {
+        client.ContinueDecision(true);
+        
+        continueButton.Hide();
+        SetTurnInfo("Waiting for other players...");
+        timer.Stop();
     }
 
     private void DrawButton_Click(object sender, EventArgs e)
@@ -271,7 +347,7 @@ public sealed partial class GameTableForm : Form
     private void EndTurnButton_Click(object sender, EventArgs e)
     {
         // client.SendGenericResponse(PlayerResponseEnum.Stop);
-        playerTurnLabel.Text = "Next Player's Turn";
+        topLabel.Text = "Next Player's Turn";
     }
 
     private void PlaceBet(int amount)

@@ -19,7 +19,7 @@ public partial class Game
             ClearBets();
         }
 
-        private IEnumerable<PlayerBase> AllPlayers => Banker is not null ? Players.Append(Banker) : Players;
+        public IEnumerable<PlayerBase> AllPlayers => Banker is not null ? Players.Append(Banker) : Players;
 
         public IEnumerable<PlayerBase> AllExcept(PlayerBase player)
         {
@@ -87,6 +87,18 @@ public partial class Game
             NotifyAllPlayers(new NoDataNotif(NotifEnum.AskForContinue));
 
             var newPlayers = WouldContinue();
+            
+            /* TODO find use for async version
+             
+            var tasks = Players.Select(p => p.GetResponseAsync<bool>());
+            var results = Task.WhenAll(tasks).Result;
+
+            for (var i = 0; i < results.Length; i++)
+            {
+                if (!results[i]) Players.RemoveAt(i);
+            }
+            
+            */
 
             if (newPlayers.Count < 3)
             {

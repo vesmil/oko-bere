@@ -1,17 +1,18 @@
 ﻿using System.Net;
 using System.Net.Sockets;
-using OkoCommon;
-using OkoCommon.Communication;
 using OkoCommon.Game;
 
 namespace OkoServer;
 
-public class Server
+public class Server : IDisposable
 {
     private const int Port = 1234;
     private readonly List<TcpPlayer> clients = new();
     private readonly TcpListener server;
-
+    
+    // NOTE currently relation between server and game is 1:1
+    private IGame? Game { set; get; }
+    
     private bool accepting;
 
     public Server()
@@ -26,23 +27,14 @@ public class Server
         }
         catch (Exception)
         {
-            Console.WriteLine("Couldn't start server, try - net stop hns && net start hns");
-            Environment.Exit(1);
+            throw new Exception("Couldn't start server, try - net stop hns && net start hns");
         }
-    }
-
-    ~Server()
-    {
-        Console.WriteLine("Stopping server...");
-
-        // NOTE might make server into disposable...
-        foreach (var client in clients) client.Dispose();
-        server.Stop();
     }
 
     public async void AcceptLoop()
     {
         accepting = true;
+        
         while (accepting)
         {
             var client = await server.AcceptTcpClientAsync();
@@ -57,37 +49,36 @@ public class Server
                 continue;
             }
 
-            foreach (var oldClient in clients)
-            {
-                oldClient.Notify(new PlayerNotif(NotifEnum.NewPlayer, newPlayer));
-            }
-
             clients.Add(newPlayer);
-            
-            var gameState = CreateGameState();
-            newPlayer.Notify(new GenericNotif<GameState>(NotifEnum.GameStateInfo, gameState));
+        
+            Game?.OnNewPlayer(newPlayer);
         }
     }
 
-    private GameState CreateGameState()
-    {
-        var gameState = new GameState();
-
-        foreach (var player in clients)
-        {
-            gameState.Players.Add(new PlayerInfo(player.Name, player.Balance, player.Bet, player.Hand.Count));
-        }
-
-        return gameState;
-    }
-
-    public void StopAccepting()
-    {
-        accepting = false;
-    }
-
-    public List<PlayerBase> GetPlayers()
+    public List<PlayerBase> GetClients()
     {
         return new List<PlayerBase>(clients);
+    }
+    
+    public void AssignGame(Game currentGame)
+    {
+        Game = currentGame;
+    }
+
+    private void ReleaseUnmanagedResources()
+    {
+        foreach (var client in clients) client.Dispose();
+        server.Stop();    
+    }
+
+    public void Dispose()
+    {
+        ReleaseUnmanagedResources();
+        GC.SuppressFinalize(this);
+    }
+    
+    ~Server()
+    {
+        ReleaseUnmanagedResources();
     }
 }

@@ -96,6 +96,11 @@ public class Client
         }
     }
 
+    public void ContinueDecision(bool decision)
+    {
+        transfer.Send(new GenericResponse<bool> {Data = decision});
+    }
+    
     // Bet, draw stop...
 
     // ChooseCutPlayer

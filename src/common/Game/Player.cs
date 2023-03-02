@@ -76,5 +76,5 @@ public abstract class PlayerBase
         return !(left == right);
     }
 
-    public abstract Task<bool> AskForContinueAsync();
+    public abstract Task<T?> GetResponseAsync<T>();
 }

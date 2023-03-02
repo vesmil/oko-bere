@@ -21,6 +21,7 @@ public class TestTables : Form
     public TestTables()
     {
         serverThread = new Thread(server.AcceptLoop);
+        
         serverThread.Start();
 
         Thread.Sleep(500);
@@ -38,14 +39,17 @@ public class TestTables : Form
             clientThread.Start();
         }
 
-        var players = server.GetPlayers();
+        var players = server.GetClients();
         while (players.Count < 3)
         {
             Thread.Sleep(200);
-            players = server.GetPlayers();
+            players = server.GetClients();
         }
 
-        gameThread = new Thread(new Game(server.GetPlayers).GameLoop);
+        var game = new Game(server.GetClients);
+        server.AssignGame(game);
+        
+        gameThread = new Thread(game.GameLoop);
         gameThread.Start();
     }
 

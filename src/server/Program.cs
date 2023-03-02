@@ -4,14 +4,18 @@ namespace OkoServer;
 
 public static class Program
 {
-    public static void Main(string[] args)
+    public static void Main()
     {
         var server = new Server();
 
         var serverThread = new Thread(server.AcceptLoop);
         serverThread.Start();
 
-        var oko = new Game(server.GetPlayers);
+        var oko = new Game(server.GetClients);
+        server.AssignGame(oko);
+
+        // TODO oko.Lobby();
+        
         oko.GameLoop();
     }
 }
