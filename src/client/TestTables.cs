@@ -50,7 +50,7 @@ public class TestTables : Form
         var game = new Game(server.GetClients);
         server.AssignGame(game);
         
-        gameThread = new Thread(() => {game.Lobby(); game.GameLoop();});
+        gameThread = new Thread(game.GameLoop);
         gameThread.Start();
 
         NewClientLogics("David", ip);

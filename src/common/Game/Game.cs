@@ -20,6 +20,8 @@ public partial class Game : IGame
     {
         getGetPlayersDelegate = getGetPlayerDel;
         table = new GameTable(getGetPlayersDelegate.Invoke());
+        
+        table.NotifyAllPlayers(Notification.Create(NotifEnum.GameStateInfo, CreateGameState()));
     }
 
     public void Lobby()
@@ -37,13 +39,14 @@ public partial class Game : IGame
 
             Thread.Sleep(200);
         }
-        
-        var gameState = CreateGameState();
-        // table.NotifyAllPlayers(Notification.Create(NotifEnum.GameStateInfo, gameState));
     }
 
     public void GameLoop()
     {
+        table.UpdatePlayers(getGetPlayersDelegate.Invoke());
+
+        table.NotifyAllPlayers(Notification.Create(NotifEnum.GameStateInfo, CreateGameState()));
+
         table.AskForContinue();
 
         while (true)
@@ -65,6 +68,7 @@ public partial class Game : IGame
 
     public void OnNewPlayer(PlayerBase newPlayer)
     {
+        // TODO what if other players joins while ...
         table.NotifyAllPlayers(Notification.Create(NotifEnum.NewPlayer, newPlayer.ToPlayerInfo()));
 
         table.Players.Add(newPlayer);
