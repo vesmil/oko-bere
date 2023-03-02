@@ -9,10 +9,7 @@ public class Server : IDisposable
     private const int Port = 1234;
     private readonly List<TcpPlayer> clients = new();
     private readonly TcpListener server;
-    
-    // NOTE currently relation between server and game is 1:1
-    private IGame? Game { set; get; }
-    
+
     private bool accepting;
 
     public Server()
@@ -31,17 +28,26 @@ public class Server : IDisposable
         }
     }
 
+    // NOTE currently relation between server and game is 1:1
+    private IGame? Game { set; get; }
+
+    public void Dispose()
+    {
+        ReleaseUnmanagedResources();
+        GC.SuppressFinalize(this);
+    }
+
     public async void AcceptLoop()
     {
         accepting = true;
-        
+
         while (accepting)
         {
             var client = await server.AcceptTcpClientAsync();
             Console.WriteLine("Server - Connection accepted from " + client.Client.RemoteEndPoint);
 
             var newPlayer = new TcpPlayer(client, null, 1000);
-            
+
             if (newPlayer.Name.Trim() == "")
             {
                 Console.WriteLine("Server - Player doesn't have a name, disconnecting");
@@ -50,7 +56,7 @@ public class Server : IDisposable
             }
 
             clients.Add(newPlayer);
-        
+
             Game?.OnNewPlayer(newPlayer);
         }
     }
@@ -59,7 +65,7 @@ public class Server : IDisposable
     {
         return new List<PlayerBase>(clients);
     }
-    
+
     public void AssignGame(Game currentGame)
     {
         Game = currentGame;
@@ -68,15 +74,9 @@ public class Server : IDisposable
     private void ReleaseUnmanagedResources()
     {
         foreach (var client in clients) client.Dispose();
-        server.Stop();    
+        server.Stop();
     }
 
-    public void Dispose()
-    {
-        ReleaseUnmanagedResources();
-        GC.SuppressFinalize(this);
-    }
-    
     ~Server()
     {
         ReleaseUnmanagedResources();

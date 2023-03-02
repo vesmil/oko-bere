@@ -22,17 +22,17 @@ public class TestTables : Form
     public TestTables()
     {
         serverThread = new Thread(server.AcceptLoop);
-        
+
         serverThread.Start();
 
         Thread.Sleep(500);
 
         var ip = GetSelfIp() ?? throw new Exception("Couldn't get own IP address.");
-        
+
         NewClientLogics("Alice", ip);
         NewClientLogics("Bob", ip);
         NewClientLogics("Cyril", ip);
-        
+
         foreach (var client in clients)
         {
             var clientThread = new Thread(client.PlayerLoop);
@@ -50,12 +50,12 @@ public class TestTables : Form
         var game = new Game(server.GetClients);
         server.AssignGame(game);
         
-        gameThread = new Thread(game.GameLoop);
+        gameThread = new Thread(() => {game.Lobby(); game.GameLoop();});
         gameThread.Start();
-        
+
         NewClientLogics("David", ip);
         NewClientLogics("Eve", ip);
-        
+
         foreach (var client in clients.GetRange(3, 2))
         {
             var clientThread = new Thread(client.PlayerLoop);
@@ -77,7 +77,7 @@ public class TestTables : Form
         clients.Add(client);
 
         var ui = new GameTableForm(client);
-        
+
         ui.Text = name;
         ui.Show();
     }

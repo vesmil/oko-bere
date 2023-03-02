@@ -7,7 +7,7 @@ namespace OkoClient.Client;
 public class TcpClient : IClient
 {
     private readonly IObjectTransfer transfer;
-    
+
     public TcpClient(string name, string ip, int port)
     {
         transfer = new JsonTcpTransfer(ip, port);
@@ -15,11 +15,12 @@ public class TcpClient : IClient
         NamePreset = name;
 
         transfer.Receive<INotification<object>>();
-        transfer.Send(new GenericResponse<string>{Data=name});
+        transfer.Send(new GenericResponse<string> { Data = name });
     }
 
-    public GameState GameState { get; private set; } = new();
     private string NamePreset { get; }
+
+    public GameState GameState { get; private set; } = new();
 
     public event EventHandler<MessageReceivedEventArgs>? MessageReceived;
 
@@ -31,27 +32,27 @@ public class TcpClient : IClient
         while (true)
         {
             var update = transfer.Receive<INotification<object>>();
-            
+
             Debug.WriteLine(NamePreset + " - " + update.Type);
 
             switch (update.Type)
             {
                 case NotifEnum.NewPlayer:
-                    GameState.Players.Add((PlayerInfo) (update.Data ?? throw new InvalidOperationException()));
+                    GameState.Players.Add((PlayerInfo)(update.Data ?? throw new InvalidOperationException()));
                     break;
                 case NotifEnum.PlayerLeft:
-                    GameState.Players.Remove((PlayerInfo) (update.Data ?? throw new InvalidOperationException()));
+                    GameState.Players.Remove((PlayerInfo)(update.Data ?? throw new InvalidOperationException()));
                     break;
                 case NotifEnum.GameStateInfo:
-                    GameState = (GameState) (update.Data ?? throw new InvalidOperationException());
+                    GameState = (GameState)(update.Data ?? throw new InvalidOperationException());
                     break;
                 case NotifEnum.NewBanker:
                 {
                     var bankerInfo = (PlayerInfo)(update.Data ?? throw new InvalidOperationException());
-             
+
                     // find struct from GameState.Players with the same name and modify it - not the best solution
                     var player = GameState.Players.First(p => p.Name == bankerInfo.Name);
-                
+
                     GameState.Players.Remove(player);
                     player.IsBanker = true;
                     GameState.Players.Add(player);
@@ -67,9 +68,9 @@ public class TcpClient : IClient
 
     public void ContinueDecision(bool decision)
     {
-        transfer.Send(new GenericResponse<bool> {Data = decision});
+        transfer.Send(new GenericResponse<bool> { Data = decision });
     }
-    
+
     // Bet, draw stop...
 
     // ChooseCutPlayer

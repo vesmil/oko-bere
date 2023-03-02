@@ -15,7 +15,7 @@ public static class Program
         server.AssignGame(oko);
 
         // TODO oko.Lobby();
-        
+
         oko.GameLoop();
     }
 }

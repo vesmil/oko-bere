@@ -13,12 +13,12 @@ public class TestPlayer : PlayerBase
     {
         return default!;
     }
-    
+
     public override Task<T?> GetResponseAsync<T>() where T : default
     {
         throw new NotImplementedException();
     }
-    
+
     public override void Notify<T>(INotification<T> notification)
     {
     }

@@ -16,12 +16,6 @@ public partial class Game : IGame
     private readonly GetPlayersDelegate getGetPlayersDelegate;
     private readonly GameTable table;
 
-    public static Game PlayAgainstComputer(int numPlayers)
-    {
-        // TODO proper
-        return new Game(() => new List<PlayerBase> {new AiPlayer("Player", 1000), new AiPlayer("Computer", 1000)});
-    }
-    
     public Game(GetPlayersDelegate getGetPlayerDel)
     {
         getGetPlayersDelegate = getGetPlayerDel;
@@ -31,21 +25,23 @@ public partial class Game : IGame
     public void Lobby()
     {
         // Notify that lobby is open
-        
+
         while (true)
         {
             table.UpdatePlayers(getGetPlayersDelegate.Invoke());
-            
-            if (table.Players.Count > 2) 
+
+            if (table.Players.Count > 2)
                 break;
-            
-            // Send all players a message to wait for more players
-            // TODO...
-            
+
+            // TODO... inform players and still do basic response handling
+
             Thread.Sleep(200);
         }
+        
+        var gameState = CreateGameState();
+        // table.NotifyAllPlayers(Notification.Create(NotifEnum.GameStateInfo, gameState));
     }
-    
+
     public void GameLoop()
     {
         table.AskForContinue();
@@ -59,12 +55,29 @@ public partial class Game : IGame
                 var newPlayers = getGetPlayersDelegate.Invoke();
 
                 if (newPlayers.Count != table.Players.Count) table.UpdatePlayers(newPlayers);
-                
+
                 OneRound();
             }
 
             if (!table.AskForContinue()) break;
         }
+    }
+
+    public void OnNewPlayer(PlayerBase newPlayer)
+    {
+        table.NotifyAllPlayers(Notification.Create(NotifEnum.NewPlayer, newPlayer.ToPlayerInfo()));
+
+        table.Players.Add(newPlayer);
+
+        var gameState = CreateGameState();
+        newPlayer.Notify(Notification.Create(NotifEnum.GameStateInfo, gameState));
+    }
+
+    public static Game PlayAgainstComputer(int numPlayers)
+    {
+        // TODO properly
+        
+        return new Game(() => new List<PlayerBase> { new AiPlayer("Player", 1000), new AiPlayer("Computer", 1000) });
     }
 
     private void OneRound()
@@ -253,24 +266,12 @@ public partial class Game : IGame
         table.Players.ForEach(player => player.Bet = 0);
     }
 
-    public void OnNewPlayer(PlayerBase newPlayer)
-    {
-        table.NotifyAllPlayers(Notification.Create(NotifEnum.NewPlayer, newPlayer));
-        
-        var gameState = CreateGameState();
-        newPlayer.Notify(Notification.Create(NotifEnum.GameStateInfo, gameState));
-        
-        table.Players.Add(newPlayer);
-    }
-    
     private GameState CreateGameState()
     {
         var gameState = new GameState();
 
         foreach (var player in table.AllPlayers)
-        {
             gameState.Players.Add(new PlayerInfo(player.Name, player.Balance, player.Bet, player.Hand.Count));
-        }
 
         return gameState;
     }

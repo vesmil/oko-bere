@@ -6,9 +6,6 @@ public partial class ConnectionDialog : Form
 {
     private readonly TextBox playerNameTextBox;
     private readonly TextBox serverIpTextBox;
-    
-    public string ServerIp { get; private set; } = "";
-    public string PlayerName { get; private set; } = "";
 
     public ConnectionDialog()
     {
@@ -26,7 +23,7 @@ public partial class ConnectionDialog : Form
         playerNameTextBox.Size = new Size(200, 30);
         playerNameTextBox.Location = new Point((Width - playerNameTextBox.Width) / 2, 40);
         Controls.Add(playerNameTextBox);
-      
+
         serverIpTextBox.PlaceholderText("Server IP");
         playerNameTextBox.PlaceholderText("Player name");
 
@@ -36,9 +33,12 @@ public partial class ConnectionDialog : Form
         connectButton.Text = "Connect";
         connectButton.Click += ConnectButton_Click!;
         Controls.Add(connectButton);
-        
+
         DialogResult = DialogResult.Cancel;
     }
+
+    public string ServerIp { get; private set; } = "";
+    public string PlayerName { get; private set; } = "";
 
     private void ConnectButton_Click(object sender, EventArgs e)
     {
@@ -47,7 +47,7 @@ public partial class ConnectionDialog : Form
 
         // TODO create a client and connect to the server
         var client = new TcpClient(PlayerName, ServerIp, 1234);
-        
+
         DialogResult = DialogResult.OK;
         // else...
 
@@ -61,7 +61,7 @@ public static class WinformExtensions
     {
         textBox.Text = text;
         textBox.ForeColor = Color.Gray;
-        
+
         textBox.GotFocus += (_, _) =>
         {
             if (textBox.Text == text)
@@ -70,7 +70,7 @@ public static class WinformExtensions
                 textBox.ForeColor = Color.Black;
             }
         };
-        
+
         textBox.LostFocus += (_, _) =>
         {
             if (textBox.Text == "")

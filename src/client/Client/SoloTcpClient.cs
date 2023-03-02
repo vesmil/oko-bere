@@ -6,7 +6,6 @@ public class SoloTcpClient : IClient
 {
     public SoloTcpClient(int numPlayers)
     {
-        
     }
 
     public void PlayerLoop()

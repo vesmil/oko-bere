@@ -6,13 +6,12 @@ using Timer = System.Windows.Forms.Timer;
 namespace OkoClient.Forms;
 
 /// <summary>
-///    Main form for the game.
-///
-///    Contains playrs, cards, bank and all the controls.
+///     Main form for the game.
+///     Contains playrs, cards, bank and all the controls.
 /// </summary>
 public sealed partial class GameTableForm : Form
 {
-    private readonly IClient client;
+    private const int MaxTime = 60;
 
     private readonly Label balanceLabel = new();
     private readonly Label bankLabel = new();
@@ -20,22 +19,22 @@ public sealed partial class GameTableForm : Form
     private readonly Label betLabel = new();
     private readonly TextBox betTextBox = new();
     private readonly Panel buttonPanel = new();
-    
+
     private readonly List<PictureBox> cardBoxes = new();
-    
+    private readonly IClient client;
+
+    private readonly Button continueButton = new();
+
     private readonly Button drawButton = new();
     private readonly Button endTurnButton = new();
-    
-    private readonly Button continueButton = new();
-    private readonly Timer timer = new();
-    private string timerMessage = "Time left: ";
-    private int timeLeft;
-    private const int MaxTime = 60;
-
-    private readonly List<GroupBox> playerBoxes = new();
     private readonly Label noPlayersLabel = new();
 
+    private readonly List<GroupBox> playerBoxes = new();
+    private readonly Timer timer = new();
+
     private readonly Label topLabel = new();
+    private int timeLeft;
+    private string timerMessage = "Time left: ";
 
     public GameTableForm(IClient client)
     {
@@ -50,18 +49,19 @@ public sealed partial class GameTableForm : Form
         Render();
     }
 
+    private GameState GameState => client.GameState;
+
     private void InitializeHidden()
     {
         continueButton.Size = new Size(200, 50);
-        continueButton.Location = new Point(Width / 2 - continueButton.Width / 2, Height / 2 - continueButton.Height / 2);
+        continueButton.Location =
+            new Point(Width / 2 - continueButton.Width / 2, Height / 2 - continueButton.Height / 2);
         continueButton.Text = "Join Next Round";
         continueButton.Click += ContinueButton_Click!;
-        
+
         // TODO is not really hidden
         continueButton.Visible = false;
     }
-
-    private GameState GameState => client.GameState;
 
     private void Render()
     {
@@ -79,7 +79,7 @@ public sealed partial class GameTableForm : Form
         else
             Controls.Add(control);
     }
-    
+
     private void AddTurnInfo()
     {
         BackColor = Color.FromArgb(174, 203, 143);
@@ -88,22 +88,18 @@ public sealed partial class GameTableForm : Form
 
         SetTurnInfo("Waiting for other players to join...");
     }
-    
+
     private void SetTurnInfo(string text)
     {
         topLabel.Text = text;
 
         if (topLabel.InvokeRequired)
-        {
             topLabel.Invoke((MethodInvoker)delegate
             {
                 topLabel.Location = new Point(Width / 2 - topLabel.Size.Width / 2, 20);
             });
-        }
         else
-        {
             topLabel.Location = new Point(Width / 2 - topLabel.Size.Width / 2, 20);
-        }
     }
 
     private void AddMoneyLabels()
@@ -167,17 +163,23 @@ public sealed partial class GameTableForm : Form
         
         noPlayersLabel.Visible = false;
         */
-        
+
         if (playerBoxes.Count > 0)
         {
-            foreach (var playerBox in playerBoxes)
-            {
-                playerBox.Dispose();
-            }
+            // if has to be invoked
+            if (playerBoxes[0].InvokeRequired)
+                playerBoxes[0].Invoke((MethodInvoker)delegate
+                {
+                    foreach (var playerBox in playerBoxes) playerBox.Dispose();
+
+                    playerBoxes.Clear();
+                });
+            else
+                foreach (var playerBox in playerBoxes) playerBox.Dispose();
 
             playerBoxes.Clear();
         }
-        
+
         for (var i = 0; i < GameState.Players.Count; i++)
         {
             var player = GameState.Players[i];
@@ -254,64 +256,64 @@ public sealed partial class GameTableForm : Form
             case NotifEnum.SetInitialBank:
                 // TODO show button panel
                 break;
-            
+
             case NotifEnum.BankBusted:
                 break;
-            
+
             case NotifEnum.AskForTurn:
                 // TODO show button panel
                 break;
-            
+
             case NotifEnum.ReceivedCard:
                 // TODO update card boxes
                 break;
 
             case NotifEnum.Bust:
                 break;
-            
+
             case NotifEnum.AskForMalaDomu:
                 break;
-            
+
             case NotifEnum.MalaDomuCalled:
                 break;
-            
+
             case NotifEnum.MalaDomuSuccess:
                 break;
-            
+
             case NotifEnum.ChooseCutPlayer:
                 break;
-            
+
             case NotifEnum.ChooseCutPosition:
                 break;
-            
+
             case NotifEnum.SeeCutCard:
                 break;
-            
+
             case NotifEnum.DuelOffer:
                 break;
-            
+
             case NotifEnum.DuelDeclined:
                 break;
-            
+
             case NotifEnum.DuelAccepted:
                 break;
-            
+
             case NotifEnum.DuelAskNextCard:
                 break;
-            
+
             case NotifEnum.AlreadyExchanged:
                 break;
-            
+
             case NotifEnum.ExchangeAllowed:
                 break;
-            
+
             case NotifEnum.AskForContinue:
                 ShowContinueButton();
                 break;
 
             case NotifEnum.NotEnoughPlayers:
                 break;
-            
+
             case NotifEnum.EndOfGame:
                 break;
         }
@@ -322,18 +324,18 @@ public sealed partial class GameTableForm : Form
     private void ShowContinueButton()
     {
         timerMessage = "Confirm to continue in ";
-        
+
         continueButton.Show();
-        
+
         AddControl(continueButton);
 
         timeLeft = MaxTime;
-        
+
         timer.Interval = 1000;
         timer.Tick += timer_Tick;
         timer.Start();
     }
-    
+
     private void timer_Tick(object? sender, EventArgs e)
     {
         if (timeLeft > 0)
@@ -344,17 +346,17 @@ public sealed partial class GameTableForm : Form
         else
         {
             client.ContinueDecision(false);
-            
+
             continueButton.Hide();
             SetTurnInfo("See you next time!");
             timer.Stop();
         }
     }
-    
+
     private void ContinueButton_Click(object sender, EventArgs e)
     {
         client.ContinueDecision(true);
-        
+
         continueButton.Hide();
         SetTurnInfo("Waiting for other players...");
         timer.Stop();

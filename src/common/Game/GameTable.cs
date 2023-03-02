@@ -58,8 +58,8 @@ public partial class Game
                 // Might add animation for the raffle here
 
                 AssignBanker(Players[num]);
-                
-                NotifyAllPlayers(Notification.Create(NotifEnum.NewBanker, Banker!));
+
+                NotifyAllPlayers(Notification.Create(NotifEnum.NewBanker, Banker?.ToPlayerInfo()));
             }
 
             Console.WriteLine($"Banker was set to {Banker!.Name}");
@@ -87,7 +87,7 @@ public partial class Game
             NotifyAllPlayers(Notification.Create(NotifEnum.AskForContinue));
 
             var newPlayers = WouldContinue();
-            
+
             /* TODO find use for async version
              
             var tasks = Players.Select(p => p.GetResponseAsync<bool>());
@@ -122,18 +122,17 @@ public partial class Game
         {
             Players.Remove(player);
 
-            foreach (var otherPlayer in AllPlayers) otherPlayer.Notify(Notification.Create(NotifEnum.PlayerLeft, player));
+            foreach (var otherPlayer in AllPlayers)
+                otherPlayer.Notify(Notification.Create(NotifEnum.PlayerLeft, player.ToPlayerInfo()));
         }
 
         public void UpdatePlayers(List<PlayerBase> newPlayers)
         {
             foreach (var player in newPlayers.Where(player => !Players.Contains(player)))
-            {
-                NotifyAllPlayers(Notification.Create(NotifEnum.NewPlayer, player));
-            }
-            
+                NotifyAllPlayers(Notification.Create(NotifEnum.NewPlayer, player.ToPlayerInfo()));
+
             Players = newPlayers;
-            
+
             ClearBets();
         }
     }

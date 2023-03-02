@@ -9,7 +9,7 @@ public struct GameState
         Players = new List<PlayerInfo>();
         Hand = new List<Card>();
     }
-    
+
     public List<PlayerInfo> Players;
     public List<Card> Hand;
 

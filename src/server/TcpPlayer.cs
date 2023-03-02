@@ -7,24 +7,27 @@ namespace OkoServer;
 public class TcpPlayer : PlayerBase, IDisposable
 {
     private readonly IObjectTransfer transfer;
-    
+
     public TcpPlayer(TcpClient client, string? name, int balance) : base("_", balance)
     {
         transfer = new JsonTcpTransfer(client);
-        
+
         if (name != null)
-        {
             Name = name;
-        }
         else
         {
             Notify(Notification.Create(NotifEnum.AskForName));
             var nameResponse = GetResponse<string>();
-            
+
             Name = nameResponse.Data ?? "";
         }
     }
-    
+
+    public void Dispose()
+    {
+        transfer.Dispose();
+    }
+
     public sealed override IResponse<T> GetResponse<T>()
     {
         return transfer.Receive<IResponse<T>>();
@@ -34,16 +37,12 @@ public class TcpPlayer : PlayerBase, IDisposable
     {
         transfer.Send(notification);
     }
-    
+
     public override async Task<T?> GetResponseAsync<T>() where T : default
     {
         var responseTask = Task.Run(() => transfer.Receive<IResponse<T>>());
         var completedTask = await Task.WhenAny(responseTask, Task.Delay(TimeSpan.FromSeconds(5)));
 
         return completedTask == responseTask ? responseTask.Result.Data : default;
-    }
-    public void Dispose()
-    {
-        transfer.Dispose();
     }
 }

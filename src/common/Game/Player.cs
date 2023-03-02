@@ -8,7 +8,7 @@ public abstract class PlayerBase
 {
     public readonly List<Card> Hand = new();
     private readonly Guid id;
-    
+
     public int Balance;
     public int Bet;
 
@@ -28,7 +28,7 @@ public abstract class PlayerBase
 
         id = Guid.NewGuid();
     }
-    
+
     public abstract IResponse<T> GetResponse<T>();
     public abstract void Notify<T>(INotification<T> notification);
 
@@ -53,10 +53,10 @@ public abstract class PlayerBase
         var possibles = Hand.GetSum();
         return possibles[0];
     }
-    
+
     public override bool Equals(object? obj)
     {
-        if (obj is PlayerBase player) 
+        if (obj is PlayerBase player)
             return player.id == id;
 
         return false;
@@ -66,14 +66,20 @@ public abstract class PlayerBase
     {
         return id.GetHashCode();
     }
-    
+
     public static bool operator ==(PlayerBase left, PlayerBase? right)
     {
         return left.Equals(right);
     }
+
     public static bool operator !=(PlayerBase left, PlayerBase? right)
     {
         return !(left == right);
+    }
+
+    public PlayerInfo ToPlayerInfo()
+    {
+        return new PlayerInfo(Name, Balance, Bet, Hand.Count);
     }
 
     public abstract Task<T?> GetResponseAsync<T>();
