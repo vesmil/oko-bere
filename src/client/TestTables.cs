@@ -21,25 +21,26 @@ public class TestTables : Form
 
     public TestTables()
     {
+        // Creates server
         serverThread = new Thread(server.AcceptLoop);
-
         serverThread.Start();
 
         Thread.Sleep(500);
 
         var ip = GetSelfIp() ?? throw new Exception("Couldn't get own IP address.");
 
+        // Creates three clients with player game loop
         NewClientLogics("Alice", ip);
         NewClientLogics("Bob", ip);
         NewClientLogics("Cyril", ip);
 
-        foreach (var client in clients)
+        foreach (var clientThread in clients.Select(client => new Thread(client.PlayerLoop)))
         {
-            var clientThread = new Thread(client.PlayerLoop);
             clientThreads.Add(clientThread);
             clientThread.Start();
         }
 
+        // Waits for three clients to connect
         var players = server.GetClients();
         while (players.Count < 3)
         {
@@ -47,12 +48,18 @@ public class TestTables : Form
             players = server.GetClients();
         }
 
+        // Creates game and assigns it to server
         var game = new Game(server.GetClients);
         server.AssignGame(game);
         
+        // Starts game loop
         gameThread = new Thread(game.GameLoop);
         gameThread.Start();
 
+        /*
+         
+        TODO allow plyaers after game has started
+        
         NewClientLogics("David", ip);
         NewClientLogics("Eve", ip);
 
@@ -62,6 +69,8 @@ public class TestTables : Form
             clientThreads.Add(clientThread);
             clientThread.Start();
         }
+        
+        */
     }
 
     ~TestTables()

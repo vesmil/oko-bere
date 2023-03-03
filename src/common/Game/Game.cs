@@ -1,4 +1,5 @@
-﻿using OkoCommon.Communication;
+﻿using System.Diagnostics;
+using OkoCommon.Communication;
 
 namespace OkoCommon.Game;
 
@@ -43,12 +44,14 @@ public partial class Game : IGame
 
     public void GameLoop()
     {
+        // Notify all about the game state
         table.UpdatePlayers(getGetPlayersDelegate.Invoke());
-
         table.NotifyAllPlayers(Notification.Create(NotifEnum.GameStateInfo, CreateGameState()));
-
+        
         table.AskForContinue();
 
+        Debug.WriteLine($"Starting game loop with {table.Players.Count} players");
+        
         while (true)
         {
             table.SetBanker();
@@ -66,11 +69,13 @@ public partial class Game : IGame
         }
     }
 
+    private readonly Mutex addingMutex = new();
     public void OnNewPlayer(PlayerBase newPlayer)
     {
-        // TODO what if other players joins while ...
+        addingMutex.WaitOne();  // allows only one thread to add a player at a time
+        
         table.NotifyAllPlayers(Notification.Create(NotifEnum.NewPlayer, newPlayer.ToPlayerInfo()));
-
+        
         table.Players.Add(newPlayer);
 
         var gameState = CreateGameState();
@@ -200,16 +205,16 @@ public partial class Game : IGame
         while (true)
         {
             player.Notify(Notification.Create(NotifEnum.AskForTurn));
-            var decision = player.GetResponse<PlayerResponseEnum>().Data;
+            var decision = player.GetResponse<TurnDecision>().Data;
 
             switch (decision)
             {
-                case PlayerResponseEnum.Bet:
+                case TurnDecision.Bet:
                 // ...
-                case PlayerResponseEnum.Draw:
+                case TurnDecision.Draw:
                     DrawCard(player);
                     break;
-                case PlayerResponseEnum.Stop:
+                case TurnDecision.Stop:
                     return;
             }
 

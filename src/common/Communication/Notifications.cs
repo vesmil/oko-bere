@@ -7,13 +7,14 @@ public enum NotifEnum
 {
     AskForName,
     GameStateInfo,
-    GameStart,
+    GameStart, //
 
     NewBanker,
     NewPlayer,
+    PlayerLeft,
 
     SetInitialBank,
-    BankBusted,
+    BankBusted, //
 
     AskForTurn,
 
@@ -34,14 +35,12 @@ public enum NotifEnum
     DuelAskNextCard,
 
     AlreadyExchanged,
-    ExchangeAllowed,
-
-    PlayerLeft,
-
+    ExchangeAllowed, //
+    
     AskForContinue,
     Continue,
     NotEnoughPlayers,
-    EndOfGame
+    EndOfGame //
 }
 
 public interface INotification<out T>

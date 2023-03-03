@@ -1,6 +1,7 @@
 using OkoClient.Client;
 using OkoCommon;
 using OkoCommon.Communication;
+using OkoCommon.Game;
 using Timer = System.Windows.Forms.Timer;
 
 namespace OkoClient.Forms;
@@ -59,7 +60,6 @@ public sealed partial class GameTableForm : Form
         continueButton.Text = "Join Next Round";
         continueButton.Click += ContinueButton_Click!;
 
-        // TODO is not really hidden
         continueButton.Visible = false;
     }
 
@@ -91,15 +91,17 @@ public sealed partial class GameTableForm : Form
 
     private void SetTurnInfo(string text)
     {
-        topLabel.Text = text;
-
         if (topLabel.InvokeRequired)
             topLabel.Invoke((MethodInvoker)delegate
             {
+                topLabel.Text = text;
                 topLabel.Location = new Point(Width / 2 - topLabel.Size.Width / 2, 20);
             });
         else
+        {
+            topLabel.Text = text;
             topLabel.Location = new Point(Width / 2 - topLabel.Size.Width / 2, 20);
+        }
     }
 
     private void AddMoneyLabels()
@@ -245,66 +247,84 @@ public sealed partial class GameTableForm : Form
         buttonPanel.Hide();
     }
 
+    // TODO this might need a split
     private void OnMessageReceived(object? sender, MessageReceivedEventArgs message)
     {
         switch (message.Type)
         {
             case NotifEnum.GameStart:
-                topLabel.Text = "Game Started";
+                SetTurnInfo("Game started!");
                 break;
 
             case NotifEnum.SetInitialBank:
-                // TODO show button panel
+                SetTurnInfo("Set the initial bank, please");
+                // TODO get initial bank
+                client.BankSet(100);
                 break;
 
             case NotifEnum.BankBusted:
+                SetTurnInfo("Bank was busted!");
                 break;
 
             case NotifEnum.AskForTurn:
-                // TODO show button panel
+                SetTurnInfo("It is your turn!");
+                buttonPanel.Show();
+                // ...
                 break;
-
-            case NotifEnum.ReceivedCard:
-                // TODO update card boxes
-                break;
-
+            
             case NotifEnum.Bust:
                 break;
 
             case NotifEnum.AskForMalaDomu:
+                // TODO show the button for it
                 break;
 
             case NotifEnum.MalaDomuCalled:
+                SetTurnInfo("Banker called \"Mala domu\"!");
                 break;
 
             case NotifEnum.MalaDomuSuccess:
+                SetTurnInfo("Mala domu success! New banker needs to be chosen");
                 break;
 
             case NotifEnum.ChooseCutPlayer:
+                SetTurnInfo("Choose the player to cut the deck");
+                // TODO ...
                 break;
 
             case NotifEnum.ChooseCutPosition:
+                SetTurnInfo("Where would you like to cut the deck?");
+                // TODO ...
                 break;
 
             case NotifEnum.SeeCutCard:
+                if (message.Data is Card card)
+                {
+                    SetTurnInfo($"The card is {card}");
+                }
+                else
+                {
+                    SetTurnInfo("The card is unknown");
+                }
+                
                 break;
 
             case NotifEnum.DuelOffer:
+                SetTurnInfo("Would you like to duel?");
+                // TODO ...
                 break;
 
             case NotifEnum.DuelDeclined:
+                SetTurnInfo("Duel declined");
                 break;
 
             case NotifEnum.DuelAccepted:
+                SetTurnInfo("Duel accepted");
                 break;
 
             case NotifEnum.DuelAskNextCard:
-                break;
-
-            case NotifEnum.AlreadyExchanged:
-                break;
-
-            case NotifEnum.ExchangeAllowed:
+                SetTurnInfo("Would you like to get another card?");
+                // TODO ...
                 break;
 
             case NotifEnum.AskForContinue:
@@ -312,9 +332,12 @@ public sealed partial class GameTableForm : Form
                 break;
 
             case NotifEnum.NotEnoughPlayers:
+                SetTurnInfo("Not enough players to continue");
                 break;
 
             case NotifEnum.EndOfGame:
+                SetTurnInfo("Game ended");
+                // TODO hide...
                 break;
         }
 
@@ -345,7 +368,7 @@ public sealed partial class GameTableForm : Form
         }
         else
         {
-            client.ContinueDecision(false);
+            client.Continue(false);
 
             continueButton.Hide();
             SetTurnInfo("See you next time!");
@@ -355,7 +378,7 @@ public sealed partial class GameTableForm : Form
 
     private void ContinueButton_Click(object sender, EventArgs e)
     {
-        client.ContinueDecision(true);
+        client.Continue(true);
 
         continueButton.Hide();
         SetTurnInfo("Waiting for other players...");

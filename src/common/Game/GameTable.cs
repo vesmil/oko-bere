@@ -1,4 +1,5 @@
-﻿using OkoCommon.Communication;
+﻿using System.Diagnostics;
+using OkoCommon.Communication;
 
 namespace OkoCommon.Game;
 
@@ -28,7 +29,8 @@ public partial class Game
 
         public void NotifyAllPlayers<T>(INotification<T> notification)
         {
-            foreach (var player in AllPlayers) player.Notify(notification);
+            foreach (var player in Players) player.Notify(notification);
+            Banker?.Notify(notification);
         }
 
         public void NotifyAllExcept<T>(PlayerBase except, INotification<T> notification)
@@ -40,7 +42,7 @@ public partial class Game
         {
             if (Players.Count == 0)
             {
-                Console.WriteLine("No players, can not assign a banker");
+                Debug.WriteLine("No players, can not assign a banker");
                 return;
             }
 
@@ -62,7 +64,7 @@ public partial class Game
                 NotifyAllPlayers(Notification.Create(NotifEnum.NewBanker, Banker?.ToPlayerInfo()));
             }
 
-            Console.WriteLine($"Banker was set to {Banker!.Name}");
+            Debug.WriteLine($"Banker was set to {Banker!.Name}");
         }
 
         private void AssignBanker(PlayerBase newBanker)

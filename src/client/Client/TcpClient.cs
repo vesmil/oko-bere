@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics;
 using OkoCommon;
 using OkoCommon.Communication;
+using OkoCommon.Game;
 
 namespace OkoClient.Client;
 
@@ -15,11 +16,10 @@ public class TcpClient : IClient
         NamePreset = name;
 
         transfer.Receive<INotification<object>>();
-        transfer.Send(new GenericResponse<string> { Data = name });
+        transfer.Send(new Response<string> { Data = name });
     }
 
     private string NamePreset { get; }
-
     public GameState GameState { get; private set; } = new();
 
     public event EventHandler<MessageReceivedEventArgs>? MessageReceived;
@@ -40,12 +40,15 @@ public class TcpClient : IClient
                 case NotifEnum.NewPlayer:
                     GameState.Players.Add((PlayerInfo)(update.Data ?? throw new InvalidOperationException()));
                     break;
+                
                 case NotifEnum.PlayerLeft:
                     GameState.Players.Remove((PlayerInfo)(update.Data ?? throw new InvalidOperationException()));
                     break;
+                
                 case NotifEnum.GameStateInfo:
                     GameState = (GameState)(update.Data ?? throw new InvalidOperationException());
                     break;
+                
                 case NotifEnum.NewBanker:
                 {
                     var bankerInfo = (PlayerInfo)(update.Data ?? throw new InvalidOperationException());
@@ -66,16 +69,44 @@ public class TcpClient : IClient
         }
     }
 
-    public void ContinueDecision(bool decision)
+    public void BankSet(int amount)
     {
-        transfer.Send(new GenericResponse<bool> { Data = decision });
+        throw new NotImplementedException();
     }
 
-    // Bet, draw stop...
+    public void Continue(bool decision)
+    {
+        transfer.Send(new Response<bool> { Data = decision });
+    }
 
-    // ChooseCutPlayer
+    public void Turn(TurnDecision decision)
+    {
+        transfer.Send(new Response<TurnDecision> { Data = decision });
+    }
 
-    // ChooseCutCard 
+    public void Turn(TurnDecision decision, int bet)
+    {
+        transfer.Send(new Response<TurnDecision> { Data = decision });
+        transfer.Send(new Response<int> { Data = bet });
+    }
 
-    // AcceptDuel
+    public void Duel(bool decision, int bet = 0)
+    {
+        transfer.Send(new Response<bool> { Data = decision });
+
+        if (decision)
+        {
+            transfer.Send(new Response<int> { Data = bet });
+        }
+    }
+    
+    public void Cut(int where)
+    {
+        throw new NotImplementedException();
+    }
+
+    public void CutPlayer(PlayerBase player)
+    {
+        throw new NotImplementedException();
+    }
 }

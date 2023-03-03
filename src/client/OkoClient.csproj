@@ -9,8 +9,8 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\common\OkoCommon.csproj"/>
-        <ProjectReference Include="..\server\OkoServer.csproj"/>
+        <ProjectReference Include="..\common\OkoCommon.csproj" />
+        <ProjectReference Include="..\server\OkoServer.csproj" />
     </ItemGroup>
 
     <ItemGroup>
