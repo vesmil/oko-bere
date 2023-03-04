@@ -71,7 +71,7 @@ public class TcpClient : IClient
 
     public void BankSet(int amount)
     {
-        throw new NotImplementedException();
+        transfer.Send(new Response<int> { Data = amount });
     }
 
     public void Continue(bool decision)

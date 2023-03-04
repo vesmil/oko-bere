@@ -1,7 +1,5 @@
 using OkoClient.Client;
 using OkoCommon;
-using OkoCommon.Communication;
-using OkoCommon.Game;
 using Timer = System.Windows.Forms.Timer;
 
 namespace OkoClient.Forms;
@@ -40,14 +38,17 @@ public sealed partial class GameTableForm : Form
     public GameTableForm(IClient client)
     {
         InitializeComponent();
-
-        // in final WindowState = FormWindowState.Maximized;
+        InitializeHandlers();
+        
+        // TODO in final WindowState = FormWindowState.Maximized;
 
         this.client = client;
         this.client.MessageReceived += OnMessageReceived;
 
         InitializeHidden();
-        Render();
+        InitializeVisible();
+
+        SetTurnInfo("Waiting for other players to join...");
     }
 
     private GameState GameState => client.GameState;
@@ -63,13 +64,18 @@ public sealed partial class GameTableForm : Form
         continueButton.Visible = false;
     }
 
-    private void Render()
+    private void InitializeVisible()
     {
         AddTurnInfo();
         AddPlayerBoxes();
         AddMoneyLabels();
         AddCardBoxes();
         AddButtonPanel();
+    }
+
+    private void Render()
+    {
+        AddPlayerBoxes();
     }
 
     private void AddControl(Control control)
@@ -85,8 +91,6 @@ public sealed partial class GameTableForm : Form
         BackColor = Color.FromArgb(174, 203, 143);
         topLabel.AutoSize = true;
         AddControl(topLabel);
-
-        SetTurnInfo("Waiting for other players to join...");
     }
 
     private void SetTurnInfo(string text)
@@ -151,7 +155,6 @@ public sealed partial class GameTableForm : Form
 
     private void AddPlayerBoxes()
     {
-        /* TODO with invoke
         if (GameState.Players.Count == 0)
         {
             noPlayersLabel.Visible = true;
@@ -164,22 +167,20 @@ public sealed partial class GameTableForm : Form
         }
         
         noPlayersLabel.Visible = false;
-        */
 
         if (playerBoxes.Count > 0)
         {
-            // if has to be invoked
             if (playerBoxes[0].InvokeRequired)
                 playerBoxes[0].Invoke((MethodInvoker)delegate
                 {
                     foreach (var playerBox in playerBoxes) playerBox.Dispose();
-
                     playerBoxes.Clear();
                 });
             else
+            {
                 foreach (var playerBox in playerBoxes) playerBox.Dispose();
-
-            playerBoxes.Clear();
+                playerBoxes.Clear();   
+            }
         }
 
         for (var i = 0; i < GameState.Players.Count; i++)
@@ -190,24 +191,33 @@ public sealed partial class GameTableForm : Form
             playerBox.Size = new Size(200, 130);
             playerBox.Location = new Point(30 + 210 * i, 70);
             playerBox.Text = $"{(player.IsBanker ? "Banker" : "Player")} - {player.Name}";
-
+            
+            var cardCountLabel = new Label();
+            cardCountLabel.AutoSize = true;
+            cardCountLabel.Location = new Point(10, 30);
+            cardCountLabel.Text = $"Cards: {player.CardCount}";
+            playerBox.Controls.Add(cardCountLabel);
+            
             var balancePlayerLabel = new Label();
             balancePlayerLabel.AutoSize = true;
-            balancePlayerLabel.Location = new Point(10, 30);
+            balancePlayerLabel.Location = new Point(10, 60);
             balancePlayerLabel.Text = $"Balance: {player.Balance}";
             playerBox.Controls.Add(balancePlayerLabel);
 
-            var betPlayerLabel = new Label();
-            betPlayerLabel.AutoSize = true;
-            betPlayerLabel.Location = new Point(10, 60);
-            betPlayerLabel.Text = $"Bet: {player.Bet}";
-            playerBox.Controls.Add(betPlayerLabel);
+            if (!player.IsBanker)
+            {
+                var betPlayerLabel = new Label();
+                betPlayerLabel.AutoSize = true;
+                betPlayerLabel.Location = new Point(10, 90);
+                betPlayerLabel.Text = $"Bet: {player.Bet}";
+                playerBox.Controls.Add(betPlayerLabel);
+            }
 
-            var cardCountLabel = new Label();
-            cardCountLabel.AutoSize = true;
-            cardCountLabel.Location = new Point(10, 90);
-            cardCountLabel.Text = $"Cards: {player.CardCount}";
-            playerBox.Controls.Add(cardCountLabel);
+
+            if (player.IsBanker)
+            {
+                playerBox.BackColor = Color.FromArgb(64, 255, 255, 128);
+            }
 
             AddControl(playerBox);
             playerBoxes.Add(playerBox);
@@ -247,103 +257,16 @@ public sealed partial class GameTableForm : Form
         buttonPanel.Hide();
     }
 
-    // TODO this might need a split
     private void OnMessageReceived(object? sender, MessageReceivedEventArgs message)
     {
-        switch (message.Type)
+        if (messageHandlers.TryGetValue(message.Type, out var handler))
         {
-            case NotifEnum.GameStart:
-                SetTurnInfo("Game started!");
-                break;
-
-            case NotifEnum.SetInitialBank:
-                SetTurnInfo("Set the initial bank, please");
-                // TODO get initial bank
-                client.BankSet(100);
-                break;
-
-            case NotifEnum.BankBusted:
-                SetTurnInfo("Bank was busted!");
-                break;
-
-            case NotifEnum.AskForTurn:
-                SetTurnInfo("It is your turn!");
-                buttonPanel.Show();
-                // ...
-                break;
-            
-            case NotifEnum.Bust:
-                break;
-
-            case NotifEnum.AskForMalaDomu:
-                // TODO show the button for it
-                break;
-
-            case NotifEnum.MalaDomuCalled:
-                SetTurnInfo("Banker called \"Mala domu\"!");
-                break;
-
-            case NotifEnum.MalaDomuSuccess:
-                SetTurnInfo("Mala domu success! New banker needs to be chosen");
-                break;
-
-            case NotifEnum.ChooseCutPlayer:
-                SetTurnInfo("Choose the player to cut the deck");
-                // TODO ...
-                break;
-
-            case NotifEnum.ChooseCutPosition:
-                SetTurnInfo("Where would you like to cut the deck?");
-                // TODO ...
-                break;
-
-            case NotifEnum.SeeCutCard:
-                if (message.Data is Card card)
-                {
-                    SetTurnInfo($"The card is {card}");
-                }
-                else
-                {
-                    SetTurnInfo("The card is unknown");
-                }
-                
-                break;
-
-            case NotifEnum.DuelOffer:
-                SetTurnInfo("Would you like to duel?");
-                // TODO ...
-                break;
-
-            case NotifEnum.DuelDeclined:
-                SetTurnInfo("Duel declined");
-                break;
-
-            case NotifEnum.DuelAccepted:
-                SetTurnInfo("Duel accepted");
-                break;
-
-            case NotifEnum.DuelAskNextCard:
-                SetTurnInfo("Would you like to get another card?");
-                // TODO ...
-                break;
-
-            case NotifEnum.AskForContinue:
-                ShowContinueButton();
-                break;
-
-            case NotifEnum.NotEnoughPlayers:
-                SetTurnInfo("Not enough players to continue");
-                break;
-
-            case NotifEnum.EndOfGame:
-                SetTurnInfo("Game ended");
-                // TODO hide...
-                break;
+            handler(message);
         }
 
         Render();
     }
-
+    
     private void ShowContinueButton()
     {
         timerMessage = "Confirm to continue in ";

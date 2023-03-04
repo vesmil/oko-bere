@@ -27,16 +27,14 @@ public partial class Game : IGame
 
     public void Lobby()
     {
+        // TODO...
         // Notify that lobby is open
 
         while (true)
         {
             table.UpdatePlayers(getGetPlayersDelegate.Invoke());
 
-            if (table.Players.Count > 2)
-                break;
-
-            // TODO... inform players and still do basic response handling
+            if (table.AllPlayers.Count > 2) break;
 
             Thread.Sleep(200);
         }
@@ -44,23 +42,19 @@ public partial class Game : IGame
 
     public void GameLoop()
     {
-        // Notify all about the game state
         table.UpdatePlayers(getGetPlayersDelegate.Invoke());
-        table.NotifyAllPlayers(Notification.Create(NotifEnum.GameStateInfo, CreateGameState()));
         
         table.AskForContinue();
-
-        Debug.WriteLine($"Starting game loop with {table.Players.Count} players");
+        Debug.WriteLine($"Starting game loop with {table.AllPlayers.Count} players");
         
         while (true)
         {
             table.SetBanker();
-
+            
             while (table.Bank > 0)
             {
                 var newPlayers = getGetPlayersDelegate.Invoke();
-
-                if (newPlayers.Count != table.Players.Count) table.UpdatePlayers(newPlayers);
+                if (newPlayers.Count != table.AllPlayers.Count) table.UpdatePlayers(newPlayers);
 
                 OneRound();
             }
@@ -76,7 +70,7 @@ public partial class Game : IGame
         
         table.NotifyAllPlayers(Notification.Create(NotifEnum.NewPlayer, newPlayer.ToPlayerInfo()));
         
-        table.Players.Add(newPlayer);
+        table.AllPlayers.Add(newPlayer);
 
         var gameState = CreateGameState();
         newPlayer.Notify(Notification.Create(NotifEnum.GameStateInfo, gameState));
@@ -84,8 +78,7 @@ public partial class Game : IGame
 
     public static Game PlayAgainstComputer(int numPlayers)
     {
-        // TODO properly
-        
+        // TODO I will change it to multiple players on the same computer
         return new Game(() => new List<PlayerBase> { new AiPlayer("Player", 1000), new AiPlayer("Computer", 1000) });
     }
 
@@ -109,8 +102,8 @@ public partial class Game : IGame
 
             if (malaDomu)
             {
-                Console.WriteLine("Mala domu was called");
-                table.NotifyAllPlayers(Notification.Create(NotifEnum.MalaDomuCalled));
+                Debug.WriteLine("Mala domu was called");
+                table.NotifyPlayers(Notification.Create(NotifEnum.MalaDomuCalled));
             }
         }
 
@@ -126,10 +119,9 @@ public partial class Game : IGame
         }
 
         var duelInitiated = CutAndDuel(cutPlayer);
-
         if (duelInitiated) return;
 
-        foreach (var player in table.Players.Where(p => p.Balance != 0).Append(table.Banker))
+        foreach (var player in table.AllPlayers.Where(p => p.Balance != 0).Append(table.Banker))
         {
             player.Hand.Clear();
             player.Hand.Add(deck.Draw());
@@ -148,10 +140,8 @@ public partial class Game : IGame
             return;
         }
 
-        foreach (var player in table.Players) PlayersTurn(player);
-
+        foreach (var player in table.AllPlayers) PlayersTurn(player);
         BankersTurn();
-
         Evaluation();
     }
 
@@ -159,8 +149,8 @@ public partial class Game : IGame
     {
         if (table.Banker is null) throw new Exception("Can not start duel without a banker.");
 
-        var index = table.Players.IndexOf(cutPlayer);
-        var duelPlayer = table.Players[(index + 1) % table.Players.Count];
+        var index = table.AllPlayers.IndexOf(cutPlayer);
+        var duelPlayer = table.AllPlayers[(index + 1) % table.AllPlayers.Count];
 
         // Let the cutPlayer choose where to cut
         cutPlayer.Notify(Notification.Create(NotifEnum.ChooseCutPosition));
@@ -192,12 +182,13 @@ public partial class Game : IGame
     private void Duel(PlayerBase duelPlayer)
     {
         duelPlayer.Notify(Notification.Create(NotifEnum.DuelAskNextCard));
-        // ...
+        
+        // TODO while he wants and ...
 
         table.Banker!.Notify(Notification.Create(NotifEnum.DuelAskNextCard));
-        // ...
+        // TODO...
 
-        // Announce winner
+        // TODO Announce winner
     }
 
     private void PlayersTurn(PlayerBase player)
@@ -210,7 +201,7 @@ public partial class Game : IGame
             switch (decision)
             {
                 case TurnDecision.Bet:
-                // ...
+                    // ...
                 case TurnDecision.Draw:
                     DrawCard(player);
                     break;
@@ -230,10 +221,8 @@ public partial class Game : IGame
     {
         var card = deck.Draw();
         table.Banker!.Hand.Add(card);
-
-        // Ask if he would like to make it visible
-
-        // ...
+        
+        // TODO loop while not bust...
     }
 
     private void DrawCard(PlayerBase player)
@@ -241,11 +230,11 @@ public partial class Game : IGame
         var card = deck.Draw();
         player.Hand.Add(card);
 
-        // player.SendNotification(... , card);
+        player.Notify(Notification.Create(NotifEnum.ReceivedCard, card));
 
         foreach (var otherPlayer in table.AllExcept(player))
         {
-            // otherPlayer.SendNotification(...);
+            // TODO otherPlayer.SendNotification(...);
         }
     }
 
@@ -254,25 +243,26 @@ public partial class Game : IGame
         if (player.Exchanged) player.Notify(Notification.Create(NotifEnum.AlreadyExchanged));
 
         player.Hand.Clear();
-        player.Hand.Add(deck.Draw());
 
-        // Notify player about his new hand
-        // ...
+        var newCard = deck.Draw();
+        player.Hand.Add(newCard);
+
+        player.Notify(Notification.Create(NotifEnum.ReceivedCard, newCard));
     }
 
     private void Evaluation()
     {
-        // Inform the players...
+        // TODO Inform the players...
 
-        foreach (var player in table.Players.Where(player =>
+        foreach (var player in table.AllPlayers.Where(player =>
                      player.Hand.GetBestValue() > table.Banker!.Hand.GetBestValue()))
         {
             player.Balance += 2 * player.Bet;
             player.Bet = 0;
         }
 
-        table.Bank += table.Players.Sum(player => player.Bet);
-        table.Players.ForEach(player => player.Bet = 0);
+        table.Bank += table.AllPlayers.Sum(player => player.Bet);
+        table.AllPlayers.ForEach(player => player.Bet = 0);
     }
 
     private GameState CreateGameState()

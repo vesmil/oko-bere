@@ -12,16 +12,16 @@ public partial class Game
         private PlayerBase? bankBrokePlayer;
         public PlayerBase? Banker;
         public int InitialBank;
-        public List<PlayerBase> Players;
+        
+        public List<PlayerBase> AllPlayers;
+        public IEnumerable<PlayerBase> Players => Banker is not null ? Players.Where(p => p != Banker) : Players;
 
-        public GameTable(List<PlayerBase> players)
+        public GameTable(List<PlayerBase> allPlayers)
         {
-            Players = players;
+            AllPlayers = allPlayers;
             ClearBets();
         }
-
-        public IEnumerable<PlayerBase> AllPlayers => Banker is not null ? Players.Append(Banker) : Players;
-
+        
         public IEnumerable<PlayerBase> AllExcept(PlayerBase player)
         {
             return AllPlayers.Where(p => p != player);
@@ -29,9 +29,14 @@ public partial class Game
 
         public void NotifyAllPlayers<T>(INotification<T> notification)
         {
-            foreach (var player in Players) player.Notify(notification);
-            Banker?.Notify(notification);
+            foreach (var player in AllPlayers) player.Notify(notification);
         }
+        
+        public void NotifyPlayers<T>(INotification<T> notification)
+        {
+            foreach (var player in Players) player.Notify(notification);
+        }
+
 
         public void NotifyAllExcept<T>(PlayerBase except, INotification<T> notification)
         {
@@ -40,7 +45,7 @@ public partial class Game
 
         internal void SetBanker()
         {
-            if (Players.Count == 0)
+            if (AllPlayers.Count == 0)
             {
                 Debug.WriteLine("No players, can not assign a banker");
                 return;
@@ -54,12 +59,12 @@ public partial class Game
             }
             else
             {
-                if (Banker is not null && !Players.Contains(Banker)) Players.Add(Banker);
-                var num = new Random().Next(Players.Count);
+                if (Banker is not null && !AllPlayers.Contains(Banker)) AllPlayers.Add(Banker);
+                var num = new Random().Next(AllPlayers.Count);
 
                 // Might add animation for the raffle here
 
-                AssignBanker(Players[num]);
+                AssignBanker(AllPlayers[num]);
 
                 NotifyAllPlayers(Notification.Create(NotifEnum.NewBanker, Banker?.ToPlayerInfo()));
             }
@@ -70,17 +75,16 @@ public partial class Game
         private void AssignBanker(PlayerBase newBanker)
         {
             Banker = newBanker;
-            Players.Remove(Banker);
-
+            
             Banker.Notify(Notification.Create(NotifEnum.SetInitialBank));
-
-            InitialBank = 100;
+            InitialBank = Banker.GetResponse<int>().Data;
+            
             Bank = InitialBank;
         }
 
         private void ClearBets()
         {
-            foreach (var player in Players) player.Bet = 0;
+            foreach (var player in AllPlayers) player.Bet = 0;
         }
 
 
@@ -108,7 +112,7 @@ public partial class Game
                 return false;
             }
 
-            foreach (var player in Players.Where(p => !newPlayers.Contains(p))) RemovePlayer(player);
+            foreach (var player in AllPlayers.Where(p => !newPlayers.Contains(p))) RemovePlayer(player);
 
             NotifyAllPlayers(Notification.Create(NotifEnum.Continue));
 
@@ -122,7 +126,7 @@ public partial class Game
 
         private void RemovePlayer(PlayerBase player)
         {
-            Players.Remove(player);
+            AllPlayers.Remove(player);
 
             foreach (var otherPlayer in AllPlayers)
                 otherPlayer.Notify(Notification.Create(NotifEnum.PlayerLeft, player.ToPlayerInfo()));
@@ -130,10 +134,10 @@ public partial class Game
 
         public void UpdatePlayers(List<PlayerBase> newPlayers)
         {
-            foreach (var player in newPlayers.Where(player => !Players.Contains(player)))
+            foreach (var player in newPlayers.Where(player => !AllPlayers.Contains(player)))
                 NotifyAllPlayers(Notification.Create(NotifEnum.NewPlayer, player.ToPlayerInfo()));
 
-            Players = newPlayers;
+            AllPlayers = newPlayers;
 
             ClearBets();
         }

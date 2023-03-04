@@ -74,7 +74,7 @@ public class JsonTcpTransfer : IObjectTransfer
 
         var jsons = json.Split("}{");
 
-        // Handle multiple objects in one message
+        // Handle multiple objects in one messagei
         if (jsons.Length > 1) json = jsons[0] + "}";
         for (var i = 1; i < jsons.Length; i++) prevJson += "{" + jsons[i] + "}";
         if (prevJson.Length > 0) prevJson = prevJson[..^1];
