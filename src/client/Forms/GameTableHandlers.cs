@@ -9,11 +9,12 @@ public sealed partial class GameTableForm
 {
     private readonly Dictionary<NotifEnum, Action<MessageReceivedEventArgs>> messageHandlers = new();
 
-    public void InitializeHandlers()
+    private void InitializeHandlers()
     {
         // messageHandlers.Add(NotifEnum.GameStart, HandleGameStart);
         messageHandlers.Add(NotifEnum.NewBanker, HandleNewBanker);
-        messageHandlers.Add(NotifEnum.AskInitialBank, HandleSetInitialBank);
+        messageHandlers.Add(NotifEnum.AskInitialBank, HandleAskInitialBank);
+        messageHandlers.Add(NotifEnum.SetInitialBank, HandleSetInitialBank);
         messageHandlers.Add(NotifEnum.BankBusted, HandleBankBusted);
         messageHandlers.Add(NotifEnum.AskTurn, HandleAskForTurn);
         messageHandlers.Add(NotifEnum.MalaDomuCalled, HandleMalaDomuCalled);
@@ -29,7 +30,7 @@ public sealed partial class GameTableForm
         messageHandlers.Add(NotifEnum.NotEnoughPlayers, HandleNotEnoughPlayers);
         messageHandlers.Add(NotifEnum.EndOfGame, HandleEndOfGame);
     }
-
+    
     private void HandleNewBanker(MessageReceivedEventArgs msg)
     {
         if (msg.Data is PlayerInfo playerInfo)
@@ -42,14 +43,20 @@ public sealed partial class GameTableForm
     {
         SetTurnInfo("Game started!");
     }
-
-    private void HandleSetInitialBank(MessageReceivedEventArgs _)
+    
+    private void HandleAskInitialBank(MessageReceivedEventArgs obj)
     {
         SetTurnInfo("Set the initial bank, please");
         
         // TODO get initial bank
         
-        client.BankSet(100);
+        client.BankSet(100);    }
+
+
+    private void HandleSetInitialBank(MessageReceivedEventArgs _)
+    {
+        SetTurnInfo("Initial bank was set!");
+        bankLabel.CheckInvoke(() => bankLabel.Text = "Bank : " + GameState.Bank);
     }
 
     private void HandleBankBusted(MessageReceivedEventArgs _)

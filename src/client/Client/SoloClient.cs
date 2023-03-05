@@ -48,5 +48,6 @@ public class SoloTcpClient : IClient
     }
 
     public event EventHandler<MessageReceivedEventArgs>? MessageReceived;
-    public GameState GameState { get; }
+    public GameState GameState { get; private set; }
+    public Guid PlayerId { get; init; }
 }

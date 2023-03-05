@@ -10,6 +10,7 @@ namespace OkoClient.Forms;
 /// </summary>
 public sealed partial class GameTableForm : Form
 {
+    private Guid PlayerId => client.PlayerId;
     private GameState GameState => client.GameState;
     private readonly IClient client;
 
@@ -117,22 +118,21 @@ public sealed partial class GameTableForm : Form
         bankLabel.AutoSize = true;
         bankLabel.Location = new Point(30, 250);
         bankLabel.Font = labelFont;
-        bankLabel.Text = "Bank: ";
+        bankLabel.Text = "Bank: " + GameState.Bank;
         AddControl(bankLabel);
 
         betLabel.AutoSize = true;
         betLabel.Location = new Point(30, 290);
         betLabel.Font = labelFont;
-        betLabel.Text = "Bet: ";
+        betLabel.Text = "Bet: " + 0;
         AddControl(betLabel);
 
         balanceLabel.AutoSize = true;
         balanceLabel.Location = new Point(30, 330);
         balanceLabel.Font = labelFont;
-        balanceLabel.Text = "Balance: ";
+        balanceLabel.Text = "Balance: " + 0;
         AddControl(balanceLabel);
     }
-
     private void AddCardBoxes()
     {
         const int cardBoxWidth = 75;
@@ -154,7 +154,6 @@ public sealed partial class GameTableForm : Form
             cardBoxes.Add(cardBox);
         }
     }
-
     private void AddPlayerBoxes()
     {
         if (GameState.Players.Count == 0)
@@ -185,17 +184,18 @@ public sealed partial class GameTableForm : Form
             var playerBox = new GroupBox();
             playerBox.Size = new Size(200, 130);
             playerBox.Location = new Point(30 + 210 * i, 70);
-            playerBox.Text = $"{player.Name} {(player.IsBanker ? "(Banker)" : "(Player)")}";
-            
+            playerBox.Text = $"{player.Name} {(player.Id == PlayerId? "(You)" : "")}" +
+                             $"\n {(player.IsBanker ? "Banker" : "Player")}";
+
             var cardCountLabel = new Label();
             cardCountLabel.AutoSize = true;
-            cardCountLabel.Location = new Point(10, 30);
+            cardCountLabel.Location = new Point(10, 40);
             cardCountLabel.Text = $"Cards: {player.CardCount}";
             playerBox.Controls.Add(cardCountLabel);
             
             var balancePlayerLabel = new Label();
             balancePlayerLabel.AutoSize = true;
-            balancePlayerLabel.Location = new Point(10, 60);
+            balancePlayerLabel.Location = new Point(10, 70);
             balancePlayerLabel.Text = $"Balance: {player.Balance}";
             playerBox.Controls.Add(balancePlayerLabel);
 
@@ -203,7 +203,7 @@ public sealed partial class GameTableForm : Form
             {
                 var betPlayerLabel = new Label();
                 betPlayerLabel.AutoSize = true;
-                betPlayerLabel.Location = new Point(10, 90);
+                betPlayerLabel.Location = new Point(10, 100);
                 betPlayerLabel.Text = $"Bet: {player.Bet}";
                 playerBox.Controls.Add(betPlayerLabel);
             }
@@ -271,11 +271,11 @@ public sealed partial class GameTableForm : Form
         timeLeft = MaxTime;
 
         timer.Interval = 1000;
-        timer.Tick += timer_Tick;
+        timer.Tick += TimerTick;
         timer.Start();
     }
 
-    private void timer_Tick(object? sender, EventArgs e)
+    private void TimerTick(object? sender, EventArgs e)
     {
         if (timeLeft > 0)
         {

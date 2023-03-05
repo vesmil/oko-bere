@@ -8,19 +8,14 @@ public class TcpPlayer : PlayerBase, IDisposable
 {
     private readonly IObjectTransfer transfer;
 
-    public TcpPlayer(TcpClient client, string? name, int balance) : base("_", balance)
+    public TcpPlayer(TcpClient client, int balance) : base("_", balance)
     {
         transfer = new JsonTcpTransfer(client);
+        
+        Notify(Notification.Create(NotifEnum.AskName, Id));
+        var nameResponse = GetResponse<string>();
 
-        if (name != null)
-            Name = name;
-        else
-        {
-            Notify(Notification.Create(NotifEnum.AskName));
-            var nameResponse = GetResponse<string>();
-
-            Name = nameResponse.Data ?? "";
-        }
+        Name = nameResponse.Data ?? "";
     }
 
     public void Dispose()

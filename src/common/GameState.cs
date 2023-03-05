@@ -4,6 +4,13 @@ namespace OkoCommon;
 
 public struct GameState
 {
+    public GameState()
+    {
+        Players = new List<PlayerInfo>();
+        Hand = new List<Card>();
+        Bank = 0;
+    }
+
     public GameState(List<PlayerBase> players, int bank)
     {
         Players = new List<PlayerInfo>();

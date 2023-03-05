@@ -1,7 +1,6 @@
 ﻿using System.Diagnostics;
 using OkoCommon;
 using OkoCommon.Communication;
-using OkoCommon.Game;
 
 namespace OkoClient.Client;
 
@@ -15,13 +14,13 @@ public class TcpClient : IClient
 
         NamePreset = name;
 
-        transfer.Receive<INotification<object>>();
+        PlayerId = transfer.Receive<Notification<Guid>>().Data;
         transfer.Send(new Response<string> { Data = name });
     }
 
     private string NamePreset { get; }
-
     public GameState GameState { get; private set; } = new();
+    public Guid PlayerId { get; init; }
 
     public event EventHandler<MessageReceivedEventArgs>? MessageReceived;
 

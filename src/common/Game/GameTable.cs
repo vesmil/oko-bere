@@ -78,6 +78,7 @@ public partial class Game
             InitialBank = Banker.GetResponse<int>().Data;
             
             Bank = InitialBank;
+            NotifyAllPlayers(Notification.Create(NotifEnum.SetInitialBank, Bank));
         }
 
         private void ClearBets()

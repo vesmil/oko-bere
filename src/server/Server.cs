@@ -46,7 +46,7 @@ public class Server : IDisposable
             var client = await server.AcceptTcpClientAsync();
             Console.WriteLine("Server - Connection accepted from " + client.Client.RemoteEndPoint);
 
-            var newPlayer = new TcpPlayer(client, null, 1000);
+            var newPlayer = new TcpPlayer(client, 1000);
 
             if (newPlayer.Name.Trim() == "")
             {
