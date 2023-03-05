@@ -11,21 +11,21 @@ public sealed partial class GameTableForm
 
     public void InitializeHandlers()
     {
-        messageHandlers.Add(NotifEnum.GameStart, HandleGameStart);
+        // messageHandlers.Add(NotifEnum.GameStart, HandleGameStart);
         messageHandlers.Add(NotifEnum.NewBanker, HandleNewBanker);
-        messageHandlers.Add(NotifEnum.SetInitialBank, HandleSetInitialBank);
+        messageHandlers.Add(NotifEnum.AskInitialBank, HandleSetInitialBank);
         messageHandlers.Add(NotifEnum.BankBusted, HandleBankBusted);
-        messageHandlers.Add(NotifEnum.AskForTurn, HandleAskForTurn);
+        messageHandlers.Add(NotifEnum.AskTurn, HandleAskForTurn);
         messageHandlers.Add(NotifEnum.MalaDomuCalled, HandleMalaDomuCalled);
         messageHandlers.Add(NotifEnum.MalaDomuSuccess, HandleMalaDomuSuccess);
-        messageHandlers.Add(NotifEnum.ChooseCutPlayer, HandleChooseCutPlayer);
-        messageHandlers.Add(NotifEnum.ChooseCutPosition, HandleChooseCutPosition);
+        messageHandlers.Add(NotifEnum.AskChooseCutPlayer, HandleChooseCutPlayer);
+        messageHandlers.Add(NotifEnum.AskChooseCutPosition, HandleChooseCutPosition);
         messageHandlers.Add(NotifEnum.ShowCutCard, HandleSeeCutCard);
-        messageHandlers.Add(NotifEnum.DuelOffer, HandleDuelOffer);
+        messageHandlers.Add(NotifEnum.AskDuel, HandleDuelOffer);
         messageHandlers.Add(NotifEnum.DuelDeclined, HandleDuelDeclined);
         messageHandlers.Add(NotifEnum.DuelAccepted, HandleDuelAccepted);
-        messageHandlers.Add(NotifEnum.AskForTurnNoBet, HandleDuelAskNextCard);
-        messageHandlers.Add(NotifEnum.AskForContinue, HandleAskForContinue);
+        messageHandlers.Add(NotifEnum.AskTurnNoBet, HandleDuelAskNextCard);
+        messageHandlers.Add(NotifEnum.AskContinue, HandleAskForContinue);
         messageHandlers.Add(NotifEnum.NotEnoughPlayers, HandleNotEnoughPlayers);
         messageHandlers.Add(NotifEnum.EndOfGame, HandleEndOfGame);
     }
@@ -78,6 +78,7 @@ public sealed partial class GameTableForm
     {
         SetTurnInfo("Choose the player to cut the deck");
         // TODO ...
+        client.CutPlayer(GameState.Players[0].Id);
     }
 
     private void HandleChooseCutPosition(MessageReceivedEventArgs _)

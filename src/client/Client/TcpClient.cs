@@ -20,6 +20,7 @@ public class TcpClient : IClient
     }
 
     private string NamePreset { get; }
+
     public GameState GameState { get; private set; } = new();
 
     public event EventHandler<MessageReceivedEventArgs>? MessageReceived;
@@ -47,7 +48,7 @@ public class TcpClient : IClient
                     GameState.Players.Remove((PlayerInfo)(update.Data ?? throw new InvalidOperationException()));
                     break;
                 
-                case NotifEnum.GameStateInfo:
+                case NotifEnum.UpdateGameState:
                     GameState = (GameState)(update.Data ?? throw new InvalidOperationException());
                     break;
                 
@@ -103,9 +104,9 @@ public class TcpClient : IClient
     {
         transfer.Send(new Response<int> { Data = where });
     }
-
-    public void CutPlayer(PlayerBase player)
+    
+    public void CutPlayer(Guid playerId)
     {
-        transfer.Send(new Response<Guid> { Data = player.Id });
+        transfer.Send(new Response<Guid> { Data = playerId });
     }
 }

@@ -4,17 +4,18 @@ namespace OkoCommon;
 
 public struct GameState
 {
-    public GameState()
+    public GameState(List<PlayerBase> players, int bank)
     {
         Players = new List<PlayerInfo>();
+        foreach (var player in players) Players.Add(new PlayerInfo(player));
         Hand = new List<Card>();
+        Bank = bank;
     }
 
     public List<PlayerInfo> Players;
     public List<Card> Hand;
-
-    public TurnState TurnState = TurnState.NotStarted;
-    public object? TurnStateData = null;
+    
+    public int Bank;
 }
 
 public struct PlayerInfo

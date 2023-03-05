@@ -5,19 +5,20 @@ namespace OkoCommon.Communication;
 
 public enum NotifEnum
 {
-    AskForName,
-    GameStateInfo,
-    GameStart, //
+    AskName,
+    UpdateGameState,
+    // GameStart,
 
     NewPlayer,
     PlayerLeft,
+    
     NewBanker,
-
+    AskInitialBank,
     SetInitialBank,
     BankBusted,
 
-    AskForTurn,
-    AskForExchange,
+    AskTurn,
+    AskExchange,
 
     ReceivedCard,
     Bust,
@@ -28,20 +29,20 @@ public enum NotifEnum
     OtherBusts,
     OtherWins,
 
-    AskForMalaDomu,
+    AskMalaDomu,
     MalaDomuCalled,
     MalaDomuSuccess,
 
-    ChooseCutPlayer,
-    ChooseCutPosition,
+    AskChooseCutPlayer,
+    AskChooseCutPosition,
     ShowCutCard,
 
-    DuelOffer,
+    AskDuel,
     DuelAccepted,
     DuelDeclined,
-    AskForTurnNoBet,
+    AskTurnNoBet,
     
-    AskForContinue,
+    AskContinue,
     Continue,
     NotEnoughPlayers,
     EndOfGame

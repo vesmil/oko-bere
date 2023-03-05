@@ -10,6 +10,9 @@ namespace OkoClient.Forms;
 /// </summary>
 public sealed partial class GameTableForm : Form
 {
+    private GameState GameState => client.GameState;
+    private readonly IClient client;
+
     private const int MaxTime = 60;
 
     private readonly Label balanceLabel = new();
@@ -20,7 +23,6 @@ public sealed partial class GameTableForm : Form
     private readonly Panel buttonPanel = new();
 
     private readonly List<PictureBox> cardBoxes = new();
-    private readonly IClient client;
 
     private readonly Button continueButton = new();
 
@@ -50,9 +52,7 @@ public sealed partial class GameTableForm : Form
 
         SetTurnInfo("Waiting for other players to join...");
     }
-
-    private GameState GameState => client.GameState;
-
+    
     private void InitializeHidden()
     {
         continueButton.Size = new Size(200, 50);

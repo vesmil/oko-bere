@@ -17,7 +17,7 @@ public interface IClient
     public void Duel(bool decision, int bet);
     
     public void Cut(int where);
-    public void CutPlayer(PlayerBase player);
+    public void CutPlayer(Guid playerId);
 
     public GameState GameState { get; }
     public event EventHandler<MessageReceivedEventArgs>? MessageReceived;

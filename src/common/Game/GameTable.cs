@@ -74,7 +74,7 @@ public partial class Game
             Banker = newBanker;
             Banker.IsBanker = true;
 
-            Banker.Notify(Notification.Create(NotifEnum.SetInitialBank));
+            Banker.Notify(Notification.Create(NotifEnum.AskInitialBank));
             InitialBank = Banker.GetResponse<int>().Data;
             
             Bank = InitialBank;
@@ -88,7 +88,7 @@ public partial class Game
 
         public bool AskForContinue()
         {
-            NotifyAllPlayers(Notification.Create(NotifEnum.AskForContinue));
+            NotifyAllPlayers(Notification.Create(NotifEnum.AskContinue));
 
             var newPlayers = WouldContinue();  // NOTE might do async...
             if (newPlayers.Count < 3)
