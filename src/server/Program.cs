@@ -14,8 +14,7 @@ public static class Program
         var oko = new Game(server.GetClients);
         server.AssignGame(oko);
 
-        // TODO oko.Lobby();
-
+        oko.Lobby();
         oko.GameLoop();
     }
 }

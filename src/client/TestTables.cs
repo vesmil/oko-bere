@@ -57,7 +57,6 @@ public class TestTables : Form
         gameThread.Start();
 
         /*
-         
         TODO allow plyaers after game has started
         
         NewClientLogics("David", ip);

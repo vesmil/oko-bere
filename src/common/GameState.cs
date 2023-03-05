@@ -19,12 +19,14 @@ public struct GameState
 
 public struct PlayerInfo
 {
-    public PlayerInfo(string name, int balance, int bet, int cardCount)
+    public PlayerInfo(PlayerBase player)
     {
-        Name = name;
-        Balance = balance;
-        Bet = bet;
-        CardCount = cardCount;
+        Name = player.Name;
+        Balance = player.Balance;
+        Bet = player.Bet;
+        CardCount = player.Hand.Count;
+        IsBanker = player.IsBanker;
+        Id = player.Id;
     }
 
     public string Name;
@@ -32,6 +34,7 @@ public struct PlayerInfo
     public int Bet;
     public int CardCount;
     public bool IsBanker = false;
+    public Guid Id;
 }
 
 [Serializable]

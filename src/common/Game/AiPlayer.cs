@@ -10,16 +10,15 @@ public class AiPlayer : PlayerBase
 
     public override IResponse<T> GetResponse<T>()
     {
-        throw new NotImplementedException();
+        return default!;
     }
 
     public override void Notify<T>(INotification<T> notification)
     {
-        throw new NotImplementedException();
     }
 
     public override Task<T?> GetResponseAsync<T>() where T : default
     {
-        throw new NotImplementedException();
+        return default!;
     }
 }

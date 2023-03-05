@@ -14,15 +14,15 @@ public partial class Game
         public int InitialBank;
         
         public List<PlayerBase> AllPlayers;
-        public IEnumerable<PlayerBase> Players => Banker is not null ? Players.Where(p => p != Banker) : Players;
+        public IEnumerable<PlayerBase> Players => AllPlayers.Where(p => !p.IsBanker);
 
         public GameTable(List<PlayerBase> allPlayers)
         {
             AllPlayers = allPlayers;
             ClearBets();
         }
-        
-        public IEnumerable<PlayerBase> AllExcept(PlayerBase player)
+
+        private IEnumerable<PlayerBase> AllExcept(PlayerBase player)
         {
             return AllPlayers.Where(p => p != player);
         }
@@ -51,7 +51,8 @@ public partial class Game
                 return;
             }
 
-            // Banker is either the one who took bank or raffled
+            if (Banker is not null) Banker.IsBanker = false;
+
             if (bankBrokePlayer is not null)
             {
                 AssignBanker(bankBrokePlayer);
@@ -59,13 +60,9 @@ public partial class Game
             }
             else
             {
-                if (Banker is not null && !AllPlayers.Contains(Banker)) AllPlayers.Add(Banker);
                 var num = new Random().Next(AllPlayers.Count);
-
-                // Might add animation for the raffle here
-
+                
                 AssignBanker(AllPlayers[num]);
-
                 NotifyAllPlayers(Notification.Create(NotifEnum.NewBanker, Banker?.ToPlayerInfo()));
             }
 
@@ -75,7 +72,8 @@ public partial class Game
         private void AssignBanker(PlayerBase newBanker)
         {
             Banker = newBanker;
-            
+            Banker.IsBanker = true;
+
             Banker.Notify(Notification.Create(NotifEnum.SetInitialBank));
             InitialBank = Banker.GetResponse<int>().Data;
             
@@ -92,20 +90,7 @@ public partial class Game
         {
             NotifyAllPlayers(Notification.Create(NotifEnum.AskForContinue));
 
-            var newPlayers = WouldContinue();
-
-            /* TODO find use for async version
-             
-            var tasks = Players.Select(p => p.GetResponseAsync<bool>());
-            var results = Task.WhenAll(tasks).Result;
-
-            for (var i = 0; i < results.Length; i++)
-            {
-                if (!results[i]) Players.RemoveAt(i);
-            }
-            
-            */
-
+            var newPlayers = WouldContinue();  // NOTE might do async...
             if (newPlayers.Count < 3)
             {
                 NotifyAllPlayers(Notification.Create(NotifEnum.NotEnoughPlayers));

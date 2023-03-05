@@ -9,17 +9,24 @@ public enum NotifEnum
     GameStateInfo,
     GameStart, //
 
-    NewBanker,
     NewPlayer,
     PlayerLeft,
+    NewBanker,
 
     SetInitialBank,
-    BankBusted, //
+    BankBusted,
 
     AskForTurn,
+    AskForExchange,
 
     ReceivedCard,
     Bust,
+    Won,
+    
+    OtherReceivesCard,
+    OtherExchanged,
+    OtherBusts,
+    OtherWins,
 
     AskForMalaDomu,
     MalaDomuCalled,
@@ -27,20 +34,17 @@ public enum NotifEnum
 
     ChooseCutPlayer,
     ChooseCutPosition,
-    SeeCutCard,
+    ShowCutCard,
 
     DuelOffer,
-    DuelDeclined,
     DuelAccepted,
-    DuelAskNextCard,
-
-    AlreadyExchanged,
-    ExchangeAllowed, //
+    DuelDeclined,
+    AskForTurnNoBet,
     
     AskForContinue,
     Continue,
     NotEnoughPlayers,
-    EndOfGame //
+    EndOfGame
 }
 
 public interface INotification<out T>

@@ -20,11 +20,11 @@ public sealed partial class GameTableForm
         messageHandlers.Add(NotifEnum.MalaDomuSuccess, HandleMalaDomuSuccess);
         messageHandlers.Add(NotifEnum.ChooseCutPlayer, HandleChooseCutPlayer);
         messageHandlers.Add(NotifEnum.ChooseCutPosition, HandleChooseCutPosition);
-        messageHandlers.Add(NotifEnum.SeeCutCard, HandleSeeCutCard);
+        messageHandlers.Add(NotifEnum.ShowCutCard, HandleSeeCutCard);
         messageHandlers.Add(NotifEnum.DuelOffer, HandleDuelOffer);
         messageHandlers.Add(NotifEnum.DuelDeclined, HandleDuelDeclined);
         messageHandlers.Add(NotifEnum.DuelAccepted, HandleDuelAccepted);
-        messageHandlers.Add(NotifEnum.DuelAskNextCard, HandleDuelAskNextCard);
+        messageHandlers.Add(NotifEnum.AskForTurnNoBet, HandleDuelAskNextCard);
         messageHandlers.Add(NotifEnum.AskForContinue, HandleAskForContinue);
         messageHandlers.Add(NotifEnum.NotEnoughPlayers, HandleNotEnoughPlayers);
         messageHandlers.Add(NotifEnum.EndOfGame, HandleEndOfGame);
@@ -33,7 +33,7 @@ public sealed partial class GameTableForm
     private void HandleNewBanker(MessageReceivedEventArgs msg)
     {
         if (msg.Data is PlayerInfo playerInfo)
-            SetTurnInfo("New banker was assigned = " + playerInfo.Name);
+            SetTurnInfo("New banker was assigned - " + playerInfo.Name);
         else
             SetTurnInfo("New banker was assigned");
     }

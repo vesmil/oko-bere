@@ -35,6 +35,8 @@ public class TcpClient : IClient
 
             Debug.WriteLine(NamePreset + " - " + update.Type);
 
+            // Note might add try catch here
+            
             switch (update.Type)
             {
                 case NotifEnum.NewPlayer:
@@ -53,12 +55,9 @@ public class TcpClient : IClient
                 {
                     var bankerInfo = (PlayerInfo)(update.Data ?? throw new InvalidOperationException());
 
-                    // find struct from GameState.Players with the same name and modify it - not the best solution
-                    var player = GameState.Players.First(p => p.Name == bankerInfo.Name);
+                    GameState.Players.Remove(GameState.Players.First(p => p.Id == bankerInfo.Id));
+                    GameState.Players.Add(bankerInfo);
 
-                    GameState.Players.Remove(player);
-                    player.IsBanker = true;
-                    GameState.Players.Add(player);
                     break;
                 }
             }
@@ -102,11 +101,11 @@ public class TcpClient : IClient
     
     public void Cut(int where)
     {
-        throw new NotImplementedException();
+        transfer.Send(new Response<int> { Data = where });
     }
 
     public void CutPlayer(PlayerBase player)
     {
-        throw new NotImplementedException();
+        transfer.Send(new Response<Guid> { Data = player.Id });
     }
 }

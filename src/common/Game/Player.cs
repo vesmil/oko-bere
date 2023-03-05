@@ -7,10 +7,12 @@ public delegate List<PlayerBase> GetPlayersDelegate();
 public abstract class PlayerBase
 {
     public readonly List<Card> Hand = new();
-    private readonly Guid id;
+    public readonly Guid Id;
 
     public int Balance;
     public int Bet;
+    
+    public bool IsBanker;
 
     public bool Exchanged;
     public string Name;
@@ -26,27 +28,18 @@ public abstract class PlayerBase
         Name = name;
         Balance = balance;
 
-        id = Guid.NewGuid();
+        Id = Guid.NewGuid();
     }
 
     public abstract IResponse<T> GetResponse<T>();
     public abstract void Notify<T>(INotification<T> notification);
-
-    public bool InstantWin()
+    
+    public PlayerInfo ToPlayerInfo()
     {
-        if (Hand.Count == 2)
-        {
-            if (Hand[0].Rank == Rank.Ace && Hand[1].Rank == Rank.Ace)
-                return true;
-
-            if ((Hand[0].Rank == Rank.Ace || Hand[1].Rank == Rank.Ace) &&
-                ((Hand[0].Rank == Rank.Seven && Hand[0].Suit == Suit.Hearts) ||
-                 (Hand[1].Rank == Rank.Seven && Hand[0].Suit == Suit.Hearts)))
-                return true;
-        }
-
-        return false;
+        return new PlayerInfo(this);
     }
+
+    public abstract Task<T?> GetResponseAsync<T>();
 
     public int Total()
     {
@@ -57,14 +50,14 @@ public abstract class PlayerBase
     public override bool Equals(object? obj)
     {
         if (obj is PlayerBase player)
-            return player.id == id;
+            return player.Id == Id;
 
         return false;
     }
 
     public override int GetHashCode()
     {
-        return id.GetHashCode();
+        return Id.GetHashCode();
     }
 
     public static bool operator ==(PlayerBase left, PlayerBase? right)
@@ -76,11 +69,4 @@ public abstract class PlayerBase
     {
         return !(left == right);
     }
-
-    public PlayerInfo ToPlayerInfo()
-    {
-        return new PlayerInfo(Name, Balance, Bet, Hand.Count);
-    }
-
-    public abstract Task<T?> GetResponseAsync<T>();
 }

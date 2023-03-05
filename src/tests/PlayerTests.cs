@@ -3,9 +3,9 @@ using OkoCommon.Game;
 
 namespace Tests;
 
-public class TestPlayer : PlayerBase
+public class MockPlayer : PlayerBase
 {
-    public TestPlayer(string name, int balance) : base(name, balance)
+    public MockPlayer(string name, int balance) : base(name, balance)
     {
     }
 
@@ -16,7 +16,7 @@ public class TestPlayer : PlayerBase
 
     public override Task<T?> GetResponseAsync<T>() where T : default
     {
-        throw new NotImplementedException();
+        return Task.FromResult(default(T));
     }
 
     public override void Notify<T>(INotification<T> notification)
@@ -29,7 +29,7 @@ public class PlayerTests
     [Test]
     public void TestPlayerCreation()
     {
-        var player = new TestPlayer("TestPlayer", 1000);
+        var player = new MockPlayer("TestPlayer", 1000);
 
         Assert.Multiple(() =>
         {
@@ -43,7 +43,7 @@ public class PlayerTests
     {
         Assert.Throws<ArgumentOutOfRangeException>(() =>
         {
-            var _ = new TestPlayer("TestPlayer", -1000);
+            var _ = new MockPlayer("TestPlayer", -1000);
         }, "Balance cannot be negative");
     }
 
@@ -52,15 +52,15 @@ public class PlayerTests
     {
         Assert.Throws<ArgumentException>(() =>
         {
-            var _ = new TestPlayer("", 1000);
+            var _ = new MockPlayer("", 1000);
         }, "Name cannot be empty");
     }
 
     [Test]
     public void Equality()
     {
-        var player1 = new TestPlayer("TestPlayer", 1000);
-        var player2 = new TestPlayer("TestPlayer", 1000);
+        var player1 = new MockPlayer("TestPlayer", 1000);
+        var player2 = new MockPlayer("TestPlayer", 1000);
 
         Assert.Multiple(() => { Assert.That(player1, Is.Not.EqualTo(player2), "Players are not equal"); });
     }

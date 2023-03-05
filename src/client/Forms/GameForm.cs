@@ -81,9 +81,17 @@ public sealed partial class GameTableForm : Form
     private void AddControl(Control control)
     {
         if (InvokeRequired)
-            Invoke((MethodInvoker)delegate { Controls.Add(control); });
+            Invoke((MethodInvoker) delegate { Controls.Add(control); });
         else
             Controls.Add(control);
+    }
+    
+    private void RemoveControl(Control control)
+    {
+        if (InvokeRequired)
+            Invoke((MethodInvoker) delegate { Controls.Remove(control); });
+        else
+            Controls.Remove(control);    
     }
 
     private void AddTurnInfo()
@@ -95,17 +103,11 @@ public sealed partial class GameTableForm : Form
 
     private void SetTurnInfo(string text)
     {
-        if (topLabel.InvokeRequired)
-            topLabel.Invoke((MethodInvoker)delegate
-            {
-                topLabel.Text = text;
-                topLabel.Location = new Point(Width / 2 - topLabel.Size.Width / 2, 20);
-            });
-        else
+        topLabel.CheckInvoke(() =>
         {
             topLabel.Text = text;
             topLabel.Location = new Point(Width / 2 - topLabel.Size.Width / 2, 20);
-        }
+        });
     }
 
     private void AddMoneyLabels()
@@ -162,25 +164,18 @@ public sealed partial class GameTableForm : Form
             noPlayersLabel.Location = new Point(30, 70);
             noPlayersLabel.Text = "No players yet";
             AddControl(noPlayersLabel);
-
             return;
         }
         
-        noPlayersLabel.Visible = false;
-
+        noPlayersLabel.CheckInvoke(() => noPlayersLabel.Visible = false);
+        
         if (playerBoxes.Count > 0)
         {
-            if (playerBoxes[0].InvokeRequired)
-                playerBoxes[0].Invoke((MethodInvoker)delegate
-                {
-                    foreach (var playerBox in playerBoxes) playerBox.Dispose();
-                    playerBoxes.Clear();
-                });
-            else
+            playerBoxes[0].CheckInvoke(() =>
             {
                 foreach (var playerBox in playerBoxes) playerBox.Dispose();
-                playerBoxes.Clear();   
-            }
+                playerBoxes.Clear();
+            });
         }
 
         for (var i = 0; i < GameState.Players.Count; i++)
@@ -190,7 +185,7 @@ public sealed partial class GameTableForm : Form
             var playerBox = new GroupBox();
             playerBox.Size = new Size(200, 130);
             playerBox.Location = new Point(30 + 210 * i, 70);
-            playerBox.Text = $"{(player.IsBanker ? "Banker" : "Player")} - {player.Name}";
+            playerBox.Text = $"{player.Name} {(player.IsBanker ? "(Banker)" : "(Player)")}";
             
             var cardCountLabel = new Label();
             cardCountLabel.AutoSize = true;
@@ -212,9 +207,7 @@ public sealed partial class GameTableForm : Form
                 betPlayerLabel.Text = $"Bet: {player.Bet}";
                 playerBox.Controls.Add(betPlayerLabel);
             }
-
-
-            if (player.IsBanker)
+            else
             {
                 playerBox.BackColor = Color.FromArgb(64, 255, 255, 128);
             }
