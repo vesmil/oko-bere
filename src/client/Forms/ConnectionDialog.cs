@@ -24,7 +24,7 @@ public partial class ConnectionDialog : Form
         playerNameTextBox.Location = new Point((Width - playerNameTextBox.Width) / 2, 40);
         Controls.Add(playerNameTextBox);
 
-        serverIpTextBox.PlaceholderText("Server IP");
+        serverIpTextBox.PlaceholderText("ServerIP:port");
         playerNameTextBox.PlaceholderText("Player name");
 
         var connectButton = new Button();

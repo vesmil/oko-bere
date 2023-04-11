@@ -6,17 +6,16 @@ namespace OkoServer;
 
 public class Server : IDisposable
 {
-    private const int Port = 1234;
     private readonly List<TcpPlayer> clients = new();
     private readonly TcpListener server;
 
     private bool accepting;
 
-    public Server()
+    public Server(int port = 1234)
     {
         Console.WriteLine("Starting server...");
 
-        server = new TcpListener(IPAddress.Any, Port);
+        server = new TcpListener(IPAddress.Any, port);
 
         try
         {

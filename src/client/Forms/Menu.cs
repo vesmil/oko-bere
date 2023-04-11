@@ -36,8 +36,10 @@ public partial class Menu : Form
 
     private void ConnectToServer(string serverIp, string playerName)
     {
-        var client = new TcpClient(playerName, serverIp, 1234);
+        var ipAndPort = serverIp.Split(':');
+        var client = new TcpClient(playerName, ipAndPort[0], int.Parse(ipAndPort[1]));
         var gameTableForm = new GameTableForm(client);
+        
         gameTableForm.Show();
     }
 }
