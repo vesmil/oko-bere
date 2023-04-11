@@ -12,6 +12,7 @@ stages:
 build_job:
   stage: build
   script:
+    - cd src
     - dotnet restore
     - dotnet build --configuration Release
   artifacts:
