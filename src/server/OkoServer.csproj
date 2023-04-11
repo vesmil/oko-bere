@@ -6,7 +6,7 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
-        <LangVersion>11</LangVersion>
+        <LangVersion>10</LangVersion>
         <AssemblyName>OkoServer</AssemblyName>
         <RootNamespace>OkoServer</RootNamespace>
     </PropertyGroup>
