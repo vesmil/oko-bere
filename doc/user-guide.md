@@ -2,11 +2,6 @@
 
 User guide is separated into two parts as usually more people will be interested in the client part.
 
-The prerequisites for both are:
-
-* ...
-* Have a positive attitude towards gambling
-
 ---
 
 ## Client side

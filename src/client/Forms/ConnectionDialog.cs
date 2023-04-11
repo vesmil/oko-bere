@@ -44,12 +44,7 @@ public partial class ConnectionDialog : Form
     {
         ServerIp = serverIpTextBox.Text;
         PlayerName = playerNameTextBox.Text;
-
-        // TODO create a client and connect to the server
-        var client = new TcpClient(PlayerName, ServerIp, 1234);
-
         DialogResult = DialogResult.OK;
-        // else...
 
         Close();
     }

@@ -72,7 +72,6 @@ public sealed partial class GameTableForm
     {
         SetTurnInfo("It is your turn!");
         buttonPanel.Show();
-        // ...
     }
 
     private void HandleMalaDomuCalled(MessageReceivedEventArgs _)
@@ -88,14 +87,39 @@ public sealed partial class GameTableForm
     private void HandleChooseCutPlayer(MessageReceivedEventArgs _)
     {
         SetTurnInfo("Choose the player to cut the deck");
-        // TODO ...
-        client.CutPlayer(GameState.Players[0].Id);
+        
+        foreach (var playerBox in playerBoxes)
+        {
+            if (playerBox.Tag is Guid playerId)
+            {
+                if (playerId == client.PlayerId)
+                    continue;
+
+                playerBox.Text = "xxx";
+                
+            } 
+        }
+    }
+    
+    private void SelectCutPlayer(PlayerInfo playerInfo)
+    {
+        client.CutPlayer(playerInfo.Id);
+        SetTurnInfo("You chose " + playerInfo.Name + " to cut the deck");
+        
+        foreach (var control in buttonPanel.Controls)
+        {
+            if (control is Button button)
+            {
+                buttonPanel.Controls.Remove(button);
+            }
+        }
     }
 
     private void HandleChooseCutPosition(MessageReceivedEventArgs _)
     {
-        SetTurnInfo("Where would you like to cut the deck?");
-        // TODO ...
+        // Let the player choose the position to cut the deck
+        var random = new Random();
+        client.Cut(random.Next(0, 32));
     }
 
     private void HandleSeeCutCard(MessageReceivedEventArgs message)
@@ -110,10 +134,35 @@ public sealed partial class GameTableForm
         }
     }
 
+
     private void HandleDuelOffer(MessageReceivedEventArgs _)
     {
         SetTurnInfo("Would you like to duel?");
-        // TODO ...
+
+        buttonPanel.Controls.Clear();
+
+        var acceptButton = new Button
+        {
+            Text = "Accept",
+            Tag = true
+        };
+        acceptButton.Click += (sender, args) => RespondToDuel((bool) ((Button) sender).Tag);
+
+        var declineButton = new Button
+        {
+            Text = "Decline",
+            Tag = false
+        };
+        declineButton.Click += (sender, args) => RespondToDuel((bool) ((Button) sender).Tag);
+
+        buttonPanel.Controls.Add(acceptButton);
+        buttonPanel.Controls.Add(declineButton);
+    }
+
+    private void RespondToDuel(bool accept)
+    {
+        // client.DuelResponse(accept);
+        buttonPanel.Controls.Clear();
     }
 
     private void HandleDuelDeclined(MessageReceivedEventArgs _)
@@ -129,7 +178,31 @@ public sealed partial class GameTableForm
     private void HandleDuelAskNextCard(MessageReceivedEventArgs _)
     {
         SetTurnInfo("Would you like to get another card?");
-        // TODO ...
+
+        buttonPanel.Controls.Clear();
+
+        var yesButton = new Button
+        {
+            Text = "Yes",
+            Tag = true
+        };
+        yesButton.Click += (sender, args) => RequestNextCard((bool) ((Button) sender).Tag);
+
+        var noButton = new Button
+        {
+            Text = "No",
+            Tag = false
+        };
+        noButton.Click += (sender, args) => RequestNextCard((bool) ((Button) sender).Tag);
+
+        buttonPanel.Controls.Add(yesButton);
+        buttonPanel.Controls.Add(noButton);
+    }
+
+    private void RequestNextCard(bool request)
+    {
+        // client.NextCard(request);
+        buttonPanel.Controls.Clear();
     }
 
     private void HandleAskForContinue(MessageReceivedEventArgs _)

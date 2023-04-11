@@ -6,6 +6,9 @@ public static class Program
 {
     public static void Main()
     {
+        // TODO add arg parsing - port
+        // TODO add prints - ip address mainly
+        
         var server = new Server();
 
         var serverThread = new Thread(server.AcceptLoop);

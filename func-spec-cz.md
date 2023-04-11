@@ -11,7 +11,7 @@
 ## Popis programu
 
 Cílem mého zápočtového programu je vytvořit dva programy - aplikace na straně serveru a klientská aplikace, které umožní
-hrát karetní hru Oko bere a to proti počítači nebo ve více hráčích.
+hrát karetní hru Oko bere.
 
 ### Server aplikace
 
@@ -21,9 +21,8 @@ hráčů (stav banku, hodnoty karet, ...). Zároveň by umožnila ke stolu přip
 
 ### Klientská aplikace
 
-Jednalo by se v první řadě o grafické rozhraní, které by umožnilo samotnou hru a to buď v single player módu nebo online
-módu. V single player módu by proti hráči hrál počítač a v online módu by se po zadání IP adresy a přezdívky (případně
-hesla) připojil k serveru s výběrem stolů.
+Jednalo by se v první řadě o grafické rozhraní, které by umožnilo samotnou hru. Po zadání IP adresy a přezdívky (případně
+hesla) by se hráč připojil k serveru s výběrem stolů.
 
 ---
 

@@ -21,42 +21,9 @@ by the banker, who is the player holding the bank. The goal of each player is to
 
 ### Prerequisites
 
-...
+- .NET 6.0 or newer
+- Positive attitude towards gambling
 
----
+### Compiling
 
-## TODO
-
-- [x] Server part
-
-    - [x] TCP and object serialization
-
-    - [x] Proper IPlayer implementation
-
-- [x] Common part
-
-    - [x] Game logic with use of IPlayer
-
-    - [x] Notifications and response preparation
-
-- [x] Client part
-
-    - [x] TCP and object serialization
-
-    - [x] GUI
-
-        - [x] Base
-
-        - [ ] Dynamic
-
-    - [ ] Initialization based on game state
-
-    - [ ] Proper updates with response
-
-        - [ ] Player connected, banker changed, etc. -> Change in game state -> Reload game state
-
-        - [ ] Player's turn, cut player, ... -> Show UI and send back to server...
-
-        - [ ] Different for banker
-
-    - [ ] Server logging
+- Simply open the `.sln` file and compile the project

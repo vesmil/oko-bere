@@ -43,7 +43,7 @@ public sealed partial class GameTableForm : Form
         InitializeComponent();
         InitializeHandlers();
         
-        // TODO in final WindowState = FormWindowState.Maximized;
+        // in-final WindowState = FormWindowState.Maximized;
 
         this.client = client;
         this.client.MessageReceived += OnMessageReceived;
@@ -191,13 +191,15 @@ public sealed partial class GameTableForm : Form
         for (var i = 0; i < GameState.Players.Count; i++)
         {
             var player = GameState.Players[i];
-
+            
             var playerBox = new GroupBox();
             playerBox.Size = new Size(200, 130);
             playerBox.Location = new Point(30 + 210 * i, 70);
             playerBox.Text = $"{player.Name} {(player.Id == PlayerId? "(You)" : "")}" +
                              $"\n{(player.IsBanker ? "Banker" : "Player")}";
 
+            playerBox.Tag = player.Id;
+            
             var cardCountLabel = new Label();
             cardCountLabel.AutoSize = true;
             cardCountLabel.Location = new Point(10, 40);
@@ -222,6 +224,8 @@ public sealed partial class GameTableForm : Form
             {
                 playerBox.BackColor = Color.FromArgb(64, 255, 255, 128);
             }
+            
+            // TODO add select button that is hidden
 
             AddControl(playerBox);
             playerBoxes.Add(playerBox);
@@ -257,7 +261,7 @@ public sealed partial class GameTableForm : Form
         betLabel.AutoSize = true;
         buttonPanel.Location = new Point(Width - buttonPanel.Width - 0, Height - buttonPanel.Height - 50);
 
-        // TODO AddControl(buttonPanel);
+        // TODO AddControl(buttonPanel); what's wrong with that
         buttonPanel.Hide();
     }
 
@@ -314,24 +318,23 @@ public sealed partial class GameTableForm : Form
 
     private void DrawButton_Click(object sender, EventArgs e)
     {
-        // Send request to server
-        // client...
-
-        // Receive response from server
+        // TODO client.Draw();
+        buttonPanel.Hide();
     }
 
     private void BetButton_Click(object sender, EventArgs e)
     {
-        // Send request to server
-        // 
+        // TODO client.Be
 
-        // Receive response from server
+        buttonPanel.Hide();
     }
 
     private void EndTurnButton_Click(object sender, EventArgs e)
     {
-        // client.SendGenericResponse(PlayerResponseEnum.Stop);
+        // TODO client.EndTurn();
+        
         topLabel.Text = "Next Player's Turn";
+        buttonPanel.Hide();
     }
 
     private void PlaceBet(int amount)

@@ -78,12 +78,6 @@ public partial class Game : IGame
         newPlayer.Notify(Notification.Create(NotifEnum.UpdateGameState, gameState));
     }
 
-    public static Game PlayAgainstComputer(int numPlayers)
-    {
-        // TODO I will change it to multiple players on the same computer
-        return new Game(() => new List<PlayerBase> { new AiPlayer("Player", 1000), new AiPlayer("Computer", 1000) });
-    }
-
     private void OneRound()
     {
         if (table.Banker is null) throw new Exception("Can not start round without a banker.");

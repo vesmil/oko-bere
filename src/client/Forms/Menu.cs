@@ -24,6 +24,7 @@ public partial class Menu : Form
         {
             var serverIp = connectionDialog.ServerIp;
             var playerName = connectionDialog.PlayerName;
+            
             ConnectToServer(serverIp, playerName);
         }
     }
