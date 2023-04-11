@@ -3,7 +3,7 @@ image: mcr.microsoft.com/dotnet/sdk:7.0
 variables:
   EXE_RELEASE_FOLDER: 'src/client/bin/Release'
   MSI_RELEASE_FOLDER: 'src/client/bin/Release'
-  TEST_FOLDER: 'src/tests/bin/Release/net7.0'
+  TEST_FOLDER: 'src/tests/bin/Release/net6.0'
 
 stages:
   - build
