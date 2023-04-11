@@ -55,21 +55,6 @@ public class TestTables : Form
         // Starts game loop
         gameThread = new Thread(game.GameLoop);
         gameThread.Start();
-
-        /*
-        TODO allow plyaers after game has started
-        
-        NewClientLogics("David", ip);
-        NewClientLogics("Eve", ip);
-
-        foreach (var client in clients.GetRange(3, 2))
-        {
-            var clientThread = new Thread(client.PlayerLoop);
-            clientThreads.Add(clientThread);
-            clientThread.Start();
-        }
-        
-        */
     }
 
     ~TestTables()

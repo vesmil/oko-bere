@@ -29,6 +29,7 @@ public class TcpClient : IClient
     /// </summary>
     public void PlayerLoop()
     {
+        // NOTE might create some basic abstruct structure for this
         while (true)
         {
             var update = transfer.Receive<INotification<object>>();
@@ -36,7 +37,6 @@ public class TcpClient : IClient
             Debug.WriteLine(NamePreset + " - " + update.Type);
 
             // Note might add try catch here
-            
             switch (update.Type)
             {
                 case NotifEnum.NewPlayer:
@@ -58,6 +58,25 @@ public class TcpClient : IClient
                     GameState.Players.Remove(GameState.Players.First(p => p.Id == bankerInfo.Id));
                     GameState.Players.Add(bankerInfo);
 
+                    break;
+                }
+                case NotifEnum.SetInitialBank:
+                {
+                    var value = (int)(update.Data ?? throw new InvalidOperationException());
+
+                    // NOTE should be done in a better way
+                    var game = GameState;
+                    game.Bank = value;
+                    GameState = game;
+
+                    /*
+                    var banker = GameState.Players.First(p => p.IsBanker);
+                    
+                    banker.Balance = value;
+                    GameState.Players.Remove(GameState.Players.First(p => p.Id == banker.Id));
+                    GameState.Players.Add(banker);
+                    */
+                    
                     break;
                 }
             }

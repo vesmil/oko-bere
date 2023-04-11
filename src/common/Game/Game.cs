@@ -29,8 +29,6 @@ public partial class Game : IGame
     {
         while (true)
         {
-            // TODO handle players actions
-            
             table.UpdatePlayers(getGetPlayersDelegate.Invoke());
 
             if (table.AllPlayers.Count > 2)

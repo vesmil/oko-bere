@@ -77,6 +77,17 @@ public sealed partial class GameTableForm : Form
     private void Render()
     {
         AddPlayerBoxes();
+        SetLabels();
+    }
+    
+    private void SetLabels()
+    {
+        balanceLabel.CheckInvoke(() =>
+        {
+            balanceLabel.Text = "Balance: " + GameState.Players.FirstOrDefault(p => p.Id == PlayerId).Balance;
+            bankLabel.Text = "Bank: " + GameState.Bank;
+            betLabel.Text = "Bet: " + GameState.Players.FirstOrDefault(p => p.Id == PlayerId).Bet;
+        });
     }
 
     private void AddControl(Control control)
@@ -185,7 +196,7 @@ public sealed partial class GameTableForm : Form
             playerBox.Size = new Size(200, 130);
             playerBox.Location = new Point(30 + 210 * i, 70);
             playerBox.Text = $"{player.Name} {(player.Id == PlayerId? "(You)" : "")}" +
-                             $"\n {(player.IsBanker ? "Banker" : "Player")}";
+                             $"\n{(player.IsBanker ? "Banker" : "Player")}";
 
             var cardCountLabel = new Label();
             cardCountLabel.AutoSize = true;
@@ -206,7 +217,7 @@ public sealed partial class GameTableForm : Form
                 betPlayerLabel.Location = new Point(10, 100);
                 betPlayerLabel.Text = $"Bet: {player.Bet}";
                 playerBox.Controls.Add(betPlayerLabel);
-            }
+            } 
             else
             {
                 playerBox.BackColor = Color.FromArgb(64, 255, 255, 128);

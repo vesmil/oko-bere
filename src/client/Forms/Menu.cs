@@ -12,9 +12,6 @@ public partial class Menu : Form
         var connectButton = UiCommon.InitializeMenuButton("Connect to Server", 0, ConnectButton_Click!);
         Controls.Add(connectButton);
 
-        var playButton = UiCommon.InitializeMenuButton("Single player", 1, PlayButton_Click!);
-        Controls.Add(playButton);
-
         var exitButton = UiCommon.InitializeMenuButton("Exit", 2, ExitButton_Click!);
         Controls.Add(exitButton);
     }
@@ -30,13 +27,7 @@ public partial class Menu : Form
             ConnectToServer(serverIp, playerName);
         }
     }
-
-    private void PlayButton_Click(object sender, EventArgs e)
-    {
-        var singleDialog = new SettingsDialog();
-        if (singleDialog.ShowDialog() == DialogResult.OK) StartSinglePlayerGame(singleDialog.NumPlayers);
-    }
-
+    
     private void ExitButton_Click(object sender, EventArgs e)
     {
         Close();
@@ -44,14 +35,7 @@ public partial class Menu : Form
 
     private void ConnectToServer(string serverIp, string playerName)
     {
-        // TODO connect ...
-        // var gameTableForm = new GameTableForm();
-        // gameTableForm.Show();
-    }
-
-    private void StartSinglePlayerGame(int numPlayers)
-    {
-        var client = new SoloTcpClient(numPlayers);
+        var client = new TcpClient(playerName, serverIp, 1234);
         var gameTableForm = new GameTableForm(client);
         gameTableForm.Show();
     }

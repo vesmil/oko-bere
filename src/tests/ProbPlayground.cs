@@ -1,11 +1,14 @@
 ﻿using OkoCommon.Game;
+using OkoCommon.Misc;
 
-namespace OkoCommon.Misc;
+namespace Tests;
 
 using prob = ProbabilityCalc;
 
+// ReSharper disable once UnusedType.Global
 public static class Playground
 {
+    // ReSharper disable once UnusedMember.Global
     public static void PrintAllProbs()
     {
         var hand = new List<Card> { new(Suit.Hearts, Rank.Seven) };

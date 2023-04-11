@@ -9,6 +9,6 @@ internal static class Program
     public static void Main()
     {
         ApplicationConfiguration.Initialize();
-        Application.Run(new TestTables());
+        Application.Run(new TestTables()); // TODO will run client instead of test tables
     }
 }

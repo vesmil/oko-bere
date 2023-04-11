@@ -44,13 +44,3 @@ public struct PlayerInfo
     public bool IsBanker = false;
     public Guid Id;
 }
-
-[Serializable]
-public enum TurnState
-{
-    NotStarted,
-    PlayerTurn,
-
-    Duel
-    // ...
-}

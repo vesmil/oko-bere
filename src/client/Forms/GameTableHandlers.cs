@@ -34,7 +34,10 @@ public sealed partial class GameTableForm
     private void HandleNewBanker(MessageReceivedEventArgs msg)
     {
         if (msg.Data is PlayerInfo playerInfo)
-            SetTurnInfo("New banker was assigned - " + playerInfo.Name);
+            if (playerInfo.Id == client.PlayerId)
+                SetTurnInfo("You are the new banker!");
+            else
+                SetTurnInfo("New banker was assigned - " + playerInfo.Name);
         else
             SetTurnInfo("New banker was assigned");
     }
@@ -50,7 +53,8 @@ public sealed partial class GameTableForm
         
         // TODO get initial bank
         
-        client.BankSet(100);    }
+        client.BankSet(100);    
+    }
 
 
     private void HandleSetInitialBank(MessageReceivedEventArgs _)

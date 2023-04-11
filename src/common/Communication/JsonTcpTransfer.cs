@@ -54,24 +54,34 @@ public class JsonTcpTransfer : IObjectTransfer
 
     public T Receive<T>()
     {
-        if (stream == null)
-            throw new InvalidOperationException("The stream is null");
-
-        var ms = new MemoryStream();
-        var buffer = new byte[1024];
-
-        do
+        string json;
+        
+        if (prevJson.Length == 0)
         {
-            var bytesRead = stream.Read(buffer, 0, buffer.Length);
-            ms.Write(buffer, 0, bytesRead);
-        } while (stream.DataAvailable);
+            if (stream == null)
+                throw new InvalidOperationException("The stream is null");
+
+            var ms = new MemoryStream();
+            var buffer = new byte[1024];
+
+            do
+            {
+                var bytesRead = stream.Read(buffer, 0, buffer.Length);
+                ms.Write(buffer, 0, bytesRead);
+            } while (stream.DataAvailable);
 
 
-        var jsonBytes = ms.ToArray();
+            var jsonBytes = ms.ToArray();
 
-        var json = prevJson + Encoding.UTF8.GetString(jsonBytes);
-        prevJson = "";
-
+            json = prevJson + Encoding.UTF8.GetString(jsonBytes);
+            prevJson = "";
+        }
+        else
+        {
+            json = prevJson;
+            prevJson = "";
+        }
+        
         var jsons = json.Split("}{");
 
         // Handle multiple objects in one messagei

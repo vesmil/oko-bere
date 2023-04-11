@@ -2,6 +2,7 @@
 
 namespace OkoCommon.Misc;
 
+// Currently unused as single player is not supported
 public static class ProbabilityCalc
 {
     public static double GetBustProbability(List<Card> hand, List<Card>? leftOut = null)
