@@ -24,12 +24,7 @@ build_job:
 test_job:
   stage: test
   script:
-    - dotnet test "./${TEST_FOLDER}/Tests.dll" --logger "trx;LogFileName=TestResult.xml"
-  artifacts:
-    when: always
-    expire_in: 1 week
-    paths:
-      - './TestResult.xml'
+    - dotnet test "./${TEST_FOLDER}/Tests.dll"
   dependencies:
     - build_job
 
