@@ -7,12 +7,12 @@ public partial class Menu : Form
     public Menu()
     {
         InitializeComponent();
-        BackColor = Color.FromArgb(173, 172, 102);
+        BackColor = Color.FromArgb(181, 203, 141);
 
         var connectButton = UiCommon.InitializeMenuButton("Connect to Server", 0, ConnectButton_Click!);
         Controls.Add(connectButton);
 
-        var exitButton = UiCommon.InitializeMenuButton("Exit", 2, ExitButton_Click!);
+        var exitButton = UiCommon.InitializeMenuButton("Exit", 1, ExitButton_Click!);
         Controls.Add(exitButton);
     }
 
@@ -37,6 +37,8 @@ public partial class Menu : Form
     private void ConnectToServer(string serverIp, string playerName)
     {
         var ipAndPort = serverIp.Split(':');
+        
+        // TODO tryparse
         var client = new TcpClient(playerName, ipAndPort[0], int.Parse(ipAndPort[1]));
         var gameTableForm = new GameTableForm(client);
         

@@ -144,16 +144,15 @@ public sealed partial class GameTableForm
         var acceptButton = new Button
         {
             Text = "Accept",
-            Tag = true
         };
-        acceptButton.Click += (sender, args) => RespondToDuel((bool) ((Button) sender).Tag);
+        
+        acceptButton.Click += (_, _) => RespondToDuel(true);
 
         var declineButton = new Button
         {
             Text = "Decline",
-            Tag = false
         };
-        declineButton.Click += (sender, args) => RespondToDuel((bool) ((Button) sender).Tag);
+        declineButton.Click += (sender, args) => RespondToDuel(false);
 
         buttonPanel.Controls.Add(acceptButton);
         buttonPanel.Controls.Add(declineButton);
@@ -184,16 +183,14 @@ public sealed partial class GameTableForm
         var yesButton = new Button
         {
             Text = "Yes",
-            Tag = true
         };
-        yesButton.Click += (sender, args) => RequestNextCard((bool) ((Button) sender).Tag);
+        yesButton.Click += (_, _) => RequestNextCard(true);
 
         var noButton = new Button
         {
             Text = "No",
-            Tag = false
         };
-        noButton.Click += (sender, args) => RequestNextCard((bool) ((Button) sender).Tag);
+        noButton.Click += (_, _) => RequestNextCard(false);
 
         buttonPanel.Controls.Add(yesButton);
         buttonPanel.Controls.Add(noButton);
