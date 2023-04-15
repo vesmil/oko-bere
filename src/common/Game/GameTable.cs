@@ -3,8 +3,11 @@ using OkoCommon.Communication;
 
 namespace OkoCommon.Game;
 
-public partial class Game
+public partial class OkoGame
 {
+    /// <summary>
+    ///     Class defining a game operations related to a table and storing the state of the game, etc.
+    /// </summary>
     private class GameTable
     {
         public List<PlayerBase> AllPlayers;
@@ -20,8 +23,11 @@ public partial class Game
             ClearBets();
         }
 
+        /// <summary>
+        ///     The players that are not the banker.
+        /// </summary>
         public IEnumerable<PlayerBase> Players => AllPlayers.Where(p => !p.IsBanker);
-
+        
         private IEnumerable<PlayerBase> AllExcept(PlayerBase player)
         {
             return AllPlayers.Where(p => p != player);
@@ -69,6 +75,9 @@ public partial class Game
             Debug.WriteLine($"Banker was set to {Banker!.Name}");
         }
 
+        /// <summary>
+        ///     Assigns a new banker and notifies all players.
+        /// </summary>
         private void AssignBanker(PlayerBase newBanker)
         {
             Banker = newBanker;

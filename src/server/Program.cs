@@ -32,7 +32,7 @@ public static class Program
         var serverThread = new Thread(server.AcceptLoop);
         serverThread.Start();
 
-        var oko = new Game(server.GetClients);
+        var oko = new OkoGame(server.GetClients);
         server.AssignGame(oko);
 
         oko.Lobby();

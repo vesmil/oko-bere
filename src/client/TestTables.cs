@@ -49,7 +49,7 @@ public class TestTables : Form
         }
 
         // Creates game and assigns it to server
-        var game = new Game(server.GetClients);
+        var game = new OkoGame(server.GetClients);
         server.AssignGame(game);
 
         // Starts game loop

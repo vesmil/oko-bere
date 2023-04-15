@@ -65,11 +65,17 @@ public sealed class ButtonBox : Panel
         HideAll();
     }
 
+    /// <summary>
+    ///     Move the panel to the specified location
+    /// </summary>
     public void Shift(int x, int y)
     {
         Location = new Point(x - Width, y - Height);
     }
 
+    /// <summary>
+    ///     Show all buttons for a turn
+    /// </summary>
     public void Turn()
     {
         DrawButton.CheckInvoke(() =>
@@ -81,6 +87,9 @@ public sealed class ButtonBox : Panel
         });
     }
 
+    /// <summary>
+    ///     Show all buttons for a duel
+    /// </summary>
     public void Duel()
     {
         AcceptButton.CheckInvoke(() =>
@@ -91,6 +100,9 @@ public sealed class ButtonBox : Panel
         });
     }
 
+    /// <summary>
+    ///     Show all buttons for a turn without a bet - usually duel or banker's turn
+    /// </summary>
     public void NoBet()
     {
         DrawButton.CheckInvoke(() =>
@@ -100,11 +112,17 @@ public sealed class ButtonBox : Panel
         });
     }
 
+    /// <summary>
+    ///     Ask the player if they want to continue
+    /// </summary>
     public void Continue()
     {
         ContinueButton.CheckInvoke(() => { ContinueButton.Show(); });
     }
 
+    /// <summary>
+    ///     Hide all buttons
+    /// </summary>
     public void HideAll()
     {
         DrawButton.CheckInvoke(() =>

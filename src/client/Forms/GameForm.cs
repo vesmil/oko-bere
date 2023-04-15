@@ -26,12 +26,17 @@ public sealed partial class GameTableForm : Form
         NotifEnum.UpdateGameState
     };
 
+    // Logic
     private readonly IClient client;
-
+    private GameState GameState => client.GameState;
+    private Guid PlayerId => client.PlayerId;
+    
+    // Ui elements
     private readonly ButtonBox buttonPanel = new();
     private readonly List<PictureBox> cardBoxes = new();
     private readonly List<PlayerBox> playerBoxes = new();
     
+    // Labels
     private readonly Label noPlayersLabel = new();
     private readonly Label oldTopLabel = new();
     private readonly Label balanceLabel = new();
@@ -39,6 +44,7 @@ public sealed partial class GameTableForm : Form
     private readonly Label betLabel = new();
     private readonly Label scoreLabel = new();
 
+    // Timing - mostly used for continue and lobby
     private readonly Timer timer = new();
     private readonly Label topLabel = new();
     private int timeLeft;
@@ -54,7 +60,7 @@ public sealed partial class GameTableForm : Form
         Size = new Size(1100, 600);
         MinimumSize = new Size(1000, 550);
 
-        // WindowState = FormWindowState.Maximized;
+        // NOTE consider: WindowState = FormWindowState.Maximized;
 
         this.client = client;
         this.client.MessageReceived += OnMessageReceived;
@@ -72,9 +78,10 @@ public sealed partial class GameTableForm : Form
         };
     }
 
-    private Guid PlayerId => client.PlayerId;
-    private GameState GameState => client.GameState;
-
+    /// <summary>
+    ///     Creates all the necessary properties for the form.
+    ///     Can be called multiple times to overwrite the old properties.
+    /// </summary>
     private void Render()
     {
         buttonPanel.Shift(Width - 10, Height - 50);
@@ -85,6 +92,10 @@ public sealed partial class GameTableForm : Form
         AddCardBoxes();
     }
 
+    /// <summary>
+    ///     Calls the appropriate handler for the message from the server.
+    ///     If necessary it also calls redraws the entire form.
+    /// </summary>
     private void OnMessageReceived(object? sender, MessageReceivedEventArgs message)
     {
         if (messageHandlers.TryGetValue(message.Type, out var handler)) handler(message);
@@ -93,13 +104,16 @@ public sealed partial class GameTableForm : Form
         UpdateLabels();
     }
 
+    /// <summary>
+    ///     Update all written text in the form.
+    /// </summary>
     private void UpdateLabels()
     {
         balanceLabel.CheckInvoke(() =>
         {
-            balanceLabel.Text = "Balance: " + GameState.GetPlayerInfo(PlayerId).Balance;
             bankLabel.Text = "Bank: " + GameState.Bank;
-            betLabel.Text = "Bet: " + GameState.GetPlayerInfo(PlayerId).Bet;
+            balanceLabel.Text = "Your balance: " + GameState.GetPlayerInfo(PlayerId).Balance;
+            betLabel.Text = "Your bet: " + GameState.GetPlayerInfo(PlayerId).Bet;
 
             foreach (var box in playerBoxes) box.SetLabels();
 
@@ -116,8 +130,7 @@ public sealed partial class GameTableForm : Form
                 scoreLabel.Text = "";
         });
     }
-
-
+    
     private void SetTurnInfo(string text)
     {
         topLabel.CheckInvoke(() =>
@@ -157,7 +170,6 @@ public sealed partial class GameTableForm : Form
             bankLabel.AutoSize = true;
             bankLabel.Location = new Point(30, 250);
             bankLabel.Font = labelFont;
-            bankLabel.Text = "Bank: " + GameState.Bank;
             AddControl(bankLabel);
 
             if (!GameState.GetPlayerInfo(PlayerId).IsBanker)
@@ -174,7 +186,6 @@ public sealed partial class GameTableForm : Form
                 balanceLabel.AutoSize = true;
                 balanceLabel.Location = new Point(30, 330);
                 balanceLabel.Font = labelFont;
-                balanceLabel.Text = "Balance: " + 0;
                 AddControl(balanceLabel);
             }
             else
@@ -268,10 +279,10 @@ public sealed partial class GameTableForm : Form
 
     private void SetButtonPanel()
     {
-        buttonPanel.ContinueButton.Click += ContinueButton_Click!;
-        buttonPanel.DrawButton.Click += DrawButton_Click!;
-        buttonPanel.BetButton.Click += BetButton_Click!;
-        buttonPanel.EndTurnButton.Click += EndTurnButton_Click!;
+        buttonPanel.ContinueButton.Click += ContinueButtonClick!;
+        buttonPanel.DrawButton.Click += DrawButtonClick!;
+        buttonPanel.BetButton.Click += BetButtonClick!;
+        buttonPanel.EndTurnButton.Click += EndTurnButtonClick!;
         buttonPanel.AcceptButton.Click += (_, _) => RespondToDuel();
         buttonPanel.DeclineButton.Click += (_, _) => DeclineDuel();
 

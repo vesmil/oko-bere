@@ -49,9 +49,7 @@ public static class CardExtensions
         List<int> results = new() { 0 };
 
         foreach (var values in cards.Select(card => card.GetValues()))
-            results = (from result in results
-                from value in values
-                select result + value).ToList();
+            results = (from result in results from value in values select result + value).ToList();
 
         return results;
     }
@@ -59,6 +57,7 @@ public static class CardExtensions
     public static int GetBestValue(this IEnumerable<Card> cards)
     {
         var possibleSums = cards.GetSum();
+        
         return possibleSums.Any(sum => sum <= 21) ? possibleSums.Where(sum => sum <= 21).Max() : possibleSums[0];
     }
 

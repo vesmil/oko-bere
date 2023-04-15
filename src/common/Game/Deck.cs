@@ -2,10 +2,13 @@
 
 namespace OkoCommon.Game;
 
+/// <summary>
+///     Simulates a deck of cards.
+/// </summary>
 public class Deck
 {
+    // The cards are stored in a list, so that they can be easily shuffled.
     protected readonly List<Card> Cards = new();
-
     private readonly Random random = new();
 
     public Deck()
@@ -16,7 +19,6 @@ public class Deck
     }
 
     public int Count => Cards.Count;
-
     public bool IsEmpty => Cards.Count == 0;
 
     public void Shuffle()
@@ -29,6 +31,9 @@ public class Deck
         }
     }
 
+    /// <summary>
+    ///     Reset the deck to its unsuffled state.
+    /// </summary>
     public void Restart()
     {
         Cards.Clear();
@@ -38,6 +43,12 @@ public class Deck
             Cards.Add(new Card(suit, rank));
     }
 
+    /// <summary>
+    ///     Draw a card from the deck and remove it from the deck.
+    ///     Returns false if the deck is empty.
+    /// </summary>
+    /// <param name="card">Drawn card</param>
+    /// <returns>Whether drawing was successful.</returns>
     public bool TryDraw(out Card card)
     {
         if (Cards.Count == 0)
@@ -51,6 +62,12 @@ public class Deck
         return true;
     }
 
+    /// <summary>
+    ///     Draw a card from the deck and remove it from the deck.
+    ///     Throws an exception if the deck is empty.
+    /// </summary>
+    /// <returns>Drawn card</returns>
+    /// <exception cref="InvalidOperationException">The deck is empty</exception>
     public Card Draw()
     {
         if (Cards.Count == 0) throw new InvalidOperationException("Deck is empty");
@@ -84,6 +101,9 @@ public class Deck
     }
 }
 
+/// <summary>
+///     Deck used for testing and probability calculations.
+/// </summary>
 internal class TestDeck : Deck, IEnumerable<Card>
 {
     public IEnumerator<Card> GetEnumerator()
@@ -115,6 +135,7 @@ internal class TestDeck : Deck, IEnumerable<Card>
     }
 }
 
+// byte is used instead of int to save memory.
 public enum Suit : byte
 {
     Clubs,

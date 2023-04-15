@@ -4,6 +4,9 @@ namespace OkoCommon.Game;
 
 public delegate List<PlayerBase> GetPlayersDelegate();
 
+/// <summary>
+///     Class defining a player for a card game
+/// </summary>
 public abstract class PlayerBase
 {
     public readonly List<Card> Hand = new();

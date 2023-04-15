@@ -4,15 +4,22 @@ using Newtonsoft.Json;
 
 namespace OkoCommon.Communication;
 
+/// <summary>
+///     Interface for sending and receiving objects over a stream
+/// </summary>
 public interface IObjectTransfer : IDisposable
 {
     void Send<T>(T obj);
     T Receive<T>();
 }
 
+/// <summary>
+///     Implementation of IObjectTransfer using JSON over TCP
+/// </summary>
 public class JsonTcpTransfer : IObjectTransfer
 {
     private readonly TcpClient client;
+    private string lastJson = "";
 
     private readonly JsonSerializerSettings settings = new()
     {
@@ -48,7 +55,8 @@ public class JsonTcpTransfer : IObjectTransfer
             throw new InvalidOperationException("The stream is null");
 
         var json = JsonConvert.SerializeObject(obj, settings);
-
+        lastJson = json;
+        
         var jsonBytes = Encoding.UTF8.GetBytes(json);
         stream.Write(jsonBytes, 0, jsonBytes.Length);
     }
@@ -64,13 +72,41 @@ public class JsonTcpTransfer : IObjectTransfer
 
             var ms = new MemoryStream();
             var buffer = new byte[1024];
-
+            
             do
             {
                 var bytesRead = stream.Read(buffer, 0, buffer.Length);
                 ms.Write(buffer, 0, bytesRead);
             } while (stream.DataAvailable);
+            
+            /* NOTE timeout version
+             
+            var timeoutMilliseconds = 0;
+            var cts = new CancellationTokenSource(timeoutMilliseconds);
+            var token = cts.Token;
 
+            try
+            {
+                Task.Run(() =>
+                {
+                    do
+                    {
+                        var bytesRead = stream.Read(buffer, 0, buffer.Length);
+                        ms.Write(buffer, 0, bytesRead);
+                    } while (stream.DataAvailable);
+
+                }, token).Wait(token);
+            }
+            catch (OperationCanceledException)
+            {
+                // send timeout notification
+            
+                var lastJsonBytes = Encoding.UTF8.GetBytes(lastJson);
+                stream.Write(lastJsonBytes, 0, lastJsonBytes.Length);
+                
+                return Receive<T>();
+            }
+            */
 
             var jsonBytes = ms.ToArray();
 
@@ -91,7 +127,6 @@ public class JsonTcpTransfer : IObjectTransfer
         if (prevJson.Length > 0) prevJson = prevJson[..^1];
 
         var obj = JsonConvert.DeserializeObject(json, settings) ?? throw new InvalidOperationException();
-
         if (obj is T t) return t;
 
         throw new InvalidCastException($"Cannot cast {obj.GetType()} to {typeof(T)}");

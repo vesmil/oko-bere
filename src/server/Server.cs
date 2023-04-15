@@ -65,9 +65,9 @@ public class Server : IDisposable
         return new List<PlayerBase>(clients);
     }
 
-    public void AssignGame(Game currentGame)
+    public void AssignGame(OkoGame currentOkoGame)
     {
-        Game = currentGame;
+        Game = currentOkoGame;
     }
 
     private void ReleaseUnmanagedResources()

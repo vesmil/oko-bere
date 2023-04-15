@@ -14,22 +14,43 @@ public sealed partial class GameTableForm
         messageHandlers.Add(NotifEnum.NewBanker, HandleNewBanker);
         messageHandlers.Add(NotifEnum.AskInitialBank, HandleAskInitialBank);
         messageHandlers.Add(NotifEnum.SetInitialBank, HandleSetInitialBank);
-        messageHandlers.Add(NotifEnum.BankBusted, HandleBankBusted);
-        messageHandlers.Add(NotifEnum.AskTurn, HandleAskForTurn);
+        messageHandlers.Add(NotifEnum.BankBusted, _ => SetTurnInfo("Bank was busted!"));
+
+        messageHandlers.Add(NotifEnum.AskMalaDomu, HandleAskMalaDomu);
         messageHandlers.Add(NotifEnum.MalaDomuCalled, HandleMalaDomuCalled);
         messageHandlers.Add(NotifEnum.MalaDomuSuccess, HandleMalaDomuSuccess);
+
         messageHandlers.Add(NotifEnum.AskChooseCutPlayer, HandleChooseCutPlayer);
         messageHandlers.Add(NotifEnum.AskChooseCutPosition, HandleChooseCutPosition);
+
         messageHandlers.Add(NotifEnum.ShowCutCard, HandleSeeCutCard);
+        messageHandlers.Add(NotifEnum.AskTurn, HandleAskForTurn);
         messageHandlers.Add(NotifEnum.AskDuel, HandleDuelOffer);
         messageHandlers.Add(NotifEnum.AskTurnNoBet, HandleAskNextNoBet);
         messageHandlers.Add(NotifEnum.AskContinue, HandleAskForContinue);
+        messageHandlers.Add(NotifEnum.AskExchange, HandleAskForExchange);
+
         messageHandlers.Add(NotifEnum.NotEnoughPlayers, HandleNotEnoughPlayers);
         messageHandlers.Add(NotifEnum.EndOfGame, HandleEndOfGame);
-        messageHandlers.Add(NotifEnum.Bust, HandleBust);
 
-        // messageHandlers.Add(NotifEnum.Won, HandleWon);
-        // messageHandlers.Add(NotifEnum.Lost, HandleLost);
+        messageHandlers.Add(NotifEnum.Bust, _ => SetTurnInfo("You busted!"));
+        messageHandlers.Add(NotifEnum.Won, _ => SetTurnInfo("You won!"));
+        messageHandlers.Add(NotifEnum.Lost, _ => SetTurnInfo("You lost!"));
+
+        messageHandlers.Add(NotifEnum.OtherBusts, msg => SetTurnInfo($"{msg.Data} busted!"));
+        messageHandlers.Add(NotifEnum.OtherWins, msg => SetTurnInfo($"{msg.Data} wins!"));
+        messageHandlers.Add(NotifEnum.OtherLost, msg => SetTurnInfo($"{msg.Data} lost!"));
+        messageHandlers.Add(NotifEnum.OtherDuel, msg => SetTurnInfo($"{msg.Data} started duel!"));
+    }
+
+    private void HandleAskMalaDomu(MessageReceivedEventArgs obj)
+    {
+        // TODO show dialog
+    }
+
+    private void HandleAskForExchange(MessageReceivedEventArgs obj)
+    {
+        // TODO show dialog
     }
 
     private void HandleNewBanker(MessageReceivedEventArgs msg)
@@ -41,11 +62,6 @@ public sealed partial class GameTableForm
                 SetTurnInfo("New banker was assigned - " + playerInfo.Name);
         else
             SetTurnInfo("New banker was assigned");
-    }
-
-    private void HandleGameStart(MessageReceivedEventArgs _)
-    {
-        SetTurnInfo("Game started!");
     }
 
     private void HandleAskInitialBank(MessageReceivedEventArgs obj)
@@ -61,11 +77,6 @@ public sealed partial class GameTableForm
     {
         SetTurnInfo("Initial bank was set!");
         bankLabel.CheckInvoke(() => bankLabel.Text = "Bank : " + GameState.Bank);
-    }
-
-    private void HandleBankBusted(MessageReceivedEventArgs _)
-    {
-        SetTurnInfo("Bank was busted!");
     }
 
     private void HandleAskForTurn(MessageReceivedEventArgs _)
@@ -123,8 +134,11 @@ public sealed partial class GameTableForm
     private void RespondToDuel()
     {
         int.TryParse(buttonPanel.BetTextBox.Text, out var bet);
-        if (bet == 0)
+        if (bet <= 0 || bet > GameState.Players.First(p => p.Id == client.PlayerId).Balance)
+        {
+            MessageBox.Show("Bet amount not valid");
             return;
+        }
 
         client.Duel(bet);
         buttonPanel.HideAll();
@@ -157,7 +171,7 @@ public sealed partial class GameTableForm
         Dispose();
     }
 
-    private void ContinueButton_Click(object sender, EventArgs e)
+    private void ContinueButtonClick(object sender, EventArgs e)
     {
         client.Continue(true);
 
@@ -166,13 +180,13 @@ public sealed partial class GameTableForm
         timer.Stop();
     }
 
-    private void DrawButton_Click(object sender, EventArgs e)
+    private void DrawButtonClick(object sender, EventArgs e)
     {
         client.Turn(TurnDecision.Draw);
         buttonPanel.HideAll();
     }
 
-    private void BetButton_Click(object sender, EventArgs e)
+    private void BetButtonClick(object sender, EventArgs e)
     {
         if (int.TryParse(buttonPanel.BetTextBox.Text, out var betAmount) && betAmount > 0 &&
             betAmount <= GameState.Players.First(p => p.Id == PlayerId).Balance)
@@ -184,15 +198,9 @@ public sealed partial class GameTableForm
             MessageBox.Show("Bet amount not valid");
     }
 
-    private void EndTurnButton_Click(object sender, EventArgs e)
+    private void EndTurnButtonClick(object sender, EventArgs e)
     {
         client.Turn(TurnDecision.Stop);
-        topLabel.Text = "Waiting for other players...";
         buttonPanel.HideAll();
-    }
-
-    private void HandleBust(MessageReceivedEventArgs obj)
-    {
-        SetTurnInfo("You busted!");
     }
 }

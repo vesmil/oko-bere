@@ -16,11 +16,11 @@ public class GameState
         Bank = 0;
     }
 
-    public GameState(List<PlayerBase> players, int bank)
+    public GameState(List<PlayerBase> players, int bank, List<Card> hand)
     {
         Players = new List<PlayerInfo>();
         foreach (var player in players) Players.Add(new PlayerInfo(player));
-        Hand = new List<Card>();
+        Hand = hand;
         Bank = bank;
     }
 

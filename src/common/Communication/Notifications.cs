@@ -3,11 +3,13 @@ using OkoCommon.Game;
 
 namespace OkoCommon.Communication;
 
+/// <summary>
+///     Possible updates from the server.
+/// </summary>
 public enum NotifEnum
 {
     AskName,
     UpdateGameState,
-    // GameStart,
 
     NewPlayer,
     PlayerLeft,
@@ -29,6 +31,8 @@ public enum NotifEnum
     OtherExchanged,
     OtherBusts,
     OtherWins,
+    OtherLost,
+    OtherDuel,
 
     AskMalaDomu,
     MalaDomuCalled,
@@ -44,15 +48,23 @@ public enum NotifEnum
     AskContinue,
     Continue,
     NotEnoughPlayers,
-    EndOfGame
+    EndOfGame,
 }
 
+/// <summary>
+///     Generic interface for notifications from the server.
+/// </summary>
+/// <typeparam name="T"></typeparam>
 public interface INotification<out T>
 {
     public NotifEnum Type { get; }
     public T? Data { get; }
 }
 
+/// <summary>
+///     Generic notification from the server.
+/// </summary>
+/// <typeparam name="T"></typeparam>
 public readonly struct Notification<T> : INotification<object>
 {
     public Notification(NotifEnum type, T data)
@@ -66,6 +78,9 @@ public readonly struct Notification<T> : INotification<object>
     object? INotification<object>.Data => Data;
 }
 
+/// <summary>
+///     Factory for creating notifications.
+/// </summary>
 public static class Notification
 {
     public static Notification<object> Create(NotifEnum type)
