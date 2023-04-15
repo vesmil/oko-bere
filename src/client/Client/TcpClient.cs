@@ -24,7 +24,7 @@ public class TcpClient : IClient
     public Guid PlayerId { get; init; }
 
     public event EventHandler<MessageReceivedEventArgs>? MessageReceived;
-    
+
     public void PlayerLoop()
     {
         while (true)

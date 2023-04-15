@@ -11,7 +11,6 @@ public sealed partial class GameTableForm
 
     private void InitializeHandlers()
     {
-        // messageHandlers.Add(NotifEnum.GameStart, HandleGameStart);
         messageHandlers.Add(NotifEnum.NewBanker, HandleNewBanker);
         messageHandlers.Add(NotifEnum.AskInitialBank, HandleAskInitialBank);
         messageHandlers.Add(NotifEnum.SetInitialBank, HandleSetInitialBank);
@@ -23,10 +22,12 @@ public sealed partial class GameTableForm
         messageHandlers.Add(NotifEnum.AskChooseCutPosition, HandleChooseCutPosition);
         messageHandlers.Add(NotifEnum.ShowCutCard, HandleSeeCutCard);
         messageHandlers.Add(NotifEnum.AskDuel, HandleDuelOffer);
-        messageHandlers.Add(NotifEnum.AskTurnNoBet, HandleDuelAskNextCard);
+        messageHandlers.Add(NotifEnum.AskTurnNoBet, HandleAskNextNoBet);
         messageHandlers.Add(NotifEnum.AskContinue, HandleAskForContinue);
         messageHandlers.Add(NotifEnum.NotEnoughPlayers, HandleNotEnoughPlayers);
         messageHandlers.Add(NotifEnum.EndOfGame, HandleEndOfGame);
+        messageHandlers.Add(NotifEnum.Bust, HandleBust);
+
         // messageHandlers.Add(NotifEnum.Won, HandleWon);
         // messageHandlers.Add(NotifEnum.Lost, HandleLost);
     }
@@ -121,7 +122,11 @@ public sealed partial class GameTableForm
 
     private void RespondToDuel()
     {
-        client.Duel(int.TryParse(buttonPanel.BetTextBox.Text, out var bet) ? bet : 0);
+        int.TryParse(buttonPanel.BetTextBox.Text, out var bet);
+        if (bet == 0)
+            return;
+
+        client.Duel(bet);
         buttonPanel.HideAll();
     }
 
@@ -131,13 +136,10 @@ public sealed partial class GameTableForm
         buttonPanel.HideAll();
     }
 
-    // TODO not just duel but nobet
-    private void HandleDuelAskNextCard(MessageReceivedEventArgs _)
+    private void HandleAskNextNoBet(MessageReceivedEventArgs _)
     {
         SetTurnInfo("Would you like to get another card?");
-
-        buttonPanel.HideAll();
-        // TODO ...
+        buttonPanel.NoBet();
     }
 
     private void HandleAskForContinue(MessageReceivedEventArgs _)
@@ -152,11 +154,9 @@ public sealed partial class GameTableForm
 
     private void HandleEndOfGame(MessageReceivedEventArgs _)
     {
-        // TODO...
         Dispose();
     }
 
-    // TODO move to button panel?
     private void ContinueButton_Click(object sender, EventArgs e)
     {
         client.Continue(true);
@@ -189,5 +189,10 @@ public sealed partial class GameTableForm
         client.Turn(TurnDecision.Stop);
         topLabel.Text = "Waiting for other players...";
         buttonPanel.HideAll();
+    }
+
+    private void HandleBust(MessageReceivedEventArgs obj)
+    {
+        SetTurnInfo("You busted!");
     }
 }

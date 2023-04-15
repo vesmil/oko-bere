@@ -14,8 +14,8 @@ public static class UiCommon
     private static readonly Dictionary<Suit, string> SuitNames = new()
     {
         { Suit.Clubs, "kule" },
-        { Suit.Diamonds, "srdce" },
-        { Suit.Hearts, "zelene" },
+        { Suit.Diamonds, "zelene" },
+        { Suit.Hearts, "srdce" },
         { Suit.Spades, "zaludy" }
     };
 

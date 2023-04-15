@@ -1,6 +1,7 @@
 using OkoClient.Client;
 using OkoCommon;
 using OkoCommon.Communication;
+using OkoCommon.Game;
 using Timer = System.Windows.Forms.Timer;
 
 namespace OkoClient.Forms;
@@ -25,21 +26,18 @@ public sealed partial class GameTableForm : Form
         NotifEnum.UpdateGameState
     };
 
+    private readonly IClient client;
+
+    private readonly ButtonBox buttonPanel = new();
+    private readonly List<PictureBox> cardBoxes = new();
+    private readonly List<PlayerBox> playerBoxes = new();
+    
+    private readonly Label noPlayersLabel = new();
+    private readonly Label oldTopLabel = new();
     private readonly Label balanceLabel = new();
     private readonly Label bankLabel = new();
     private readonly Label betLabel = new();
-    private readonly ButtonBox buttonPanel = new();
-    private readonly List<PictureBox> cardBoxes = new();
-
-
-    private readonly IClient client;
-    private readonly Label noPlayersLabel = new();
-
-    // labels
-    private readonly Label oldTopLabel = new();
-
-    // Ui elements
-    private readonly List<PlayerBox> playerBoxes = new();
+    private readonly Label scoreLabel = new();
 
     private readonly Timer timer = new();
     private readonly Label topLabel = new();
@@ -54,7 +52,7 @@ public sealed partial class GameTableForm : Form
         BackColor = Color.FromArgb(174, 203, 143);
 
         Size = new Size(1100, 600);
-        MinimumSize = new Size(800, 500);
+        MinimumSize = new Size(1000, 550);
 
         // WindowState = FormWindowState.Maximized;
 
@@ -92,7 +90,6 @@ public sealed partial class GameTableForm : Form
         if (messageHandlers.TryGetValue(message.Type, out var handler)) handler(message);
 
         if (NeededInit(message)) Render();
-
         UpdateLabels();
     }
 
@@ -105,6 +102,18 @@ public sealed partial class GameTableForm : Form
             betLabel.Text = "Bet: " + GameState.GetPlayerInfo(PlayerId).Bet;
 
             foreach (var box in playerBoxes) box.SetLabels();
+
+            if (GameState.Hand.Count > 0)
+            {
+                var scoreOptions = GameState.Hand.GetSum();
+                scoreLabel.Text = "Score: " + scoreOptions[0];
+
+                for (var i = 1; i < scoreOptions.Count; i++) scoreLabel.Text += " or " + scoreOptions[i];
+
+                scoreLabel.Location = scoreLabel.Location with { X = 10 };
+            }
+            else
+                scoreLabel.Text = "";
         });
     }
 
@@ -123,14 +132,17 @@ public sealed partial class GameTableForm : Form
 
     private void AddTurnInfo()
     {
-        oldTopLabel.ForeColor = Color.FromArgb(110, 140, 110);
-        oldTopLabel.AutoSize = true;
-        oldTopLabel.Font = new Font("Arial", 8);
-        oldTopLabel.Location = new Point(Width / 2 - oldTopLabel.Size.Width / 2, 15);
+        oldTopLabel.CheckInvoke(() =>
+        {
+            oldTopLabel.ForeColor = Color.FromArgb(110, 140, 110);
+            oldTopLabel.AutoSize = true;
+            oldTopLabel.Font = new Font("Arial", 8);
+            oldTopLabel.Location = new Point(Width / 2 - oldTopLabel.Size.Width / 2, 15);
 
-        topLabel.AutoSize = true;
-        topLabel.Font = new Font("Arial", 9);
-        topLabel.Location = new Point(Width / 2 - topLabel.Size.Width / 2, 35);
+            topLabel.AutoSize = true;
+            topLabel.Font = new Font("Arial", 9);
+            topLabel.Location = new Point(Width / 2 - topLabel.Size.Width / 2, 35);
+        });
 
         AddControl(oldTopLabel);
         AddControl(topLabel);
@@ -183,6 +195,7 @@ public sealed partial class GameTableForm : Form
         var cardBoxStartY = Height - cardBoxHeight - 80;
 
         foreach (var cardBox in cardBoxes) cardBox.CheckInvoke(() => cardBox.Dispose());
+
         for (var i = 0; i < GameState.Hand.Count; i++)
         {
             var cardBox = new PictureBox();
@@ -195,6 +208,18 @@ public sealed partial class GameTableForm : Form
             AddControl(cardBox);
             cardBoxes.Add(cardBox);
         }
+
+        if (GameState.Hand.Count > 0)
+            scoreLabel.CheckInvoke(() =>
+            {
+                scoreLabel.AutoSize = true;
+                scoreLabel.Font = new Font("Arial", 10);
+                scoreLabel.ForeColor = Color.FromArgb(110, 140, 110);
+
+                scoreLabel.Location = new Point(0, cardBoxStartY - 30);
+
+                AddControl(scoreLabel);
+            });
     }
 
     private void AddPlayerBoxes()
@@ -213,10 +238,15 @@ public sealed partial class GameTableForm : Form
             box.Dispose();
         }
 
-
         for (var i = 0; i < GameState.Players.Count; i++)
         {
-            if (playerBoxes.Any(box => box.Player.Id == GameState.Players[i].Id)) continue;
+            var existingPlayerBox = playerBoxes.FirstOrDefault(box => box.Player.Id == GameState.Players[i].Id);
+            if (existingPlayerBox != null)
+            {
+                existingPlayerBox.Player = GameState.Players[i];
+                existingPlayerBox.SetLabels();
+                continue;
+            }
 
             var player = GameState.Players[i];
             var playerBox = new PlayerBox(player, PlayerId, i, player.Id == PlayerId);

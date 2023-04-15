@@ -17,32 +17,39 @@ public sealed class ButtonBox : Panel
 
     public ButtonBox()
     {
+        var buttonSize = new Size(75, 23);
+
         ContinueButton.Size = new Size(200, 50);
         ContinueButton.Location = new Point(0, 0);
         ContinueButton.Text = "Join Next Round";
 
-        DrawButton.Size = new Size(75, 23);
-        DrawButton.Location = new Point(0, 0);
-        DrawButton.Text = "Draw";
-
-        BetButton.Size = new Size(75, 23);
-        BetButton.Location = new Point(0, 30);
+        BetButton.Size = buttonSize;
+        BetButton.Location = new Point(0, 0);
         BetButton.Text = "Bet";
 
-        BetTextBox.Size = new Size(75, 23);
-        BetTextBox.Location = new Point(80, 30);
+        BetTextBox.Size = buttonSize;
+        BetTextBox.Location = new Point(80, 0);
         BetTextBox.Text = "0";
+        BetTextBox.KeyPress += (sender, args) =>
+        {
+            if (!char.IsControl(args.KeyChar) && !char.IsDigit(args.KeyChar))
+                args.Handled = true;
+        };
 
-        EndTurnButton.Size = new Size(75, 23);
+        DrawButton.Size = buttonSize;
+        DrawButton.Location = new Point(0, 30);
+        DrawButton.Text = "Draw";
+
+        EndTurnButton.Size = buttonSize;
         EndTurnButton.Location = new Point(0, 60);
         EndTurnButton.Text = "End Turn";
 
-        AcceptButton.Size = new Size(75, 23);
-        AcceptButton.Location = new Point(0, 30);
+        AcceptButton.Size = buttonSize;
+        AcceptButton.Location = new Point(0, 0);
         AcceptButton.Text = "Accept";
 
-        DeclineButton.Size = new Size(75, 23);
-        DeclineButton.Location = new Point(0, 60);
+        DeclineButton.Size = buttonSize;
+        DeclineButton.Location = new Point(0, 30);
         DeclineButton.Text = "Decline";
 
         AutoSize = true;
@@ -83,13 +90,19 @@ public sealed class ButtonBox : Panel
             BetTextBox.Show();
         });
     }
-    
+
+    public void NoBet()
+    {
+        DrawButton.CheckInvoke(() =>
+        {
+            DrawButton.Show();
+            EndTurnButton.Show();
+        });
+    }
+
     public void Continue()
     {
-        ContinueButton.CheckInvoke(() =>
-        {
-            ContinueButton.Show();
-        });
+        ContinueButton.CheckInvoke(() => { ContinueButton.Show(); });
     }
 
     public void HideAll()

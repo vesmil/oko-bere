@@ -81,10 +81,10 @@ public partial class Game : IGame
     private void OneRound()
     {
         if (table.Banker is null) throw new Exception("Can not start round without a banker.");
-        
+
         deck.Restart();
         var malaDomu = false;
-        
+
         var gameState = CreateGameState();
         table.NotifyAllPlayers(Notification.Create(NotifEnum.UpdateGameState, gameState));
 
@@ -139,7 +139,7 @@ public partial class Game : IGame
 
         foreach (var player in table.AllPlayers.Where(p => !p.IsBanker)) PlayersTurn(player);
         BankersTurn();
-        
+
         Evaluation();
     }
 
@@ -163,14 +163,27 @@ public partial class Game : IGame
 
         if (bet == 0) return false;
 
+        table.Bank -= bet;
+        duelPlayer.Balance -= bet;
+        duelPlayer.Bet = bet;
+
+        table.NotifyAllPlayers(Notification.Create(NotifEnum.UpdateGameState, CreateGameState()));
+
         Duel(duelPlayer);
         return true;
     }
 
     private void Duel(PlayerBase duelPlayer)
     {
+        DrawCard(duelPlayer);
+        DrawCard(table.Banker!);
+
         PlayersTurn(duelPlayer, true);
-        PlayersTurn(table.Banker!, true);
+        
+        if (!duelPlayer.Hand.IsInstantWin() && !duelPlayer.Hand.IsBust())
+            PlayersTurn(table.Banker!, true);
+        
+        Evaluation();
     }
 
     private void PlayersTurn(PlayerBase player, bool noBet = false)
@@ -181,7 +194,6 @@ public partial class Game : IGame
                 ? Notification.Create(NotifEnum.AskTurnNoBet)
                 : Notification.Create(NotifEnum.AskTurn));
 
-            player.Notify(Notification.Create(NotifEnum.AskTurn));
             var decision = player.GetResponse<TurnDecision>().Data;
 
             switch (decision)
@@ -251,7 +263,7 @@ public partial class Game : IGame
             table.Banker!.Hand.Add(card);
 
             table.Banker.Notify(Notification.Create(NotifEnum.ReceivedCard, card));
-            table.NotifyAllExcept(table.Banker, Notification.Create(NotifEnum.OtherReceivesCard, table.Banker));
+            table.NotifyAllExcept(table.Banker, Notification.Create(NotifEnum.OtherReceivesCard, table.Banker.Id));
 
             if (table.Banker.Hand.IsBust()) return;
             if (table.Banker.Hand.IsExchangeable()) ExchangeCards(table.Banker);
@@ -284,14 +296,14 @@ public partial class Game : IGame
     private void Evaluation()
     {
         foreach (var player in table.AllPlayers.Where(player =>
-                     player.Hand.GetBestValue() > table.Banker!.Hand.GetBestValue()))
+                     player.Hand.GetBestValue() > table.Banker!.Hand.GetBestValue() && !player.Hand.IsBust()))
         {
             player.Balance += 2 * player.Bet;
             player.Bet = 0;
             player.Notify(Notification.Create(NotifEnum.Won));
         }
 
-        table.Bank += table.AllPlayers.Sum(player => player.Bet);
+        table.Bank += 2 * table.AllPlayers.Sum(player => player.Bet);
         table.AllPlayers.ForEach(player => player.Bet = 0);
 
         // NOTE might be better to notify players about their balance change

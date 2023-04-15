@@ -4,15 +4,13 @@ namespace OkoClient.Forms;
 
 public sealed class PlayerBox : GroupBox
 {
-    public PlayerInfo Player { get; }
-    private readonly bool isYou;
-
     private readonly Label balancePlayerLabel = new();
     private readonly Label betPlayerLabel = new();
     private readonly Label cardCountLabel = new();
+    private readonly bool isYou;
 
     public readonly Button SelectButton = new();
-    
+
     public PlayerBox(PlayerInfo player, Guid playerId, int i, bool isYou = false)
     {
         Player = player;
@@ -51,14 +49,27 @@ public sealed class PlayerBox : GroupBox
 
         SetLabels();
     }
-    
+
+    public PlayerInfo Player { get; set; }
+
     public void SetLabels()
     {
-        Text = $"{Player.Name} {(isYou ? "(You)" : "")}" +
-               $"\n{(Player.IsBanker ? "Banker" : "Player")}";
-        
-        cardCountLabel.Text = $"Cards: {Player.CardCount}";
-        balancePlayerLabel.Text = $"Balance: {Player.Balance}";
-        betPlayerLabel.Text = $"Bet: {Player.Bet}";
+        this.CheckInvoke(() =>
+        {
+            Text = $"{Player.Name} {(isYou ? "(You)" : "")}" +
+                   $"\n{(Player.IsBanker ? "Banker" : "Player")}";
+
+            cardCountLabel.Text = $"Cards: {Player.CardCount}";
+            if (!Player.IsBanker)
+            {
+                balancePlayerLabel.Text = $"Balance: {Player.Balance}";
+                betPlayerLabel.Text = $"Bet: {Player.Bet}";
+            }
+            else
+            {
+                balancePlayerLabel.Text = "";
+                betPlayerLabel.Text = "";
+            }
+        });
     }
 }

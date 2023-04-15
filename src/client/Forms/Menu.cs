@@ -10,7 +10,7 @@ public partial class Menu : Form
         InitializeComponent();
         BackColor = Color.FromArgb(181, 203, 141);
 
-        
+
         var connectButton = UiCommon.InitializeMenuButton("Connect to Server", 0, Width, ConnectButton_Click!);
         Controls.Add(connectButton);
 

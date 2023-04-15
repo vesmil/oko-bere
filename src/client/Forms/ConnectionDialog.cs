@@ -25,7 +25,7 @@ public partial class ConnectionDialog : Form
         serverPortTextBox.Size = new Size(200, 30);
         serverPortTextBox.Location = new Point((Width - serverPortTextBox.Width) / 2, 40);
         Controls.Add(serverPortTextBox);
-        
+
         playerNameTextBox = new TextBox();
         playerNameTextBox.Size = new Size(200, 30);
         playerNameTextBox.Location = new Point((Width - playerNameTextBox.Width) / 2, 70);
@@ -75,7 +75,7 @@ public static class WinformExtensions
                 textBox.SelectionLength = 0;
                 return;
             }
-            
+
             if (textBox.Text == text)
             {
                 textBox.Text = "";
@@ -93,7 +93,7 @@ public static class WinformExtensions
             }
         };
 
-        
+
         textBox.LostFocus += (_, _) =>
         {
             if (textBox.Text == "")
@@ -103,5 +103,4 @@ public static class WinformExtensions
             }
         };
     }
-
 }

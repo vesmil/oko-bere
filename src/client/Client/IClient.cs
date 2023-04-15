@@ -7,7 +7,7 @@ public interface IClient
 {
     public GameState GameState { get; }
     public Guid PlayerId { get; }
-    
+
     /// <summary>
     ///     Main loop that receive messages from server
     /// </summary>
