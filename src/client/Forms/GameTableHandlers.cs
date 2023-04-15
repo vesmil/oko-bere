@@ -25,9 +25,10 @@ public sealed partial class GameTableForm
         messageHandlers.Add(NotifEnum.AskDuel, HandleDuelOffer);
         messageHandlers.Add(NotifEnum.AskTurnNoBet, HandleDuelAskNextCard);
         messageHandlers.Add(NotifEnum.AskContinue, HandleAskForContinue);
-
         messageHandlers.Add(NotifEnum.NotEnoughPlayers, HandleNotEnoughPlayers);
         messageHandlers.Add(NotifEnum.EndOfGame, HandleEndOfGame);
+        // messageHandlers.Add(NotifEnum.Won, HandleWon);
+        // messageHandlers.Add(NotifEnum.Lost, HandleLost);
     }
 
     private void HandleNewBanker(MessageReceivedEventArgs msg)

@@ -50,13 +50,13 @@ public static class UiCommon
 
     private static Dictionary<Card, Image> Images { get; } = new();
 
-    public static Button InitializeMenuButton(string text, int position, EventHandler clickEvent)
+    public static Button InitializeMenuButton(string text, int position, int parentWidth, EventHandler clickEvent)
     {
         var button = new Button();
 
         button.Anchor = AnchorStyles.None;
         button.Size = new Size(200, 50);
-        button.Location = new Point(20, 20 + position * 60);
+        button.Location = new Point((parentWidth - button.Width) / 2, 50 + position * 60);
 
         button.BackColor = UiColor;
         button.FlatAppearance.MouseOverBackColor = UiOverColor;

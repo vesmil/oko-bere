@@ -1,3 +1,5 @@
+using OkoClient.Forms;
+
 namespace OkoClient;
 
 internal static class Program
@@ -6,9 +8,13 @@ internal static class Program
     ///     The main entry point for the application.
     /// </summary>
     [STAThread]
-    public static void Main()
+    public static void Main(string[] args)
     {
         ApplicationConfiguration.Initialize();
-        Application.Run(new TestTables()); // in-final will run Menu instead of test tables
+
+        if (args.Length > 0 && (args[0] == "--test" || args[0] == "-t"))
+            Application.Run(new TestTables());
+        else
+            Application.Run(new Menu());
     }
 }

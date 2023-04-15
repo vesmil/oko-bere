@@ -10,14 +10,15 @@ public partial class Menu : Form
         InitializeComponent();
         BackColor = Color.FromArgb(181, 203, 141);
 
-        var connectButton = UiCommon.InitializeMenuButton("Connect to Server", 0, ConnectButton_Click!);
+        
+        var connectButton = UiCommon.InitializeMenuButton("Connect to Server", 0, Width, ConnectButton_Click!);
         Controls.Add(connectButton);
 
-        var exitButton = UiCommon.InitializeMenuButton("Exit", 1, ExitButton_Click!);
+        var exitButton = UiCommon.InitializeMenuButton("Exit", 1, Width, ExitButton_Click!);
         Controls.Add(exitButton);
     }
 
-    private void ConnectButton_Click(object sender, EventArgs e)
+    private static void ConnectButton_Click(object sender, EventArgs e)
     {
         var connectionDialog = new ConnectionDialog();
 
@@ -30,12 +31,7 @@ public partial class Menu : Form
         }
     }
 
-    private void ExitButton_Click(object sender, EventArgs e)
-    {
-        Close();
-    }
-
-    private void ConnectToServer(string serverIp, string playerName)
+    private static void ConnectToServer(string serverIp, string playerName)
     {
         var ipAndPort = serverIp.Split(':');
 
@@ -61,5 +57,10 @@ public partial class Menu : Form
         var gameTableForm = new GameTableForm(client);
 
         gameTableForm.Show();
+    }
+
+    private void ExitButton_Click(object sender, EventArgs e)
+    {
+        Close();
     }
 }

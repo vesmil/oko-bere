@@ -1,5 +1,8 @@
 namespace OkoClient.Forms;
 
+/// <summary>
+///     Panel containing all buttons with simple methods for showing/hiding them.
+/// </summary>
 public sealed class ButtonBox : Panel
 {
     public readonly Button AcceptButton = new();
@@ -78,6 +81,14 @@ public sealed class ButtonBox : Panel
             AcceptButton.Show();
             DeclineButton.Show();
             BetTextBox.Show();
+        });
+    }
+    
+    public void Continue()
+    {
+        ContinueButton.CheckInvoke(() =>
+        {
+            ContinueButton.Show();
         });
     }
 

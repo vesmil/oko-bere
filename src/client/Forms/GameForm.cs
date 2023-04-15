@@ -219,7 +219,7 @@ public sealed partial class GameTableForm : Form
             if (playerBoxes.Any(box => box.Player.Id == GameState.Players[i].Id)) continue;
 
             var player = GameState.Players[i];
-            var playerBox = new PlayerBox(player, PlayerId, i);
+            var playerBox = new PlayerBox(player, PlayerId, i, player.Id == PlayerId);
             playerBox.SelectButton.Click += (_, _) => SelectCutPlayer(player.Id);
 
             AddControl(playerBox);

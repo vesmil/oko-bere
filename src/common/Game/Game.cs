@@ -81,10 +81,12 @@ public partial class Game : IGame
     private void OneRound()
     {
         if (table.Banker is null) throw new Exception("Can not start round without a banker.");
-
+        
         deck.Restart();
-
         var malaDomu = false;
+        
+        var gameState = CreateGameState();
+        table.NotifyAllPlayers(Notification.Create(NotifEnum.UpdateGameState, gameState));
 
         if (table.InitialBank * 2 <= table.Bank)
         {
@@ -135,8 +137,9 @@ public partial class Game : IGame
             return;
         }
 
-        foreach (var player in table.AllPlayers) PlayersTurn(player);
+        foreach (var player in table.AllPlayers.Where(p => !p.IsBanker)) PlayersTurn(player);
         BankersTurn();
+        
         Evaluation();
     }
 

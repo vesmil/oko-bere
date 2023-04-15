@@ -23,6 +23,7 @@ public enum NotifEnum
     ReceivedCard,
     Bust,
     Won,
+    Lost,
 
     OtherReceivesCard,
     OtherExchanged,

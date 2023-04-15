@@ -24,20 +24,14 @@ public class TcpClient : IClient
     public Guid PlayerId { get; init; }
 
     public event EventHandler<MessageReceivedEventArgs>? MessageReceived;
-
-    /// <summary>
-    ///     Main loop to receive messages from server
-    /// </summary>
+    
     public void PlayerLoop()
     {
-        // NOTE might create some basic abstruct structure for this
         while (true)
         {
             var update = transfer.Receive<INotification<object>>();
-
             Debug.WriteLine(NamePreset + " - " + update.Type);
 
-            // Note might add try catch here
             switch (update.Type)
             {
                 case NotifEnum.NewPlayer:
@@ -104,15 +98,10 @@ public class TcpClient : IClient
         transfer.Send(new Response<bool> { Data = decision });
     }
 
-    public void Turn(TurnDecision decision)
+    public void Turn(TurnDecision decision, int value)
     {
         transfer.Send(new Response<TurnDecision> { Data = decision });
-    }
-
-    public void Turn(TurnDecision decision, int bet)
-    {
-        transfer.Send(new Response<TurnDecision> { Data = decision });
-        transfer.Send(new Response<int> { Data = bet });
+        if (value != 0) transfer.Send(new Response<int> { Data = value });
     }
 
     public void Duel(int bet = 0)
