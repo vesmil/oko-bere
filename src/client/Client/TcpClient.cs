@@ -94,6 +94,18 @@ public class TcpClient : IClient
     {
         transfer.Send(new Response<Guid> { Data = playerId });
     }
+    
+    /// <inheritdoc />
+    public void Exchange(bool decision)
+    {
+        transfer.Send(new Response<bool> { Data = decision });
+    }
+    
+    /// <inheritdoc />
+    public void MalaDomu(bool decision)
+    {
+        transfer.Send(new Response<bool> { Data = decision });
+    }
 
     /// <summary>
     ///     Changes regarding the client itself
@@ -130,10 +142,6 @@ public class TcpClient : IClient
 
             case NotifEnum.OtherReceivesCard:
                 IncrementOtherPlayerCardCount(update);
-                break;
-
-            case NotifEnum.OtherExchanged:
-                SetOtherPlayerCardCountToOne(update);
                 break;
         }
     }
@@ -182,12 +190,6 @@ public class TcpClient : IClient
     private void IncrementOtherPlayerCardCount(INotification<object> update)
     {
         GameState.GetPlayerInfo(GetData<Guid>(update)).CardCount++;
-    }
-
-    private void SetOtherPlayerCardCountToOne(INotification<object> update)
-    {
-        var playerId = GetData<Guid>(update);
-        GameState.GetPlayerInfo(playerId).CardCount = 1;
     }
 
     private T GetData<T>(INotification<object> update)

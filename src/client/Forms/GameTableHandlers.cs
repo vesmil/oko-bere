@@ -5,10 +5,12 @@ using OkoCommon.Game;
 
 namespace OkoClient.Forms;
 
+// I don't like this design, but I couldn't find a better way to do it.
+
 public sealed partial class GameTableForm
 {
     private readonly Dictionary<NotifEnum, Action<MessageReceivedEventArgs>> messageHandlers = new();
-
+    
     private void InitializeHandlers()
     {
         messageHandlers.Add(NotifEnum.NewBanker, HandleNewBanker);
@@ -45,12 +47,14 @@ public sealed partial class GameTableForm
 
     private void HandleAskMalaDomu(MessageReceivedEventArgs obj)
     {
-        // TODO show dialog
+        SetTurnInfo("Would you like to call Mala domu?");
+        buttonPanel.MalaDomu();
     }
 
     private void HandleAskForExchange(MessageReceivedEventArgs obj)
     {
-        // TODO show dialog
+        SetTurnInfo("Would you like to exchange cards?");
+        buttonPanel.Exchange();
     }
 
     private void HandleNewBanker(MessageReceivedEventArgs msg)
@@ -87,7 +91,7 @@ public sealed partial class GameTableForm
 
     private void HandleMalaDomuCalled(MessageReceivedEventArgs _)
     {
-        SetTurnInfo("Banker called \"Mala domu\"!");
+        SetTurnInfo("Banker called Mala domu!");
     }
 
     private void HandleMalaDomuSuccess(MessageReceivedEventArgs _)
@@ -201,6 +205,31 @@ public sealed partial class GameTableForm
     private void EndTurnButtonClick(object sender, EventArgs e)
     {
         client.Turn(TurnDecision.Stop);
+        buttonPanel.HideAll();
+    }
+
+    private void ExchangeButtonClick(object? sender, EventArgs e)
+    {
+        client.Exchange(true);
+        buttonPanel.HideAll();
+    }
+
+    private void DeclineExchangeButtonClick(object? sender, EventArgs e)
+    {
+        client.Exchange(false);
+        buttonPanel.HideAll();
+        
+    }
+
+    private void MalaDomuButtonClick(object? sender, EventArgs e)
+    {
+        client.MalaDomu(true);
+        buttonPanel.HideAll();   
+    }
+
+    private void DeclineMalaDomuButtonClick(object? sender, EventArgs e)
+    {
+        client.MalaDomu(false);
         buttonPanel.HideAll();
     }
 }

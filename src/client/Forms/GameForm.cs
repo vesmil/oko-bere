@@ -260,7 +260,7 @@ public sealed partial class GameTableForm : Form
             }
 
             var player = GameState.Players[i];
-            var playerBox = new PlayerBox(player, PlayerId, i, player.Id == PlayerId);
+            var playerBox = new PlayerBox(player, i, player.Id == PlayerId);
             playerBox.SelectButton.Click += (_, _) => SelectCutPlayer(player.Id);
 
             AddControl(playerBox);
@@ -285,6 +285,10 @@ public sealed partial class GameTableForm : Form
         buttonPanel.EndTurnButton.Click += EndTurnButtonClick!;
         buttonPanel.AcceptButton.Click += (_, _) => RespondToDuel();
         buttonPanel.DeclineButton.Click += (_, _) => DeclineDuel();
+        buttonPanel.ExchangeButton.Click += ExchangeButtonClick;
+        buttonPanel.DeclineExchangeButton.Click += DeclineExchangeButtonClick!;
+        buttonPanel.MalaDomuButton.Click += MalaDomuButtonClick;
+        buttonPanel.DeclineMalaDomuButton .Click += DeclineMalaDomuButtonClick;
 
         AddControl(buttonPanel);
     }
@@ -297,7 +301,11 @@ public sealed partial class GameTableForm : Form
     private void ShowContinueButton()
     {
         timerMessage = "Confirm to continue in ";
-        buttonPanel.ContinueButton.Show();
+        
+        buttonPanel.CheckInvoke(() =>
+        {
+            buttonPanel.ContinueButton.Show();
+        });
 
         timeLeft = MaxTime;
 

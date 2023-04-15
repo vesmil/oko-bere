@@ -11,7 +11,7 @@ public sealed class PlayerBox : GroupBox
 
     public readonly Button SelectButton = new();
 
-    public PlayerBox(PlayerInfo player, Guid playerId, int i, bool isYou = false)
+    public PlayerBox(PlayerInfo player, int i, bool isYou = false)
     {
         Player = player;
         this.isYou = isYou;
@@ -36,8 +36,6 @@ public sealed class PlayerBox : GroupBox
             betPlayerLabel.Location = new Point(10, 100);
             Controls.Add(betPlayerLabel);
         }
-        else
-            BackColor = Color.FromArgb(64, 255, 255, 128);
 
         SelectButton.Size = new Size(75, 40);
         SelectButton.Location = new Point(Size.Width - SelectButton.Size.Width - 10,

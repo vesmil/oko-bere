@@ -54,6 +54,18 @@ public interface IClient
     public void CutPlayer(Guid playerId);
 
     /// <summary>
+    ///     Player's decision whether to exchange cards.
+    /// </summary>
+    /// <param name="decision"></param>
+    void Exchange(bool decision);
+    
+    /// <summary>
+    ///     Player's decision whether to call Mala Domu.
+    /// </summary>
+    /// <param name="decision"></param>
+    void MalaDomu(bool decision);
+
+    /// <summary>
     ///     Event that is raised when the client receives a message from the server.
     /// </summary>
     public event EventHandler<MessageReceivedEventArgs>? MessageReceived;

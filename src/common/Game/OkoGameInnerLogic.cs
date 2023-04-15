@@ -77,6 +77,8 @@ public partial class OkoGame
     {
         while (true)
         {
+            TryExchangeCards(player);
+            
             player.Notify(noBet
                 ? Notification.Create(NotifEnum.AskTurnNoBet)
                 : Notification.Create(NotifEnum.AskTurn));
@@ -111,8 +113,6 @@ public partial class OkoGame
                 table.NotifyAllExcept(player, Notification.Create(NotifEnum.OtherBusts, player.Name));
                 return;
             }
-
-            TryExchangeCards(player);
         }
     }
 
@@ -130,7 +130,7 @@ public partial class OkoGame
         player.Balance -= bet;
         table.Bank -= bet;
 
-        player.Notify(Notification.Create(NotifEnum.UpdateGameState, CreateGameState(player)));
+        UpdateGameStateForAll();
 
         return true;
     }
@@ -145,6 +145,8 @@ public partial class OkoGame
 
         while (true)
         {
+            TryExchangeCards(table.Banker);
+
             table.Banker.Notify(Notification.Create(NotifEnum.AskTurnNoBet));
             var decision = table.Banker.GetResponse<TurnDecision>().Data;
 
@@ -157,7 +159,6 @@ public partial class OkoGame
             table.NotifyAllExcept(table.Banker, Notification.Create(NotifEnum.OtherReceivesCard, table.Banker.Id));
 
             if (table.Banker.Hand.IsBust()) return;
-            TryExchangeCards(table.Banker);
         }
     }
 
@@ -188,8 +189,7 @@ public partial class OkoGame
         var newCard = deck.Draw();
         player.Hand.Add(newCard);
 
-        player.Notify(Notification.Create(NotifEnum.ReceivedCard, newCard));
-        table.NotifyAllExcept(player, Notification.Create(NotifEnum.OtherExchanged, player));
+        UpdateGameStateForAll();
     }
 
     /// <summary>
@@ -241,7 +241,8 @@ public partial class OkoGame
 
                 player.Notify(Notification.Create(NotifEnum.Won));
             }
-            else if (player.Id != table.Banker.Id) player.Notify(Notification.Create(NotifEnum.Lost));
+            else if (player.Id != table.Banker.Id && !player.Hand.IsBust()) // busted has been handled already
+                player.Notify(Notification.Create(NotifEnum.Lost));
         }
     }
 

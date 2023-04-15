@@ -94,8 +94,7 @@ public partial class OkoGame
         {
             foreach (var player in AllPlayers) player.Bet = 0;
         }
-
-
+        
         public bool AskForContinue()
         {
             NotifyAllPlayers(Notification.Create(NotifEnum.AskContinue));

@@ -28,7 +28,6 @@ public enum NotifEnum
     Lost,
 
     OtherReceivesCard,
-    OtherExchanged,
     OtherBusts,
     OtherWins,
     OtherLost,
