@@ -19,7 +19,6 @@ public interface IObjectTransfer : IDisposable
 public class JsonTcpTransfer : IObjectTransfer
 {
     private readonly TcpClient client;
-    private string lastJson = "";
 
     private readonly JsonSerializerSettings settings = new()
     {
@@ -28,6 +27,7 @@ public class JsonTcpTransfer : IObjectTransfer
     };
 
     private readonly NetworkStream stream;
+    private string lastJson = "";
 
     private string prevJson = "";
 
@@ -56,7 +56,7 @@ public class JsonTcpTransfer : IObjectTransfer
 
         var json = JsonConvert.SerializeObject(obj, settings);
         lastJson = json;
-        
+
         var jsonBytes = Encoding.UTF8.GetBytes(json);
         stream.Write(jsonBytes, 0, jsonBytes.Length);
     }
@@ -72,13 +72,13 @@ public class JsonTcpTransfer : IObjectTransfer
 
             var ms = new MemoryStream();
             var buffer = new byte[1024];
-            
+
             do
             {
                 var bytesRead = stream.Read(buffer, 0, buffer.Length);
                 ms.Write(buffer, 0, bytesRead);
             } while (stream.DataAvailable);
-            
+
             /* NOTE timeout version
              
             var timeoutMilliseconds = 0;

@@ -48,7 +48,7 @@ public enum NotifEnum
     AskContinue,
     Continue,
     NotEnoughPlayers,
-    EndOfGame,
+    EndOfGame
 }
 
 /// <summary>

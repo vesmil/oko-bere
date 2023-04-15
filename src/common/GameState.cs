@@ -2,11 +2,13 @@
 
 namespace OkoCommon;
 
+/// <summary>
+///     Class defining the state of the game from the perspective of a player.
+/// </summary>
 public class GameState
 {
     public int Bank;
     public List<Card> Hand;
-
     public List<PlayerInfo> Players;
 
     public GameState()
@@ -31,6 +33,9 @@ public class GameState
     }
 }
 
+/// <summary>
+///     Public information about a player.
+/// </summary>
 public class PlayerInfo
 {
     public int Balance;

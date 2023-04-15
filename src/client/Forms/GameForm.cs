@@ -130,7 +130,7 @@ public sealed partial class GameTableForm : Form
                 scoreLabel.Text = "";
         });
     }
-    
+
     private void SetTurnInfo(string text)
     {
         topLabel.CheckInvoke(() =>

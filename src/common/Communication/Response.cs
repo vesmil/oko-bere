@@ -11,7 +11,7 @@ public enum TurnDecision : byte
 }
 
 /// <summary>
-/// Generic interface for responses to requests from the client.
+///     Generic interface for responses to requests from the client.
 /// </summary>
 /// <typeparam name="T"></typeparam>
 public interface IResponse<out T>

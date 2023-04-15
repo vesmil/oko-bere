@@ -135,9 +135,6 @@ public class TcpClient : IClient
             case NotifEnum.OtherExchanged:
                 SetOtherPlayerCardCountToOne(update);
                 break;
-
-            default:
-                throw new InvalidOperationException($"Unhandled notification type: {update.Type}");
         }
     }
 

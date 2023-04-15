@@ -27,7 +27,7 @@ public partial class OkoGame
         ///     The players that are not the banker.
         /// </summary>
         public IEnumerable<PlayerBase> Players => AllPlayers.Where(p => !p.IsBanker);
-        
+
         private IEnumerable<PlayerBase> AllExcept(PlayerBase player)
         {
             return AllPlayers.Where(p => p != player);

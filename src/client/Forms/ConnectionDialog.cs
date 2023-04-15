@@ -65,22 +65,20 @@ public partial class ConnectionDialog : Form
         }
 
         if (int.TryParse(serverPortTextBox.Text, out var port))
-        {
             ServerPort = port;
-        }
         else
         {
             MessageBox.Show("Invalid port");
             return;
         }
-        
+
         PlayerName = playerNameTextBox.Text;
         if (PlayerName == "")
         {
             MessageBox.Show("Invalid player name");
             return;
         }
-        
+
         DialogResult = DialogResult.OK;
 
         Close();
