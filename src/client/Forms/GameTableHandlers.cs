@@ -87,21 +87,13 @@ public sealed partial class GameTableForm
     private void HandleChooseCutPlayer(MessageReceivedEventArgs _)
     {
         SetTurnInfo("Choose the player to cut the deck");
-        
-        foreach (var playerBox in playerBoxes)
+
+        foreach (var playerBox in playerBoxes.Where(playerBox => playerBox.Player.Id != client.PlayerId))
         {
-            if (playerBox.Tag is Guid playerId)
+            playerBox.SelectButton.CheckInvoke(() =>
             {
-                if (playerId == client.PlayerId)
-                    continue;
-                
-                var button = playerBox.Controls.OfType<Button>().FirstOrDefault();
-                button?.CheckInvoke(() =>
-                {
-                    // TODO why it doesn't show
-                    button.Show();
-                });
-            } 
+                playerBox.SelectButton.Show();
+            });
         }
     }
     
@@ -140,7 +132,7 @@ public sealed partial class GameTableForm
 
     private void HandleDuelOffer(MessageReceivedEventArgs _)
     {
-        SetTurnInfo("Would you like to duel?");
+        SetTurnInfo(topLabel.Text + "\nWould you like to duel?");
 
         buttonPanel.Controls.Clear();
 

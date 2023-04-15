@@ -148,6 +148,7 @@ public partial class Game : IGame
 
         var index = table.AllPlayers.IndexOf(cutPlayer);
         var duelPlayer = table.AllPlayers[(index + 1) % table.AllPlayers.Count];
+        if (duelPlayer == table.Banker) duelPlayer = table.AllPlayers[(index + 2) % table.AllPlayers.Count];
 
         Debug.WriteLine($"Cutting by {cutPlayer.Name} and duel by {duelPlayer.Name}");
         cutPlayer.Notify(Notification.Create(NotifEnum.AskChooseCutPosition));

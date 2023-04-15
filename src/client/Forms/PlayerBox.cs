@@ -10,6 +10,7 @@ public sealed class PlayerBox : GroupBox
         
     public readonly Button SelectButton = new ();
     private readonly PlayerInfo player;
+    public PlayerInfo Player => player;
 
     public PlayerBox(PlayerInfo player, Guid playerId, int i)
     {
@@ -20,9 +21,7 @@ public sealed class PlayerBox : GroupBox
             
         Text = $"{player.Name} {(player.Id == playerId? "(You)" : "")}" +
                $"\n{(player.IsBanker ? "Banker" : "Player")}";
-
-        Tag = player.Id;
-            
+        
         cardCountLabel.AutoSize = true;
         cardCountLabel.Location = new Point(10, 40);
         Controls.Add(cardCountLabel);

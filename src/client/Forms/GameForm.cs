@@ -22,12 +22,13 @@ public sealed partial class GameTableForm : Form
     private readonly Button betButton = new();
     private readonly Label betLabel = new();
     private readonly TextBox betTextBox = new();
-    private readonly Panel buttonPanel = new();
-
+    
     private readonly List<PictureBox> cardBoxes = new();
 
+    
     private readonly Button continueButton = new();
-
+    
+    private readonly Panel buttonPanel = new();
     private readonly Button drawButton = new();
     private readonly Button endTurnButton = new();
     private readonly Label noPlayersLabel = new();
@@ -44,7 +45,7 @@ public sealed partial class GameTableForm : Form
         InitializeComponent();
         InitializeHandlers();
         
-        // in-final WindowState = FormWindowState.Maximized;
+        WindowState = FormWindowState.Maximized;
 
         this.client = client;
         this.client.MessageReceived += OnMessageReceived;
@@ -133,23 +134,26 @@ public sealed partial class GameTableForm : Form
     {
         var labelFont = new Font("Arial", 12, FontStyle.Bold);
 
-        bankLabel.AutoSize = true;
-        bankLabel.Location = new Point(30, 250);
-        bankLabel.Font = labelFont;
-        bankLabel.Text = "Bank: " + GameState.Bank;
-        AddControl(bankLabel);
+        balanceLabel.CheckInvoke(() =>
+        {
+            bankLabel.AutoSize = true;
+            bankLabel.Location = new Point(30, 250);
+            bankLabel.Font = labelFont;
+            bankLabel.Text = "Bank: " + GameState.Bank;
+            AddControl(bankLabel);
 
-        betLabel.AutoSize = true;
-        betLabel.Location = new Point(30, 290);
-        betLabel.Font = labelFont;
-        betLabel.Text = "Bet: " + 0;
-        AddControl(betLabel);
+            betLabel.AutoSize = true;
+            betLabel.Location = new Point(30, 290);
+            betLabel.Font = labelFont;
+            betLabel.Text = "Bet: " + 0;
+            AddControl(betLabel);
 
-        balanceLabel.AutoSize = true;
-        balanceLabel.Location = new Point(30, 330);
-        balanceLabel.Font = labelFont;
-        balanceLabel.Text = "Balance: " + 0;
-        AddControl(balanceLabel);
+            balanceLabel.AutoSize = true;
+            balanceLabel.Location = new Point(30, 330);
+            balanceLabel.Font = labelFont;
+            balanceLabel.Text = "Balance: " + 0;
+            AddControl(balanceLabel);
+        });
     }
     
     private void AddCardBoxes()
@@ -181,34 +185,39 @@ public sealed partial class GameTableForm : Form
     {
         if (GameState.Players.Count == 0)
         {
-            noPlayersLabel.Visible = true;
-            noPlayersLabel.AutoSize = true;
-            noPlayersLabel.Location = new Point(30, 70);
-            noPlayersLabel.Text = "No players yet";
-            AddControl(noPlayersLabel);
+            RenderNoPlayers();
             return;
         }
         
         noPlayersLabel.CheckInvoke(() => noPlayersLabel.Visible = false);
         
-        if (playerBoxes.Count > 0)
+        foreach (var box in playerBoxes.Where(box => GameState.Players.All(p => p.Id != box.Player.Id)))
         {
-            playerBoxes[0].CheckInvoke(() =>
-            {
-                foreach (var playerBox in playerBoxes) playerBox.Dispose();
-                playerBoxes.Clear();
-            });
+            RemoveControl(box);
+            box.Dispose();
         }
+
 
         for (var i = 0; i < GameState.Players.Count; i++)
         {
+            if (playerBoxes.Any(box => box.Player.Id == GameState.Players[i].Id)) continue;
+            
             var player = GameState.Players[i];
             var playerBox = new PlayerBox(player, PlayerId, i);
-            AddControl(playerBox);
             playerBox.SelectButton.Click += (_, _) => SelectCutPlayer(player.Id);
 
+            AddControl(playerBox);
             playerBoxes.Add(playerBox);
         }
+    }
+
+    private void RenderNoPlayers()
+    {
+        noPlayersLabel.Visible = true;
+        noPlayersLabel.AutoSize = true;
+        noPlayersLabel.Location = new Point(30, 70);
+        noPlayersLabel.Text = "No players yet";
+        AddControl(noPlayersLabel);
     }
 
     private void RefreshPlayerLabels()
@@ -351,5 +360,16 @@ public sealed partial class GameTableForm : Form
     {
         // Place a bet of the specified amount
         betLabel.Text = $"Bet: ${amount}";
+    }
+}
+
+public class ButtonBox : Panel
+{
+    public ButtonBox()
+    {
+        Size = new Size(75, 23);
+        Location = new Point(0, 0);
+        
+        // TODO ...
     }
 }
