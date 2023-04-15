@@ -13,15 +13,16 @@ public interface IObjectTransfer : IDisposable
 public class JsonTcpTransfer : IObjectTransfer
 {
     private readonly TcpClient client;
-    private readonly NetworkStream stream;
-
-    private string prevJson = "";
 
     private readonly JsonSerializerSettings settings = new()
     {
         TypeNameHandling = TypeNameHandling.All,
         TypeNameAssemblyFormatHandling = TypeNameAssemblyFormatHandling.Full
     };
+
+    private readonly NetworkStream stream;
+
+    private string prevJson = "";
 
     public JsonTcpTransfer(string ip, int port)
     {
@@ -55,7 +56,7 @@ public class JsonTcpTransfer : IObjectTransfer
     public T Receive<T>()
     {
         string json;
-        
+
         if (prevJson.Length == 0)
         {
             if (stream == null)
@@ -81,7 +82,7 @@ public class JsonTcpTransfer : IObjectTransfer
             json = prevJson;
             prevJson = "";
         }
-        
+
         var jsons = json.Split("}{");
 
         // Handle multiple objects in one messagei

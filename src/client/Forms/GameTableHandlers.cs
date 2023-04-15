@@ -30,7 +30,7 @@ public sealed partial class GameTableForm
         messageHandlers.Add(NotifEnum.NotEnoughPlayers, HandleNotEnoughPlayers);
         messageHandlers.Add(NotifEnum.EndOfGame, HandleEndOfGame);
     }
-    
+
     private void HandleNewBanker(MessageReceivedEventArgs msg)
     {
         if (msg.Data is PlayerInfo playerInfo)
@@ -46,14 +46,14 @@ public sealed partial class GameTableForm
     {
         SetTurnInfo("Game started!");
     }
-    
+
     private void HandleAskInitialBank(MessageReceivedEventArgs obj)
     {
         SetTurnInfo("Set the initial bank, please");
-        
+
         // TODO get initial bank
-        
-        client.BankSet(100);    
+
+        client.BankSet(100);
     }
 
 
@@ -89,25 +89,15 @@ public sealed partial class GameTableForm
         SetTurnInfo("Choose the player to cut the deck");
 
         foreach (var playerBox in playerBoxes.Where(playerBox => playerBox.Player.Id != client.PlayerId))
-        {
-            playerBox.SelectButton.CheckInvoke(() =>
-            {
-                playerBox.SelectButton.Show();
-            });
-        }
+            playerBox.SelectButton.CheckInvoke(() => { playerBox.SelectButton.Show(); });
     }
-    
+
     private void SelectCutPlayer(Guid id)
     {
         client.CutPlayer(id);
 
         foreach (var button in playerBoxes.Select(box => box.Controls.OfType<Button>().FirstOrDefault()))
-        {
-            button?.CheckInvoke(() =>
-            {
-                button.Hide();
-            });
-        }
+            button?.CheckInvoke(() => { button.Hide(); });
     }
 
     private void HandleChooseCutPosition(MessageReceivedEventArgs _)
@@ -120,45 +110,31 @@ public sealed partial class GameTableForm
     private void HandleSeeCutCard(MessageReceivedEventArgs message)
     {
         if (message.Data is Card card)
-        {
             SetTurnInfo($"The cut card is {card}");
-        }
         else
-        {
             SetTurnInfo("The cut card is unknown - something went wrong");
-        }
     }
 
 
     private void HandleDuelOffer(MessageReceivedEventArgs _)
     {
         SetTurnInfo(topLabel.Text + "\nWould you like to duel?");
+        buttonPanel.Duel();
 
-        buttonPanel.Controls.Clear();
-
-        // ...
-        var acceptButton = new Button
-        {
-            Text = "Accept",
-        };
-        
-        acceptButton.Click += (_, _) => RespondToDuel(100);
-
-        var declineButton = new Button
-        {
-            Text = "Decline",
-        };
-        
-        declineButton.Click += (_, _) => RespondToDuel(0);
-
-        buttonPanel.Controls.Add(acceptButton);
-        buttonPanel.Controls.Add(declineButton);
+        buttonPanel.acceptButton.Click += (_, _) => RespondToDuel();
+        buttonPanel.declineButton.Click += (_, _) => DeclineDuel();
     }
 
-    private void RespondToDuel(int bet)
+    private void RespondToDuel()
     {
-        client.Duel(bet);
-        buttonPanel.Controls.Clear();
+        client.Duel(int.TryParse(buttonPanel.betTextBox.Text, out var bet) ? bet : 0);
+        buttonPanel.HideAll();
+    }
+
+    private void DeclineDuel()
+    {
+        client.Duel(0);
+        buttonPanel.HideAll();
     }
 
     private void HandleDuelDeclined(MessageReceivedEventArgs _)
@@ -179,13 +155,13 @@ public sealed partial class GameTableForm
 
         var yesButton = new Button
         {
-            Text = "Yes",
+            Text = "Yes"
         };
         yesButton.Click += (_, _) => RequestNextCard(true);
 
         var noButton = new Button
         {
-            Text = "No",
+            Text = "No"
         };
         noButton.Click += (_, _) => RequestNextCard(false);
 
@@ -214,5 +190,4 @@ public sealed partial class GameTableForm
         SetTurnInfo("Game ended");
         // TODO hide...
     }
-
 }

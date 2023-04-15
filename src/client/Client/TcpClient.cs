@@ -42,15 +42,15 @@ public class TcpClient : IClient
                 case NotifEnum.NewPlayer:
                     GameState.Players.Add((PlayerInfo)(update.Data ?? throw new InvalidOperationException()));
                     break;
-                
+
                 case NotifEnum.PlayerLeft:
                     GameState.Players.Remove((PlayerInfo)(update.Data ?? throw new InvalidOperationException()));
                     break;
-                
+
                 case NotifEnum.UpdateGameState:
                     GameState = (GameState)(update.Data ?? throw new InvalidOperationException());
                     break;
-                
+
                 case NotifEnum.NewBanker:
                 {
                     var bankerInfo = (PlayerInfo)(update.Data ?? throw new InvalidOperationException());
@@ -76,7 +76,7 @@ public class TcpClient : IClient
                     GameState.Players.Remove(GameState.Players.First(p => p.Id == banker.Id));
                     GameState.Players.Add(banker);
                     */
-                    
+
                     break;
                 }
             }
@@ -111,19 +111,16 @@ public class TcpClient : IClient
     public void Duel(int bet = 0)
     {
         var decision = bet != 0;
-        transfer.Send(new Response<bool> { Data = decision});
+        transfer.Send(new Response<bool> { Data = decision });
 
-        if (decision)
-        {
-            transfer.Send(new Response<int> { Data = bet });
-        }
+        if (decision) transfer.Send(new Response<int> { Data = bet });
     }
-    
+
     public void Cut(int where)
     {
         transfer.Send(new Response<int> { Data = where });
     }
-    
+
     public void CutPlayer(Guid playerId)
     {
         transfer.Send(new Response<Guid> { Data = playerId });

@@ -25,11 +25,11 @@ public partial class Menu : Form
         {
             var serverIp = connectionDialog.ServerIp;
             var playerName = connectionDialog.PlayerName;
-            
+
             ConnectToServer(serverIp, playerName);
         }
     }
-    
+
     private void ExitButton_Click(object sender, EventArgs e)
     {
         Close();
@@ -38,15 +38,15 @@ public partial class Menu : Form
     private void ConnectToServer(string serverIp, string playerName)
     {
         var ipAndPort = serverIp.Split(':');
-        
+
         if (ipAndPort.Length != 2 || !int.TryParse(ipAndPort[1], out var port))
         {
             MessageBox.Show("Invalid server IP");
             return;
         }
-        
+
         TcpClient client;
-        
+
         try
         {
             client = new TcpClient(playerName, ipAndPort[0], port);
@@ -59,7 +59,7 @@ public partial class Menu : Form
         }
 
         var gameTableForm = new GameTableForm(client);
-        
+
         gameTableForm.Show();
     }
 }

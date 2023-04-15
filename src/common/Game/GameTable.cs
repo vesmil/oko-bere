@@ -7,20 +7,20 @@ public partial class Game
 {
     private class GameTable
     {
+        public List<PlayerBase> AllPlayers;
         public int Bank;
 
         private PlayerBase? bankBrokePlayer;
         public PlayerBase? Banker;
         public int InitialBank;
-        
-        public List<PlayerBase> AllPlayers;
-        public IEnumerable<PlayerBase> Players => AllPlayers.Where(p => !p.IsBanker);
 
         public GameTable(List<PlayerBase> allPlayers)
         {
             AllPlayers = allPlayers;
             ClearBets();
         }
+
+        public IEnumerable<PlayerBase> Players => AllPlayers.Where(p => !p.IsBanker);
 
         private IEnumerable<PlayerBase> AllExcept(PlayerBase player)
         {
@@ -31,7 +31,7 @@ public partial class Game
         {
             foreach (var player in AllPlayers) player.Notify(notification);
         }
-        
+
         public void NotifyPlayers<T>(INotification<T> notification)
         {
             foreach (var player in Players) player.Notify(notification);
@@ -61,7 +61,7 @@ public partial class Game
             else
             {
                 var num = new Random().Next(AllPlayers.Count);
-                
+
                 AssignBanker(AllPlayers[num]);
                 NotifyAllPlayers(Notification.Create(NotifEnum.NewBanker, Banker?.ToPlayerInfo()));
             }
@@ -76,7 +76,7 @@ public partial class Game
 
             Banker.Notify(Notification.Create(NotifEnum.AskInitialBank));
             InitialBank = Banker.GetResponse<int>().Data;
-            
+
             Bank = InitialBank;
             NotifyAllPlayers(Notification.Create(NotifEnum.SetInitialBank, Bank));
         }
@@ -91,7 +91,7 @@ public partial class Game
         {
             NotifyAllPlayers(Notification.Create(NotifEnum.AskContinue));
 
-            var newPlayers = WouldContinue();  // NOTE might do async...
+            var newPlayers = WouldContinue(); // NOTE might do async...
             if (newPlayers.Count < 3)
             {
                 NotifyAllPlayers(Notification.Create(NotifEnum.NotEnoughPlayers));

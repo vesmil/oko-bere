@@ -1,6 +1,4 @@
-﻿using OkoClient.Client;
-
-namespace OkoClient.Forms;
+﻿namespace OkoClient.Forms;
 
 public partial class ConnectionDialog : Form
 {

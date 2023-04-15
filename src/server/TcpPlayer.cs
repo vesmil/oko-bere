@@ -11,7 +11,7 @@ public class TcpPlayer : PlayerBase, IDisposable
     public TcpPlayer(TcpClient client, int balance) : base("_", balance)
     {
         transfer = new JsonTcpTransfer(client);
-        
+
         Notify(Notification.Create(NotifEnum.AskName, Id));
         var nameResponse = GetResponse<string>();
 

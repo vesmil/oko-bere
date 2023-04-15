@@ -11,26 +11,27 @@ namespace OkoClient.Forms;
 /// </summary>
 public sealed partial class GameTableForm : Form
 {
-    private Guid PlayerId => client.PlayerId;
-    private GameState GameState => client.GameState;
-    private readonly IClient client;
-
     private const int MaxTime = 60;
+
+    private static readonly NotifEnum[] NecessaryInitMessages =
+    {
+        NotifEnum.NewBanker,
+        NotifEnum.NewPlayer,
+        NotifEnum.PlayerLeft
+        // ...
+    };
 
     private readonly Label balanceLabel = new();
     private readonly Label bankLabel = new();
-    private readonly Button betButton = new();
     private readonly Label betLabel = new();
     private readonly TextBox betTextBox = new();
-    
-    private readonly List<PictureBox> cardBoxes = new();
+    private readonly ButtonBox buttonPanel;
 
-    
-    private readonly Button continueButton = new();
-    
-    private readonly Panel buttonPanel = new();
-    private readonly Button drawButton = new();
-    private readonly Button endTurnButton = new();
+    private readonly List<PictureBox> cardBoxes = new();
+    private readonly IClient client;
+
+    private readonly Button continueButton = new(); // TODO will be also moved
+
     private readonly Label noPlayersLabel = new();
 
     private readonly List<PlayerBox> playerBoxes = new();
@@ -44,34 +45,28 @@ public sealed partial class GameTableForm : Form
     {
         InitializeComponent();
         InitializeHandlers();
-        
-        WindowState = FormWindowState.Maximized;
+
+        // WindowState = FormWindowState.Maximized;
 
         this.client = client;
         this.client.MessageReceived += OnMessageReceived;
 
-        InitializeHidden();
+        buttonPanel = new ButtonBox(Width - 20, Height - 20);
+
         Render();
+        UpdateLabels();
 
         SetTurnInfo("Waiting for other players to join...");
-        
+
         Resize += (_, _) =>
         {
             Render();
             UpdateLabels();
         };
     }
-    
-    private void InitializeHidden()
-    {
-        continueButton.Size = new Size(200, 50);
-        continueButton.Location =
-            new Point(Width / 2 - continueButton.Width / 2, Height / 2 - continueButton.Height / 2);
-        continueButton.Text = "Join Next Round";
-        continueButton.Click += ContinueButton_Click!;
 
-        continueButton.Visible = false;
-    }
+    private Guid PlayerId => client.PlayerId;
+    private GameState GameState => client.GameState;
 
     private void Render()
     {
@@ -79,7 +74,7 @@ public sealed partial class GameTableForm : Form
         AddPlayerBoxes();
         AddMoneyLabels();
         AddCardBoxes();
-        AddButtonPanel();
+        SetButtonPanel();
     }
 
     private void UpdateLabels()
@@ -87,7 +82,7 @@ public sealed partial class GameTableForm : Form
         RefreshPlayerLabels();
         SetLabels();
     }
-    
+
     private void SetLabels()
     {
         balanceLabel.CheckInvoke(() =>
@@ -101,17 +96,17 @@ public sealed partial class GameTableForm : Form
     private void AddControl(Control control)
     {
         if (InvokeRequired)
-            Invoke((MethodInvoker) delegate { Controls.Add(control); });
+            Invoke((MethodInvoker)delegate { Controls.Add(control); });
         else
             Controls.Add(control);
     }
-    
+
     private void RemoveControl(Control control)
     {
         if (InvokeRequired)
-            Invoke((MethodInvoker) delegate { Controls.Remove(control); });
+            Invoke((MethodInvoker)delegate { Controls.Remove(control); });
         else
-            Controls.Remove(control);    
+            Controls.Remove(control);
     }
 
     private void AddTurnInfo()
@@ -155,16 +150,16 @@ public sealed partial class GameTableForm : Form
             AddControl(balanceLabel);
         });
     }
-    
+
     private void AddCardBoxes()
     {
         const int cardBoxWidth = 75;
         const int cardBoxHeight = 100;
         const int cardBoxSpacing = 80;
         const int cardBoxStartX = 10;
-        
+
         var cardBoxStartY = Height - cardBoxHeight - 80;
-        
+
         foreach (var cardBox in cardBoxes) cardBox.Dispose();
 
         for (var i = 0; i < GameState.Hand.Count; i++)
@@ -180,7 +175,7 @@ public sealed partial class GameTableForm : Form
             cardBoxes.Add(cardBox);
         }
     }
-    
+
     private void AddPlayerBoxes()
     {
         if (GameState.Players.Count == 0)
@@ -188,9 +183,9 @@ public sealed partial class GameTableForm : Form
             RenderNoPlayers();
             return;
         }
-        
+
         noPlayersLabel.CheckInvoke(() => noPlayersLabel.Visible = false);
-        
+
         foreach (var box in playerBoxes.Where(box => GameState.Players.All(p => p.Id != box.Player.Id)))
         {
             RemoveControl(box);
@@ -201,7 +196,7 @@ public sealed partial class GameTableForm : Form
         for (var i = 0; i < GameState.Players.Count; i++)
         {
             if (playerBoxes.Any(box => box.Player.Id == GameState.Players[i].Id)) continue;
-            
+
             var player = GameState.Players[i];
             var playerBox = new PlayerBox(player, PlayerId, i);
             playerBox.SelectButton.Click += (_, _) => SelectCutPlayer(player.Id);
@@ -222,74 +217,37 @@ public sealed partial class GameTableForm : Form
 
     private void RefreshPlayerLabels()
     {
-        foreach (var box in playerBoxes)
-        {
-            box.SetLabels();
-        }
+        foreach (var box in playerBoxes) box.SetLabels();
     }
 
-    private void AddButtonPanel()
+    private void SetButtonPanel()
     {
-        drawButton.Size = new Size(75, 23);
-        drawButton.Location = new Point(0, 0);
-        drawButton.Text = "Draw";
-        drawButton.Click += DrawButton_Click!;
+        continueButton.Size = new Size(200, 50);
+        continueButton.Location =
+            new Point(Width / 2 - continueButton.Width / 2, Height / 2 - continueButton.Height / 2);
+        continueButton.Text = "Join Next Round";
+        continueButton.Click += ContinueButton_Click!;
 
-        betButton.Size = new Size(75, 23);
-        betButton.Location = new Point(0, 30);
-        betButton.Text = "Bet";
-        betButton.Click += BetButton_Click!;
+        continueButton.Visible = false;
 
-        betTextBox.Size = new Size(75, 23);
-        betTextBox.Location = new Point(80, 30);
-        betTextBox.Text = "0";
+        buttonPanel.drawButton.Click += DrawButton_Click!;
+        buttonPanel.betButton.Click += BetButton_Click!;
+        buttonPanel.endTurnButton.Click += EndTurnButton_Click!;
 
-        endTurnButton.Size = new Size(75, 23);
-        endTurnButton.Location = new Point(0, 60);
-        endTurnButton.Text = "End Turn";
-        endTurnButton.Click += EndTurnButton_Click!;
+        // TODO figure out accept and decline
 
-        buttonPanel.Controls.Add(drawButton);
-        buttonPanel.Controls.Add(betButton);
-        buttonPanel.Controls.Add(betTextBox);
-        buttonPanel.Controls.Add(endTurnButton);
-        
-        // TODO
-        // Accept button
-        // Decline button
-
-        betLabel.AutoSize = true;
-        buttonPanel.Location = new Point(Width - buttonPanel.Width - 0, Height - buttonPanel.Height - 50);
-        
         AddControl(buttonPanel);
-        
-        // TODO hide per button
-        buttonPanel.Hide();
     }
 
     private void OnMessageReceived(object? sender, MessageReceivedEventArgs message)
     {
-        if (messageHandlers.TryGetValue(message.Type, out var handler))
-        {
-            handler(message);
-        }
+        if (messageHandlers.TryGetValue(message.Type, out var handler)) handler(message);
 
-        if (NeededInit(message))
-        {
-            Render();
-        }
-        
+        if (NeededInit(message)) Render();
+
         UpdateLabels();
     }
 
-    private static readonly NotifEnum[] NecessaryInitMessages =
-    {
-        NotifEnum.NewBanker,
-        NotifEnum.NewPlayer,
-        NotifEnum.PlayerLeft,
-        // ...
-    };
-    
     private static bool NeededInit(MessageReceivedEventArgs message)
     {
         return NecessaryInitMessages.Contains(message.Type);
@@ -351,7 +309,7 @@ public sealed partial class GameTableForm : Form
     private void EndTurnButton_Click(object sender, EventArgs e)
     {
         // TODO client.EndTurn();
-        
+
         topLabel.Text = "Next Player's Turn";
         buttonPanel.Hide();
     }
@@ -363,13 +321,89 @@ public sealed partial class GameTableForm : Form
     }
 }
 
-public class ButtonBox : Panel
+public sealed class ButtonBox : Panel
 {
-    public ButtonBox()
+    public Button acceptButton = new();
+    public Button betButton = new();
+    public TextBox betTextBox = new();
+    public Button declineButton = new();
+    public Button drawButton = new();
+
+    public Button endTurnButton = new();
+
+    // private Label betLabel = new ();
+
+    public ButtonBox(int x, int y)
     {
-        Size = new Size(75, 23);
-        Location = new Point(0, 0);
-        
-        // TODO ...
+        drawButton.Size = new Size(75, 23);
+        drawButton.Location = new Point(0, 0);
+        drawButton.Text = "Draw";
+
+        betButton.Size = new Size(75, 23);
+        betButton.Location = new Point(0, 30);
+        betButton.Text = "Bet";
+
+        betTextBox.Size = new Size(75, 23);
+        betTextBox.Location = new Point(80, 30);
+        betTextBox.Text = "0";
+
+        endTurnButton.Size = new Size(75, 23);
+        endTurnButton.Location = new Point(0, 60);
+        endTurnButton.Text = "End Turn";
+
+        acceptButton.Size = new Size(75, 23);
+        acceptButton.Location = new Point(0, 30);
+        acceptButton.Text = "Accept";
+
+        declineButton.Size = new Size(75, 23);
+        declineButton.Location = new Point(0, 60);
+        declineButton.Text = "Decline";
+
+        AutoSize = true;
+
+        Location = new Point(x - Width, y - Height);
+
+        Controls.Add(drawButton);
+        Controls.Add(betButton);
+        Controls.Add(betTextBox);
+        Controls.Add(endTurnButton);
+        Controls.Add(acceptButton);
+        Controls.Add(declineButton);
+
+        HideAll();
+    }
+
+    public void Turn()
+    {
+        drawButton.CheckInvoke(() =>
+        {
+            drawButton.Show();
+            betButton.Show();
+            betTextBox.Show();
+            endTurnButton.Show();
+        });
+    }
+
+    public void Duel()
+    {
+        acceptButton.CheckInvoke(() =>
+        {
+            acceptButton.Show();
+            declineButton.Show();
+            betTextBox.Show();
+        });
+    }
+
+    public void HideAll()
+    {
+        drawButton.CheckInvoke(() =>
+        {
+            drawButton.Hide();
+            betButton.Hide();
+            betTextBox.Hide();
+            endTurnButton.Hide();
+            acceptButton.Hide();
+            declineButton.Hide();
+        });
     }
 }

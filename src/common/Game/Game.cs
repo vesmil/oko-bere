@@ -12,6 +12,7 @@ public interface IGame
 
 public partial class Game : IGame
 {
+    private readonly Mutex addingMutex = new();
     private readonly Deck deck = new();
 
     private readonly GetPlayersDelegate getGetPlayersDelegate;
@@ -21,7 +22,7 @@ public partial class Game : IGame
     {
         getGetPlayersDelegate = getGetPlayerDel;
         table = new GameTable(getGetPlayersDelegate.Invoke());
-        
+
         table.NotifyAllPlayers(Notification.Create(NotifEnum.UpdateGameState, CreateGameState()));
     }
 
@@ -46,11 +47,11 @@ public partial class Game : IGame
     {
         table.UpdatePlayers(getGetPlayersDelegate.Invoke());
         Debug.WriteLine($"Starting game loop with {table.AllPlayers.Count} players");
-        
+
         while (true)
         {
             table.SetBanker();
-            
+
             while (table.Bank > 0)
             {
                 var newPlayers = getGetPlayersDelegate.Invoke();
@@ -61,17 +62,16 @@ public partial class Game : IGame
 
             if (!table.AskForContinue()) break;
         }
-        
+
         table.NotifyAllPlayers(Notification.Create(NotifEnum.EndOfGame));
     }
 
-    private readonly Mutex addingMutex = new();
     public void OnNewPlayer(PlayerBase newPlayer)
     {
-        addingMutex.WaitOne();  // allows only one thread to add a player at a time
-        
+        addingMutex.WaitOne(); // allows only one thread to add a player at a time
+
         table.NotifyAllPlayers(Notification.Create(NotifEnum.NewPlayer, newPlayer.ToPlayerInfo()));
-        
+
         table.AllPlayers.Add(newPlayer);
 
         var gameState = CreateGameState();
@@ -111,7 +111,7 @@ public partial class Game : IGame
         {
             table.Banker.Notify(Notification.Create(NotifEnum.AskChooseCutPlayer));
             var cutId = table.Banker.GetResponse<Guid>().Data;
-            
+
             cutPlayer = table.Players.FirstOrDefault(x => x.Id == cutId);
         }
 
@@ -182,7 +182,6 @@ public partial class Game : IGame
         // TODO complete
         duelPlayer.Notify(Notification.Create(NotifEnum.AskTurnNoBet));
         table.Banker!.Notify(Notification.Create(NotifEnum.AskTurnNoBet));
-        
     }
 
     private void PlayersTurn(PlayerBase player, bool noBet = false)
@@ -202,14 +201,14 @@ public partial class Game : IGame
                     if (!Bet(player, noBet)) return;
                     DrawCard(player);
                     break;
-                
+
                 case TurnDecision.Draw:
                     DrawCard(player);
                     break;
-                
+
                 case TurnDecision.Stop:
                     return;
-                
+
                 default:
                     throw new ArgumentOutOfRangeException();
             }
@@ -220,13 +219,13 @@ public partial class Game : IGame
                 // TODO notify others
                 return;
             }
-            
+
             if (player.Hand.IsBust())
             {
                 player.Notify(Notification.Create(NotifEnum.Bust));
                 return;
             }
-            
+
             if (player.Hand.IsExchangeable()) ExchangeCards(player);
         }
     }
@@ -234,18 +233,14 @@ public partial class Game : IGame
     private static bool Bet(PlayerBase player, bool noBet = false)
     {
         if (noBet)
-        {
             // throw new Exception("Can not bet in duel.");
             return false;
-        }
-        
+
         var bet = player.GetResponse<int>().Data;
         if (bet > player.Balance)
-        {
             // throw new Exception("Can not bet more than you have.");
             return false;
-        }
-        
+
         player.Bet = bet;
         player.Balance -= bet;
 
@@ -264,10 +259,10 @@ public partial class Game : IGame
 
             if (table.Banker.Hand.IsBust()) return;
             if (table.Banker.Hand.IsExchangeable()) ExchangeCards(table.Banker);
-            
+
             table.Banker.Notify(Notification.Create(NotifEnum.AskTurnNoBet));
             var decision = table.Banker.GetResponse<TurnDecision>().Data;
-            
+
             if (decision == TurnDecision.Stop) return;
         }
     }
@@ -285,7 +280,7 @@ public partial class Game : IGame
     {
         player.Notify(Notification.Create(NotifEnum.AskExchange));
         if (!player.GetResponse<bool>().Data) return;
-        
+
         player.Hand.Clear();
 
         var newCard = deck.Draw();
@@ -293,12 +288,11 @@ public partial class Game : IGame
 
         player.Notify(Notification.Create(NotifEnum.ReceivedCard, newCard));
         table.NotifyAllExcept(player, Notification.Create(NotifEnum.OtherExchanged, player));
-        
     }
 
     private void Evaluation()
     {
-        foreach (var player in table.AllPlayers.Where(player => 
+        foreach (var player in table.AllPlayers.Where(player =>
                      player.Hand.GetBestValue() > table.Banker!.Hand.GetBestValue()))
         {
             player.Balance += 2 * player.Bet;
@@ -308,7 +302,7 @@ public partial class Game : IGame
 
         table.Bank += table.AllPlayers.Sum(player => player.Bet);
         table.AllPlayers.ForEach(player => player.Bet = 0);
-        
+
         // NOTE might be better to notify players about their balance change
         table.NotifyAllPlayers(Notification.Create(NotifEnum.UpdateGameState, CreateGameState()));
     }

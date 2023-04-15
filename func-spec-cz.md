@@ -21,7 +21,8 @@ hráčů (stav banku, hodnoty karet, ...). Zároveň by umožnila ke stolu přip
 
 ### Klientská aplikace
 
-Jednalo by se v první řadě o grafické rozhraní, které by umožnilo samotnou hru. Po zadání IP adresy a přezdívky (případně
+Jednalo by se v první řadě o grafické rozhraní, které by umožnilo samotnou hru. Po zadání IP adresy a přezdívky (
+případně
 hesla) by se hráč připojil k serveru s výběrem stolů.
 
 ---

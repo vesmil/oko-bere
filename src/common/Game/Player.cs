@@ -11,10 +11,10 @@ public abstract class PlayerBase
 
     public int Balance;
     public int Bet;
-    
-    public bool IsBanker;
 
     public bool Exchanged;
+
+    public bool IsBanker;
     public string Name;
 
     protected PlayerBase(string name, int balance)
@@ -33,7 +33,7 @@ public abstract class PlayerBase
 
     public abstract IResponse<T> GetResponse<T>();
     public abstract void Notify<T>(INotification<T> notification);
-    
+
     public PlayerInfo ToPlayerInfo()
     {
         return new PlayerInfo(this);

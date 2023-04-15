@@ -91,8 +91,8 @@ public static class UiCommon
             throw new Exception("Missing file for card " + card);
         }
     }
-    
-    
+
+
     public static void CheckInvoke(this Control control, Action action)
     {
         if (control.InvokeRequired)

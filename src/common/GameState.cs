@@ -21,7 +21,7 @@ public struct GameState
 
     public List<PlayerInfo> Players;
     public List<Card> Hand;
-    
+
     public int Bank;
 }
 

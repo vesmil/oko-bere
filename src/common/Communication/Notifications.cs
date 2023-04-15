@@ -11,7 +11,7 @@ public enum NotifEnum
 
     NewPlayer,
     PlayerLeft,
-    
+
     NewBanker,
     AskInitialBank,
     SetInitialBank,
@@ -23,7 +23,7 @@ public enum NotifEnum
     ReceivedCard,
     Bust,
     Won,
-    
+
     OtherReceivesCard,
     OtherExchanged,
     OtherBusts,
@@ -41,7 +41,7 @@ public enum NotifEnum
     DuelAccepted,
     DuelDeclined,
     AskTurnNoBet,
-    
+
     AskContinue,
     Continue,
     NotEnoughPlayers,
