@@ -50,10 +50,9 @@ public sealed partial class GameTableForm
     private void HandleAskInitialBank(MessageReceivedEventArgs obj)
     {
         SetTurnInfo("Set the initial bank, please");
-
-        // TODO get initial bank
-
-        client.BankSet(100);
+        
+        // Note will be later chosen by the banker...
+        client.BankSet(GameState.Players.First(p => p.Id == client.PlayerId).Balance);
     }
 
 
@@ -102,7 +101,6 @@ public sealed partial class GameTableForm
 
     private void HandleChooseCutPosition(MessageReceivedEventArgs _)
     {
-        // Let the player choose the position to cut the deck
         var random = new Random();
         client.Cut(random.Next(0, 32));
     }
@@ -115,19 +113,18 @@ public sealed partial class GameTableForm
             SetTurnInfo("The cut card is unknown - something went wrong");
     }
 
-
     private void HandleDuelOffer(MessageReceivedEventArgs _)
     {
-        SetTurnInfo(topLabel.Text + "\nWould you like to duel?");
+        SetTurnInfo("Would you like to duel?");
         buttonPanel.Duel();
 
-        buttonPanel.acceptButton.Click += (_, _) => RespondToDuel();
-        buttonPanel.declineButton.Click += (_, _) => DeclineDuel();
+        buttonPanel.AcceptButton.Click += (_, _) => RespondToDuel();
+        buttonPanel.DeclineButton.Click += (_, _) => DeclineDuel();
     }
 
     private void RespondToDuel()
     {
-        client.Duel(int.TryParse(buttonPanel.betTextBox.Text, out var bet) ? bet : 0);
+        client.Duel(int.TryParse(buttonPanel.BetTextBox.Text, out var bet) ? bet : 0);
         buttonPanel.HideAll();
     }
 

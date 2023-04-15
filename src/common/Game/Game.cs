@@ -161,7 +161,8 @@ public partial class Game : IGame
         var bet = duelPlayer.GetResponse<int>().Data;
 
         if (bet == 0) return false;
-
+        
+        // TODO freezes here
         table.Banker.Notify(Notification.Create(NotifEnum.AskDuel, bet));
         var accept = table.Banker.GetResponse<bool>().Data;
 

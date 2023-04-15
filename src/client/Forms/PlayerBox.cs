@@ -24,13 +24,13 @@ public sealed class PlayerBox : GroupBox
         cardCountLabel.AutoSize = true;
         cardCountLabel.Location = new Point(10, 40);
         Controls.Add(cardCountLabel);
-
-        balancePlayerLabel.AutoSize = true;
-        balancePlayerLabel.Location = new Point(10, 70);
-        Controls.Add(balancePlayerLabel);
-
+        
         if (!player.IsBanker)
         {
+            balancePlayerLabel.AutoSize = true;
+            balancePlayerLabel.Location = new Point(10, 70);
+            Controls.Add(balancePlayerLabel);
+        
             betPlayerLabel.AutoSize = true;
             betPlayerLabel.Location = new Point(10, 100);
             Controls.Add(betPlayerLabel);

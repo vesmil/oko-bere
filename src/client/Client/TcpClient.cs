@@ -109,11 +109,8 @@ public class TcpClient : IClient
     }
 
     public void Duel(int bet = 0)
-    {
-        var decision = bet != 0;
-        transfer.Send(new Response<bool> { Data = decision });
-
-        if (decision) transfer.Send(new Response<int> { Data = bet });
+    { 
+        transfer.Send(new Response<int> { Data = bet });
     }
 
     public void Cut(int where)
