@@ -5,19 +5,19 @@ public sealed class ButtonBox : Panel
     public readonly Button AcceptButton = new();
     public readonly Button BetButton = new();
     public readonly TextBox BetTextBox = new();
+
+    public readonly Button ContinueButton = new();
     public readonly Button DeclineButton = new();
     public readonly Button DrawButton = new();
 
     public readonly Button EndTurnButton = new();
-    
-    public readonly Button ContinueButton = new();
-    
+
     public ButtonBox()
     {
         ContinueButton.Size = new Size(200, 50);
         ContinueButton.Location = new Point(0, 0);
         ContinueButton.Text = "Join Next Round";
-        
+
         DrawButton.Size = new Size(75, 23);
         DrawButton.Location = new Point(0, 0);
         DrawButton.Text = "Draw";
@@ -54,7 +54,7 @@ public sealed class ButtonBox : Panel
 
         HideAll();
     }
-    
+
     public void Shift(int x, int y)
     {
         Location = new Point(x - Width, y - Height);

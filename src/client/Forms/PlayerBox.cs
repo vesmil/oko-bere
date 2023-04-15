@@ -7,13 +7,12 @@ public sealed class PlayerBox : GroupBox
     private readonly Label balancePlayerLabel = new();
     private readonly Label betPlayerLabel = new();
     private readonly Label cardCountLabel = new();
-    private readonly PlayerInfo player;
 
     public readonly Button SelectButton = new();
 
     public PlayerBox(PlayerInfo player, Guid playerId, int i)
     {
-        this.player = player;
+        this.Player = player;
 
         Size = new Size(200, 130);
         Location = new Point(30 + 210 * i, 70);
@@ -24,13 +23,13 @@ public sealed class PlayerBox : GroupBox
         cardCountLabel.AutoSize = true;
         cardCountLabel.Location = new Point(10, 40);
         Controls.Add(cardCountLabel);
-        
+
         if (!player.IsBanker)
         {
             balancePlayerLabel.AutoSize = true;
             balancePlayerLabel.Location = new Point(10, 70);
             Controls.Add(balancePlayerLabel);
-        
+
             betPlayerLabel.AutoSize = true;
             betPlayerLabel.Location = new Point(10, 100);
             Controls.Add(betPlayerLabel);
@@ -49,12 +48,12 @@ public sealed class PlayerBox : GroupBox
         SetLabels();
     }
 
-    public PlayerInfo Player => player;
+    public PlayerInfo Player { get; }
 
     public void SetLabels()
     {
-        cardCountLabel.Text = $"Cards: {player.CardCount}";
-        balancePlayerLabel.Text = $"Balance: {player.Balance}";
-        betPlayerLabel.Text = $"Bet: {player.Bet}";
+        cardCountLabel.Text = $"Cards: {Player.CardCount}";
+        balancePlayerLabel.Text = $"Balance: {Player.Balance}";
+        betPlayerLabel.Text = $"Bet: {Player.Bet}";
     }
 }

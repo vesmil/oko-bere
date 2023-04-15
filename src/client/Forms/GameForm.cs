@@ -14,35 +14,35 @@ public sealed partial class GameTableForm : Form
     private const int MaxTime = 60;
 
     /// <summary>
-    ///    Messages after which the form has to be rendered again.
+    ///     Messages after which the form has to be rendered again.
     /// </summary>
     private static readonly NotifEnum[] NecessaryInitMessages =
     {
         NotifEnum.NewBanker,
         NotifEnum.NewPlayer,
-        NotifEnum.PlayerLeft
-        // ...
+        NotifEnum.PlayerLeft,
+        NotifEnum.ReceivedCard,
+        NotifEnum.UpdateGameState
     };
 
-    
-    private readonly IClient client;
-    private Guid PlayerId => client.PlayerId;
-    private GameState GameState => client.GameState;
-
-    // Ui elements
-    private readonly List<PlayerBox> playerBoxes = new();
-    private readonly List<PictureBox> cardBoxes = new();
-    private readonly ButtonBox buttonPanel = new();
-    
-    // labels
-    private readonly Label oldTopLabel = new();
-    private readonly Label topLabel = new();
     private readonly Label balanceLabel = new();
     private readonly Label bankLabel = new();
     private readonly Label betLabel = new();
+    private readonly ButtonBox buttonPanel = new();
+    private readonly List<PictureBox> cardBoxes = new();
+
+
+    private readonly IClient client;
     private readonly Label noPlayersLabel = new();
-    
+
+    // labels
+    private readonly Label oldTopLabel = new();
+
+    // Ui elements
+    private readonly List<PlayerBox> playerBoxes = new();
+
     private readonly Timer timer = new();
+    private readonly Label topLabel = new();
     private int timeLeft;
     private string timerMessage = "Time left: ";
 
@@ -52,16 +52,20 @@ public sealed partial class GameTableForm : Form
         InitializeHandlers();
 
         BackColor = Color.FromArgb(174, 203, 143);
-   
+
+        Size = new Size(1100, 600);
+        MinimumSize = new Size(800, 500);
+
         // WindowState = FormWindowState.Maximized;
 
         this.client = client;
         this.client.MessageReceived += OnMessageReceived;
-        
+
         Render();
         UpdateLabels();
 
         SetTurnInfo("Waiting for other players to join...");
+        SetButtonPanel();
 
         Resize += (_, _) =>
         {
@@ -69,38 +73,49 @@ public sealed partial class GameTableForm : Form
             UpdateLabels();
         };
     }
-    
+
+    private Guid PlayerId => client.PlayerId;
+    private GameState GameState => client.GameState;
+
     private void Render()
     {
         buttonPanel.Shift(Width - 10, Height - 50);
-        
+
         AddTurnInfo();
         AddPlayerBoxes();
         AddMoneyLabels();
         AddCardBoxes();
-        SetButtonPanel();
     }
-    
+
+    private void OnMessageReceived(object? sender, MessageReceivedEventArgs message)
+    {
+        if (messageHandlers.TryGetValue(message.Type, out var handler)) handler(message);
+
+        if (NeededInit(message)) Render();
+
+        UpdateLabels();
+    }
+
     private void UpdateLabels()
     {
         balanceLabel.CheckInvoke(() =>
         {
-            balanceLabel.Text = "Balance: " + GameState.Players.FirstOrDefault(p => p.Id == PlayerId).Balance;
+            balanceLabel.Text = "Balance: " + GameState.GetPlayerInfo(PlayerId).Balance;
             bankLabel.Text = "Bank: " + GameState.Bank;
-            betLabel.Text = "Bet: " + GameState.Players.FirstOrDefault(p => p.Id == PlayerId).Bet;
+            betLabel.Text = "Bet: " + GameState.GetPlayerInfo(PlayerId).Bet;
 
             foreach (var box in playerBoxes) box.SetLabels();
         });
     }
 
-    
+
     private void SetTurnInfo(string text)
     {
         topLabel.CheckInvoke(() =>
         {
             oldTopLabel.Text = topLabel.Text;
             oldTopLabel.Location = new Point(Width / 2 - oldTopLabel.Size.Width / 2, 15);
-            
+
             topLabel.Text = text;
             topLabel.Location = new Point(Width / 2 - topLabel.Size.Width / 2, 35);
         });
@@ -120,7 +135,7 @@ public sealed partial class GameTableForm : Form
         AddControl(oldTopLabel);
         AddControl(topLabel);
     }
-    
+
     private void AddMoneyLabels()
     {
         var labelFont = new Font("Arial", 12, FontStyle.Bold);
@@ -132,12 +147,12 @@ public sealed partial class GameTableForm : Form
             bankLabel.Font = labelFont;
             bankLabel.Text = "Bank: " + GameState.Bank;
             AddControl(bankLabel);
-            
-            if (!GameState.Players.FirstOrDefault(p => p.Id == PlayerId).IsBanker)
+
+            if (!GameState.GetPlayerInfo(PlayerId).IsBanker)
             {
                 betLabel.Show();
                 balanceLabel.Show();
-                
+
                 betLabel.AutoSize = true;
                 betLabel.Location = new Point(30, 290);
                 betLabel.Font = labelFont;
@@ -157,6 +172,7 @@ public sealed partial class GameTableForm : Form
             }
         });
     }
+
     private void AddCardBoxes()
     {
         const int cardBoxWidth = 75;
@@ -166,8 +182,7 @@ public sealed partial class GameTableForm : Form
 
         var cardBoxStartY = Height - cardBoxHeight - 80;
 
-        foreach (var cardBox in cardBoxes) cardBox.Dispose();
-
+        foreach (var cardBox in cardBoxes) cardBox.CheckInvoke(() => cardBox.Dispose());
         for (var i = 0; i < GameState.Hand.Count; i++)
         {
             var cardBox = new PictureBox();
@@ -181,6 +196,7 @@ public sealed partial class GameTableForm : Form
             cardBoxes.Add(cardBox);
         }
     }
+
     private void AddPlayerBoxes()
     {
         if (GameState.Players.Count == 0)
@@ -210,6 +226,7 @@ public sealed partial class GameTableForm : Form
             playerBoxes.Add(playerBox);
         }
     }
+
     private void RenderNoPlayers()
     {
         noPlayersLabel.Visible = true;
@@ -222,21 +239,13 @@ public sealed partial class GameTableForm : Form
     private void SetButtonPanel()
     {
         buttonPanel.ContinueButton.Click += ContinueButton_Click!;
-        
         buttonPanel.DrawButton.Click += DrawButton_Click!;
         buttonPanel.BetButton.Click += BetButton_Click!;
         buttonPanel.EndTurnButton.Click += EndTurnButton_Click!;
-        
+        buttonPanel.AcceptButton.Click += (_, _) => RespondToDuel();
+        buttonPanel.DeclineButton.Click += (_, _) => DeclineDuel();
+
         AddControl(buttonPanel);
-    }
-
-    private void OnMessageReceived(object? sender, MessageReceivedEventArgs message)
-    {
-        if (messageHandlers.TryGetValue(message.Type, out var handler)) handler(message);
-
-        if (NeededInit(message)) Render();
-
-        UpdateLabels();
     }
 
     private static bool NeededInit(MessageReceivedEventArgs message)
@@ -248,7 +257,7 @@ public sealed partial class GameTableForm : Form
     {
         timerMessage = "Confirm to continue in ";
         buttonPanel.ContinueButton.Show();
-        
+
         timeLeft = MaxTime;
 
         timer.Interval = 1000;
@@ -273,41 +282,6 @@ public sealed partial class GameTableForm : Form
         }
     }
 
-    // TODO move to button panel?
-    private void ContinueButton_Click(object sender, EventArgs e)
-    {
-        client.Continue(true);
-
-        buttonPanel.ContinueButton.Hide();
-        SetTurnInfo("Waiting for other players...");
-        timer.Stop();
-    }
-
-    private void DrawButton_Click(object sender, EventArgs e)
-    {
-        // TODO client.Draw();
-        buttonPanel.Hide();
-    }
-
-    private void BetButton_Click(object sender, EventArgs e)
-    {
-        // TODO client.Be
-        buttonPanel.Hide();
-    }
-
-    private void EndTurnButton_Click(object sender, EventArgs e)
-    {
-        // TODO client.EndTurn();
-        topLabel.Text = "Next Player's Turn";
-        buttonPanel.Hide();
-    }
-
-    private void PlaceBet(int amount)
-    {
-        // Place a bet of the specified amount
-        betLabel.Text = $"Bet: ${amount}";
-    }
-    
     private void AddControl(Control control)
     {
         if (InvokeRequired)

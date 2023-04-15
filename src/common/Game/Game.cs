@@ -118,13 +118,11 @@ public partial class Game : IGame
         var duelInitiated = CutAndDuel(cutPlayer);
         if (duelInitiated) return;
 
-        foreach (var player in table.AllPlayers.Where(p => p.Balance != 0).Append(table.Banker))
+        foreach (var player in table.AllPlayers)
         {
             player.Hand.Clear();
-            player.Hand.Add(deck.Draw());
             player.Exchanged = false;
-
-            player.Notify(Notification.Create(NotifEnum.ReceivedCard, player.Hand[0]));
+            DrawCard(player);
         }
 
         if (malaDomu && table.Banker.Hand[0].Rank is Rank.King or Rank.Eight)
@@ -161,28 +159,15 @@ public partial class Game : IGame
         var bet = duelPlayer.GetResponse<int>().Data;
 
         if (bet == 0) return false;
-        
-        // TODO freezes here
-        table.Banker.Notify(Notification.Create(NotifEnum.AskDuel, bet));
-        var accept = table.Banker.GetResponse<bool>().Data;
 
-        if (!accept)
-        {
-            duelPlayer.Notify(Notification.Create(NotifEnum.DuelDeclined));
-            return false;
-        }
-
-        duelPlayer.Notify(Notification.Create(NotifEnum.DuelAccepted));
         Duel(duelPlayer);
-
         return true;
     }
 
     private void Duel(PlayerBase duelPlayer)
     {
-        // TODO complete
-        duelPlayer.Notify(Notification.Create(NotifEnum.AskTurnNoBet));
-        table.Banker!.Notify(Notification.Create(NotifEnum.AskTurnNoBet));
+        PlayersTurn(duelPlayer, true);
+        PlayersTurn(table.Banker!, true);
     }
 
     private void PlayersTurn(PlayerBase player, bool noBet = false)
@@ -250,8 +235,15 @@ public partial class Game : IGame
 
     private void BankersTurn()
     {
+        if (table.Banker is null) throw new Exception("Can not start round without a banker.");
+
         while (true)
         {
+            table.Banker.Notify(Notification.Create(NotifEnum.AskTurnNoBet));
+            var decision = table.Banker.GetResponse<TurnDecision>().Data;
+
+            if (decision == TurnDecision.Stop) return;
+
             var card = deck.Draw();
             table.Banker!.Hand.Add(card);
 
@@ -260,11 +252,6 @@ public partial class Game : IGame
 
             if (table.Banker.Hand.IsBust()) return;
             if (table.Banker.Hand.IsExchangeable()) ExchangeCards(table.Banker);
-
-            table.Banker.Notify(Notification.Create(NotifEnum.AskTurnNoBet));
-            var decision = table.Banker.GetResponse<TurnDecision>().Data;
-
-            if (decision == TurnDecision.Stop) return;
         }
     }
 
@@ -274,7 +261,7 @@ public partial class Game : IGame
         player.Hand.Add(card);
 
         player.Notify(Notification.Create(NotifEnum.ReceivedCard, card));
-        table.NotifyAllExcept(player, Notification.Create(NotifEnum.OtherReceivesCard, player));
+        table.NotifyAllExcept(player, Notification.Create(NotifEnum.OtherReceivesCard, player.Id));
     }
 
     private void ExchangeCards(PlayerBase player)

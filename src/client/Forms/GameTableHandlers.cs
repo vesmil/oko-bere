@@ -23,10 +23,9 @@ public sealed partial class GameTableForm
         messageHandlers.Add(NotifEnum.AskChooseCutPosition, HandleChooseCutPosition);
         messageHandlers.Add(NotifEnum.ShowCutCard, HandleSeeCutCard);
         messageHandlers.Add(NotifEnum.AskDuel, HandleDuelOffer);
-        messageHandlers.Add(NotifEnum.DuelDeclined, HandleDuelDeclined);
-        messageHandlers.Add(NotifEnum.DuelAccepted, HandleDuelAccepted);
         messageHandlers.Add(NotifEnum.AskTurnNoBet, HandleDuelAskNextCard);
         messageHandlers.Add(NotifEnum.AskContinue, HandleAskForContinue);
+
         messageHandlers.Add(NotifEnum.NotEnoughPlayers, HandleNotEnoughPlayers);
         messageHandlers.Add(NotifEnum.EndOfGame, HandleEndOfGame);
     }
@@ -50,8 +49,8 @@ public sealed partial class GameTableForm
     private void HandleAskInitialBank(MessageReceivedEventArgs obj)
     {
         SetTurnInfo("Set the initial bank, please");
-        
-        // Note will be later chosen by the banker...
+
+        // NOTE will be later chosen by the banker...
         client.BankSet(GameState.Players.First(p => p.Id == client.PlayerId).Balance);
     }
 
@@ -70,7 +69,7 @@ public sealed partial class GameTableForm
     private void HandleAskForTurn(MessageReceivedEventArgs _)
     {
         SetTurnInfo("It is your turn!");
-        buttonPanel.Show();
+        buttonPanel.Turn();
     }
 
     private void HandleMalaDomuCalled(MessageReceivedEventArgs _)
@@ -117,9 +116,6 @@ public sealed partial class GameTableForm
     {
         SetTurnInfo("Would you like to duel?");
         buttonPanel.Duel();
-
-        buttonPanel.AcceptButton.Click += (_, _) => RespondToDuel();
-        buttonPanel.DeclineButton.Click += (_, _) => DeclineDuel();
     }
 
     private void RespondToDuel()
@@ -134,42 +130,13 @@ public sealed partial class GameTableForm
         buttonPanel.HideAll();
     }
 
-    private void HandleDuelDeclined(MessageReceivedEventArgs _)
-    {
-        SetTurnInfo("Duel declined");
-    }
-
-    private void HandleDuelAccepted(MessageReceivedEventArgs _)
-    {
-        SetTurnInfo("Duel accepted");
-    }
-
+    // TODO not just duel but nobet
     private void HandleDuelAskNextCard(MessageReceivedEventArgs _)
     {
         SetTurnInfo("Would you like to get another card?");
 
-        buttonPanel.Controls.Clear();
-
-        var yesButton = new Button
-        {
-            Text = "Yes"
-        };
-        yesButton.Click += (_, _) => RequestNextCard(true);
-
-        var noButton = new Button
-        {
-            Text = "No"
-        };
-        noButton.Click += (_, _) => RequestNextCard(false);
-
-        buttonPanel.Controls.Add(yesButton);
-        buttonPanel.Controls.Add(noButton);
-    }
-
-    private void RequestNextCard(bool request)
-    {
-        // client.NextCard(request);
-        buttonPanel.Controls.Clear();
+        buttonPanel.HideAll();
+        // TODO ...
     }
 
     private void HandleAskForContinue(MessageReceivedEventArgs _)
@@ -184,7 +151,42 @@ public sealed partial class GameTableForm
 
     private void HandleEndOfGame(MessageReceivedEventArgs _)
     {
-        SetTurnInfo("Game ended");
-        // TODO hide...
+        // TODO...
+        Dispose();
+    }
+
+    // TODO move to button panel?
+    private void ContinueButton_Click(object sender, EventArgs e)
+    {
+        client.Continue(true);
+
+        buttonPanel.ContinueButton.Hide();
+        SetTurnInfo("Waiting for other players...");
+        timer.Stop();
+    }
+
+    private void DrawButton_Click(object sender, EventArgs e)
+    {
+        client.Turn(TurnDecision.Draw);
+        buttonPanel.HideAll();
+    }
+
+    private void BetButton_Click(object sender, EventArgs e)
+    {
+        if (int.TryParse(buttonPanel.BetTextBox.Text, out var betAmount) && betAmount > 0 &&
+            betAmount <= GameState.Players.First(p => p.Id == PlayerId).Balance)
+        {
+            client.Turn(TurnDecision.Bet, betAmount);
+            buttonPanel.HideAll();
+        }
+        else
+            MessageBox.Show("Bet amount not valid");
+    }
+
+    private void EndTurnButton_Click(object sender, EventArgs e)
+    {
+        client.Turn(TurnDecision.Stop);
+        topLabel.Text = "Waiting for other players...";
+        buttonPanel.HideAll();
     }
 }

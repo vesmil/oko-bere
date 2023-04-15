@@ -2,8 +2,13 @@
 
 namespace OkoCommon;
 
-public struct GameState
+public class GameState
 {
+    public int Bank;
+    public List<Card> Hand;
+
+    public List<PlayerInfo> Players;
+
     public GameState()
     {
         Players = new List<PlayerInfo>();
@@ -19,14 +24,28 @@ public struct GameState
         Bank = bank;
     }
 
-    public List<PlayerInfo> Players;
-    public List<Card> Hand;
-
-    public int Bank;
+    public PlayerInfo GetPlayerInfo(Guid id)
+    {
+        var player = Players.FirstOrDefault(p => p.Id == id);
+        return player ?? new PlayerInfo();
+    }
 }
 
-public struct PlayerInfo
+public class PlayerInfo
 {
+    public int Balance;
+    public int Bet;
+    public int CardCount;
+    public Guid Id;
+    public bool IsBanker;
+
+    public string Name;
+
+    public PlayerInfo()
+    {
+        Name = "InvalidPlayer";
+    }
+
     public PlayerInfo(PlayerBase player)
     {
         Name = player.Name;
@@ -36,11 +55,4 @@ public struct PlayerInfo
         IsBanker = player.IsBanker;
         Id = player.Id;
     }
-
-    public string Name;
-    public int Balance;
-    public int Bet;
-    public int CardCount;
-    public bool IsBanker = false;
-    public Guid Id;
 }

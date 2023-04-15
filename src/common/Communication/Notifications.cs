@@ -38,8 +38,6 @@ public enum NotifEnum
     ShowCutCard,
 
     AskDuel,
-    DuelAccepted,
-    DuelDeclined,
     AskTurnNoBet,
 
     AskContinue,

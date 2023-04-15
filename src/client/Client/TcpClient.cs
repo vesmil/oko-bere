@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics;
 using OkoCommon;
 using OkoCommon.Communication;
+using OkoCommon.Game;
 
 namespace OkoClient.Client;
 
@@ -54,9 +55,12 @@ public class TcpClient : IClient
                 case NotifEnum.NewBanker:
                 {
                     var bankerInfo = (PlayerInfo)(update.Data ?? throw new InvalidOperationException());
+                    var banker = GameState.Players.FirstOrDefault(p => p.Id == bankerInfo.Id);
 
-                    GameState.Players.Remove(GameState.Players.First(p => p.Id == bankerInfo.Id));
-                    GameState.Players.Add(bankerInfo);
+                    if (banker is not null)
+                        banker.IsBanker = true;
+                    else
+                        GameState.Players.Add(bankerInfo);
 
                     break;
                 }
@@ -64,19 +68,22 @@ public class TcpClient : IClient
                 {
                     var value = (int)(update.Data ?? throw new InvalidOperationException());
 
-                    // NOTE should be done in a better way
                     var game = GameState;
                     game.Bank = value;
                     GameState = game;
 
-                    /*
-                    var banker = GameState.Players.First(p => p.IsBanker);
-                    
-                    banker.Balance = value;
-                    GameState.Players.Remove(GameState.Players.First(p => p.Id == banker.Id));
-                    GameState.Players.Add(banker);
-                    */
-
+                    break;
+                }
+                case NotifEnum.ReceivedCard:
+                {
+                    var card = (Card)(update.Data ?? throw new InvalidOperationException());
+                    GameState.Hand.Add(card);
+                    GameState.GetPlayerInfo(PlayerId).CardCount++;
+                    break;
+                }
+                case NotifEnum.OtherReceivesCard:
+                {
+                    GameState.GetPlayerInfo((Guid)(update.Data ?? throw new InvalidOperationException())).CardCount++;
                     break;
                 }
             }
@@ -109,7 +116,7 @@ public class TcpClient : IClient
     }
 
     public void Duel(int bet = 0)
-    { 
+    {
         transfer.Send(new Response<int> { Data = bet });
     }
 
