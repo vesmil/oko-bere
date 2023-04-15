@@ -108,9 +108,10 @@ public class TcpClient : IClient
         transfer.Send(new Response<int> { Data = bet });
     }
 
-    public void Duel(bool decision, int bet = 0)
+    public void Duel(int bet = 0)
     {
-        transfer.Send(new Response<bool> { Data = decision });
+        var decision = bet != 0;
+        transfer.Send(new Response<bool> { Data = decision});
 
         if (decision)
         {

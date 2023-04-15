@@ -1,5 +1,6 @@
 using OkoClient.Client;
 using OkoCommon;
+using OkoCommon.Communication;
 using Timer = System.Windows.Forms.Timer;
 
 namespace OkoClient.Forms;
@@ -31,7 +32,7 @@ public sealed partial class GameTableForm : Form
     private readonly Button endTurnButton = new();
     private readonly Label noPlayersLabel = new();
 
-    private readonly List<GroupBox> playerBoxes = new();
+    private readonly List<PlayerBox> playerBoxes = new();
     private readonly Timer timer = new();
 
     private readonly Label topLabel = new();
@@ -49,9 +50,15 @@ public sealed partial class GameTableForm : Form
         this.client.MessageReceived += OnMessageReceived;
 
         InitializeHidden();
-        InitializeVisible();
+        Render();
 
         SetTurnInfo("Waiting for other players to join...");
+        
+        Resize += (_, _) =>
+        {
+            Render();
+            UpdateLabels();
+        };
     }
     
     private void InitializeHidden()
@@ -65,7 +72,7 @@ public sealed partial class GameTableForm : Form
         continueButton.Visible = false;
     }
 
-    private void InitializeVisible()
+    private void Render()
     {
         AddTurnInfo();
         AddPlayerBoxes();
@@ -74,9 +81,9 @@ public sealed partial class GameTableForm : Form
         AddButtonPanel();
     }
 
-    private void Render()
+    private void UpdateLabels()
     {
-        AddPlayerBoxes();
+        RefreshPlayerLabels();
         SetLabels();
     }
     
@@ -144,13 +151,17 @@ public sealed partial class GameTableForm : Form
         balanceLabel.Text = "Balance: " + 0;
         AddControl(balanceLabel);
     }
+    
     private void AddCardBoxes()
     {
         const int cardBoxWidth = 75;
         const int cardBoxHeight = 100;
         const int cardBoxSpacing = 80;
         const int cardBoxStartX = 10;
-        const int cardBoxStartY = 360;
+        
+        var cardBoxStartY = Height - cardBoxHeight - 80;
+        
+        foreach (var cardBox in cardBoxes) cardBox.Dispose();
 
         for (var i = 0; i < GameState.Hand.Count; i++)
         {
@@ -165,6 +176,7 @@ public sealed partial class GameTableForm : Form
             cardBoxes.Add(cardBox);
         }
     }
+    
     private void AddPlayerBoxes()
     {
         if (GameState.Players.Count == 0)
@@ -191,44 +203,19 @@ public sealed partial class GameTableForm : Form
         for (var i = 0; i < GameState.Players.Count; i++)
         {
             var player = GameState.Players[i];
-            
-            var playerBox = new GroupBox();
-            playerBox.Size = new Size(200, 130);
-            playerBox.Location = new Point(30 + 210 * i, 70);
-            playerBox.Text = $"{player.Name} {(player.Id == PlayerId? "(You)" : "")}" +
-                             $"\n{(player.IsBanker ? "Banker" : "Player")}";
-
-            playerBox.Tag = player.Id;
-            
-            var cardCountLabel = new Label();
-            cardCountLabel.AutoSize = true;
-            cardCountLabel.Location = new Point(10, 40);
-            cardCountLabel.Text = $"Cards: {player.CardCount}";
-            playerBox.Controls.Add(cardCountLabel);
-            
-            var balancePlayerLabel = new Label();
-            balancePlayerLabel.AutoSize = true;
-            balancePlayerLabel.Location = new Point(10, 70);
-            balancePlayerLabel.Text = $"Balance: {player.Balance}";
-            playerBox.Controls.Add(balancePlayerLabel);
-
-            if (!player.IsBanker)
-            {
-                var betPlayerLabel = new Label();
-                betPlayerLabel.AutoSize = true;
-                betPlayerLabel.Location = new Point(10, 100);
-                betPlayerLabel.Text = $"Bet: {player.Bet}";
-                playerBox.Controls.Add(betPlayerLabel);
-            } 
-            else
-            {
-                playerBox.BackColor = Color.FromArgb(64, 255, 255, 128);
-            }
-            
-            // TODO add select button that is hidden
-
+            var playerBox = new PlayerBox(player, PlayerId, i);
             AddControl(playerBox);
+            playerBox.SelectButton.Click += (_, _) => SelectCutPlayer(player.Id);
+
             playerBoxes.Add(playerBox);
+        }
+    }
+
+    private void RefreshPlayerLabels()
+    {
+        foreach (var box in playerBoxes)
+        {
+            box.SetLabels();
         }
     }
 
@@ -257,11 +244,17 @@ public sealed partial class GameTableForm : Form
         buttonPanel.Controls.Add(betButton);
         buttonPanel.Controls.Add(betTextBox);
         buttonPanel.Controls.Add(endTurnButton);
+        
+        // TODO
+        // Accept button
+        // Decline button
 
         betLabel.AutoSize = true;
         buttonPanel.Location = new Point(Width - buttonPanel.Width - 0, Height - buttonPanel.Height - 50);
-
-        // TODO AddControl(buttonPanel); what's wrong with that
+        
+        AddControl(buttonPanel);
+        
+        // TODO hide per button
         buttonPanel.Hide();
     }
 
@@ -272,13 +265,30 @@ public sealed partial class GameTableForm : Form
             handler(message);
         }
 
-        Render();
+        if (NeededInit(message))
+        {
+            Render();
+        }
+        
+        UpdateLabels();
     }
+
+    private static readonly NotifEnum[] NecessaryInitMessages =
+    {
+        NotifEnum.NewBanker,
+        NotifEnum.NewPlayer,
+        NotifEnum.PlayerLeft,
+        // ...
+    };
     
+    private static bool NeededInit(MessageReceivedEventArgs message)
+    {
+        return NecessaryInitMessages.Contains(message.Type);
+    }
+
     private void ShowContinueButton()
     {
         timerMessage = "Confirm to continue in ";
-
         continueButton.Show();
 
         AddControl(continueButton);

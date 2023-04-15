@@ -94,24 +94,27 @@ public sealed partial class GameTableForm
             {
                 if (playerId == client.PlayerId)
                     continue;
-
-                playerBox.Text = "xxx";
                 
+                var button = playerBox.Controls.OfType<Button>().FirstOrDefault();
+                button?.CheckInvoke(() =>
+                {
+                    // TODO why it doesn't show
+                    button.Show();
+                });
             } 
         }
     }
     
-    private void SelectCutPlayer(PlayerInfo playerInfo)
+    private void SelectCutPlayer(Guid id)
     {
-        client.CutPlayer(playerInfo.Id);
-        SetTurnInfo("You chose " + playerInfo.Name + " to cut the deck");
-        
-        foreach (var control in buttonPanel.Controls)
+        client.CutPlayer(id);
+
+        foreach (var button in playerBoxes.Select(box => box.Controls.OfType<Button>().FirstOrDefault()))
         {
-            if (control is Button button)
+            button?.CheckInvoke(() =>
             {
-                buttonPanel.Controls.Remove(button);
-            }
+                button.Hide();
+            });
         }
     }
 
@@ -126,11 +129,11 @@ public sealed partial class GameTableForm
     {
         if (message.Data is Card card)
         {
-            SetTurnInfo($"The card is {card}");
+            SetTurnInfo($"The cut card is {card}");
         }
         else
         {
-            SetTurnInfo("The card is unknown");
+            SetTurnInfo("The cut card is unknown - something went wrong");
         }
     }
 
@@ -141,26 +144,28 @@ public sealed partial class GameTableForm
 
         buttonPanel.Controls.Clear();
 
+        // ...
         var acceptButton = new Button
         {
             Text = "Accept",
         };
         
-        acceptButton.Click += (_, _) => RespondToDuel(true);
+        acceptButton.Click += (_, _) => RespondToDuel(100);
 
         var declineButton = new Button
         {
             Text = "Decline",
         };
-        declineButton.Click += (sender, args) => RespondToDuel(false);
+        
+        declineButton.Click += (_, _) => RespondToDuel(0);
 
         buttonPanel.Controls.Add(acceptButton);
         buttonPanel.Controls.Add(declineButton);
     }
 
-    private void RespondToDuel(bool accept)
+    private void RespondToDuel(int bet)
     {
-        // client.DuelResponse(accept);
+        client.Duel(bet);
         buttonPanel.Controls.Clear();
     }
 
