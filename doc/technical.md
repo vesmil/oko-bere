@@ -1,8 +1,8 @@
 # Technical documentation
 
-The game is separated to three main parts - **Client**, **Server** and **Common**.
+This documentation is rather high-level overview as most of the documentation is present in the code. 
 
-...
+Anyway, the game is separated to three main parts - **Client**, **Server** and **Common**.
 
 ---
 
@@ -10,8 +10,7 @@ The game is separated to three main parts - **Client**, **Server** and **Common*
 
 As it is used by both I will start with the common part.
 
-It contains game implementation - one round, deck, playing cards... even though the parts where real players will be
-necessary is only through interfaces which needs to be implemented in other parts.
+It contains game implementation - main game loop, one round, playing deck, playing cards. I need to emphasise that the common part can't be used by itself as the provided players are only abstract and needs to be implemented in other parts.
 
 Here is simplified overview of Common part architecture.
 
@@ -22,6 +21,12 @@ classDiagram
         Deck deck
         GameTable table
     }
+
+    class OkoGame {
+        Deck deck
+        GameTable table
+    }
+
 
     class Deck { 
         +void Shuffle()
@@ -51,10 +56,12 @@ classDiagram
         +Reponse AwaitReponse()
     }
 
-    Game *-- Deck
+    Game --> OkoGame
+
+    OkoGame *-- Deck
     Deck *-- Card
 
-    Game *-- GameTable
+    OkoGame *-- GameTable
     GameTable *-- IPlayer
 ```
 
@@ -64,6 +71,8 @@ classDiagram
 
 This part is WinForm executable which will be used by client to connect to server.
 
+It is implementation is simple - the main portion of it consists of handling updates received form server, changing UI and responding with corresponding data.
+
 ```mermaid
 classDiagram
     class GameTableForm {
@@ -71,43 +80,43 @@ classDiagram
         Labels, Buttons ...   
     }
 
-    class ClientLogics { 
-        Client client
-    }
-
     class Client { 
 
     }
 
     class GameState { 
-        # TODO should be held by Logics or by TableForm?
+        PlayersHand Hand
+        List of PlayerInfo Players
     }
 
     class Menu { 
 
     }
 
-    class Dialog { 
-
-    }
-
-    GameTableForm *-- ClientLogics
-    ClientLogics *-- Client
+    GameTableForm *-- Client
+    Client *-- GameState
+    Menu *-- GameTableForm
 ```
 
 ---
 
 ### Server part
 
-The last part implements IPlayer so it can be used and also provides way to run it in parallel with accepting new
-clients. ...
+The last part mainly implements IPlayer so it can be used in actual game.
+
+It also obviously provides a server that clients can connect to that host the actual game.
 
 ```mermaid
 classDiagram
     Server *-- TcpPlayer
     IPlayer --> TcpPlayer
+    Server *-- Game
 ```
+
+---
 
 ## Communication
 
-## ...
+For the game I have chosen communicating over TCP using JSONs as it is really simple.
+
+This choice however might not be the best for real-world usage as my implementation was lacking necessary security elements.

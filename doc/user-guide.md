@@ -10,11 +10,13 @@ User guide is separated into two parts as usually more people will be interested
 
 ### Connection
 
-...
+User needs to specify Ip, port and name in a simple connection dialog.
 
 ### Controls
 
-...
+Controls are rather simple - user simply uses his mouse cursor according to the instructions on the top bar.
+
+However, It is recommended to get familiar with game rules beforehand.
 
 ---
 
@@ -24,8 +26,6 @@ User guide is separated into two parts as usually more people will be interested
 
 ## Setup server
 
-...
+Usage of server in it's current form is straight forward.
 
-### Control tables
-
-...
+You simply have to run the program and for convenience it will write you ip adress to the console.
