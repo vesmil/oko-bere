@@ -87,6 +87,8 @@ public partial class OkoGame
             InitialBank = Banker.GetResponse<int>().Data;
 
             Bank = InitialBank;
+            newBanker.Balance -= InitialBank;
+            
             NotifyAllPlayers(Notification.Create(NotifEnum.SetInitialBank, Bank));
         }
 

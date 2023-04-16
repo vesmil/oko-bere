@@ -209,8 +209,6 @@ public partial class OkoGame
 
         // To show the results to the players
         Thread.Sleep(1000);
-
-        UpdateGameStateForAll();
     }
 
     /// <summary>

@@ -42,7 +42,6 @@ public partial class OkoGame : IGame
 
             if (table.AllPlayers.Count > 2)
             {
-                // Might also add timeout or waiting for confirmation from all players
                 table.AskForContinue();
                 break;
             }
@@ -66,6 +65,9 @@ public partial class OkoGame : IGame
                 if (newPlayers.Count != table.AllPlayers.Count) table.UpdatePlayers(newPlayers);
 
                 OneRound();
+                
+                ResetPlayerStates();
+                UpdateGameStateForAll();
             }
 
             if (!table.AskForContinue()) break;

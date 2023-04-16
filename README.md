@@ -15,6 +15,8 @@ by the banker, who is the player holding the bank. The goal of each player is to
 
 *For more details, see the `doc` folder*
 
+I have also prepared [project gameplay preview](https://youtu.be/lFCEro_R5cU).
+
 ---
 
 ## Setup
