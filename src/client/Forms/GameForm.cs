@@ -54,6 +54,8 @@ public sealed partial class GameTableForm : Form
     {
         InitializeComponent();
         InitializeHandlers();
+        
+        Text = "OkoBere";
 
         BackColor = Color.FromArgb(174, 203, 143);
 

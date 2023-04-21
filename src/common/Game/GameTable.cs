@@ -99,8 +99,6 @@ public partial class OkoGame
         
         public bool AskForContinue()
         {
-            NotifyAllPlayers(Notification.Create(NotifEnum.AskContinue));
-
             var newPlayers = WouldContinue(); // NOTE might do async...
             if (newPlayers.Count < 3)
             {
@@ -117,6 +115,7 @@ public partial class OkoGame
 
         private List<PlayerBase> WouldContinue()
         {
+            NotifyAllPlayers(Notification.Create(NotifEnum.AskContinue));
             return AllPlayers.Where(player => player.GetResponse<bool>().Data).ToList();
         }
 

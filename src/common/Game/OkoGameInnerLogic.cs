@@ -239,8 +239,13 @@ public partial class OkoGame
 
                 player.Notify(Notification.Create(NotifEnum.Won));
             }
-            else if (player.Id != table.Banker.Id && !player.Hand.IsBust()) // busted has been handled already
+            else if (player.Id != table.Banker.Id
+                     && !player.Hand.IsBust() // busted has been handled already
+                     && player.Bet > 0)
+            {
+                
                 player.Notify(Notification.Create(NotifEnum.Lost));
+            }
         }
     }
 

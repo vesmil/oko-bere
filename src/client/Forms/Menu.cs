@@ -48,6 +48,9 @@ public partial class Menu : Form
         }
 
         var gameTableForm = new GameTableForm(client);
+        var playerThread = new Thread(client.PlayerLoop);
+        
+        playerThread.Start();
         gameTableForm.Show();
     }
 

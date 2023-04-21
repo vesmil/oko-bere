@@ -39,7 +39,8 @@ public partial class OkoGame : IGame
         while (true)
         {
             table.UpdatePlayers(getGetPlayersDelegate.Invoke());
-
+            UpdateGameStateForAll();
+            
             if (table.AllPlayers.Count > 2)
             {
                 table.AskForContinue();
